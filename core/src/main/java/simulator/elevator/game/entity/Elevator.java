@@ -1,14 +1,14 @@
 package simulator.elevator.game.entity;
 
-import com.badlogic.gdx.math.Vector2;
+import simulator.elevator.game.RelativeCoordinate;
 
 public class Elevator extends Entity {
     
     private int durability = 100;
     private boolean openDoor = true;
     
-    public Elevator(Vector2 pos) {
-        super(pos);
+    public Elevator(RelativeCoordinate pos) {
+        super(pos, null); //TODO constant for elevator texture
     }
     
 }
