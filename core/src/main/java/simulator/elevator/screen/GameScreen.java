@@ -14,11 +14,12 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+        game.state.reset();
         // TODO Auto-generated method stub
     }
 
     @Override
-    public void render(float delta) {
+    public void render(float deltaSec) {
         // TODO Auto-generated method stub
     }
 

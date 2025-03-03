@@ -1,4 +1,4 @@
-package simulator.elevator.data.scene;
+package simulator.elevator.game.scene;
 
 import java.util.Queue;
 
