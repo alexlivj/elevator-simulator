@@ -12,7 +12,7 @@ import simulator.elevator.screen.TitleScreen;
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends Game {
     
-    public GameManager state;
+    public GameManager manager;
     
     public SpriteBatch batch;
     public BitmapFont font;
@@ -20,7 +20,7 @@ public class Main extends Game {
 
     @Override
     public void create() {
-        state = new GameManager();
+        manager = new GameManager();
         
         batch = new SpriteBatch();
         font = new BitmapFont();

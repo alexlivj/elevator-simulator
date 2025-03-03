@@ -14,38 +14,37 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-        game.state.reset();
-        // TODO Auto-generated method stub
+        this.game.manager.reset();
     }
 
     @Override
     public void render(float deltaSec) {
-        // TODO Auto-generated method stub
+        this.game.manager.render(this.game, deltaSec);
     }
 
     @Override
     public void resize(int width, int height) {
-        // TODO Auto-generated method stub
+        // the window can't be resized
     }
 
     @Override
     public void pause() {
-        // TODO Auto-generated method stub
+        this.game.manager.pause();
     }
 
     @Override
     public void resume() {
-        // TODO Auto-generated method stub
+        this.game.manager.resume();
     }
 
     @Override
     public void hide() {
-        // TODO Auto-generated method stub
+        // do nothing
     }
 
     @Override
     public void dispose() {
-        // TODO Auto-generated method stub
+        // do nothing
     }
     
 }

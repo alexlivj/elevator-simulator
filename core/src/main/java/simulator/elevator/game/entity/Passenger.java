@@ -9,7 +9,6 @@ public class Passenger extends Entity {
     private int happiness = 100;
     private final int startFloor;
     private final int endFloor;
-    
     private final Scene scene;
     
     public Passenger(int startFloor, int endFloor, Texture texture, Scene scene) {

@@ -14,6 +14,7 @@ public abstract class Entity {
     private Pair<RelativeCoordinate,RelativeCoordinate> path = null;
     private int speedPixelSec = 0;
     
+    //TODO use animation handler, probably
     private Texture texture;
     
     public Entity(RelativeCoordinate pos, Texture texture) {
@@ -21,22 +22,25 @@ public abstract class Entity {
         this.texture = texture;
     }
     
-    public void render(Main game, float deltaSec) {
+    public void update(float deltaSec) {
         // move entity along its path, fetching its moved absolute position
-        Vector2 absPos;
         if (path != null) {
             Vector2 absDest = this.path.second.getAbsoluteVector();
             Vector2 oldAbsPos = this.position.getAbsoluteVector();
             // (v=(dest - pos)) * delta*speed/∥v∥
-            absPos = new Vector2(absDest)
+            Vector2 absPos =
+                    new Vector2(absDest)
                      .sub(oldAbsPos)
                      .setLength(this.speedPixelSec * deltaSec);
             this.position.setAbsoluteVector(absPos);
-        } else {
-            absPos = this.position.getAbsoluteVector();
         }
+    }
+    
+    public void render(Main game) {
+        // get the actual screen pixel coordinates
+        Vector2 absPos = this.position.getAbsoluteVector();
         
-        // draw
+        // draw our texture
         game.batch.draw(texture, absPos.x, absPos.y);
     }
     
