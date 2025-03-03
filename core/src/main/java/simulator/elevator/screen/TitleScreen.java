@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import simulator.elevator.Main;
 
 public class TitleScreen implements Screen {
+    
     private Main game;
     
     public TitleScreen(Main game) {

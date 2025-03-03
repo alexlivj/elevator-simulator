@@ -10,6 +10,7 @@ import simulator.elevator.screen.TitleScreen;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends Game {
+    
     public SpriteBatch batch;
     public BitmapFont font;
     public FitViewport viewport;
