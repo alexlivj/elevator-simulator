@@ -19,7 +19,7 @@ public class TitleScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        // TODO Auto-generated method stub
+        this.game.setScreen(new GameScreen(this.game)); // I'm gonna work on the game screen first
     }
 
     @Override

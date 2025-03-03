@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import simulator.elevator.game.GameManager;
-import simulator.elevator.screen.GameScreen;
 import simulator.elevator.screen.TitleScreen;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -31,8 +30,7 @@ public class Main extends Game {
         font.setUseIntegerPositions(false);
         font.getData().setScale(viewport.getWorldHeight() / Gdx.graphics.getHeight());
 
-        //this.setScreen(new TitleScreen(this));
-        this.setScreen(new GameScreen(this)); // I'm gonna work on the game screen first
+        this.setScreen(new TitleScreen(this));
     }
 
     @Override
