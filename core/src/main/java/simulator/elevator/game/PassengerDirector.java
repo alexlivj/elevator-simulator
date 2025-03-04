@@ -22,7 +22,7 @@ public class PassengerDirector {
     private Passenger scenePassenger = null;
 
     private static final float SPAWN_OCCURRENCE_SEC = 0.3f;
-    private static final float SCENE_OCCURRENCE_SEC = 0.3f;
+    private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
     private static final Texture DEF_PASSENGER_TEXTURE = TextureUtility.doubleTextureSize("passenger.png");
     
     public PassengerDirector(List<RelativeCoordinate> floorSpawns, List<Scene> scenes) {
@@ -33,29 +33,30 @@ public class PassengerDirector {
     public LinearEntity directPassengers(float deltaSec) {
         Passenger newPassenger = null;
         
-        float spawnChance = PassengerDirector.SPAWN_OCCURRENCE_SEC / deltaSec;
-        if (Math.random() < spawnChance) {
+        if (Math.random() < PassengerDirector.SPAWN_OCCURRENCE_SEC / deltaSec) {
             Scene newScene = null;
-            if (this.scenePassenger == null)
-                newScene = scenes.remove((int)(Math.round(Math.random() * (this.scenes.size()-1))));
+            if (this.scenePassenger == null) {
+                if (Math.random() < PassengerDirector.SCENE_OCCURRENCE_SPAWN)
+                    newScene = scenes.remove((int)(Math.round(Math.random() * (this.scenes.size()-1))));
+            }
             
             Map<Integer,Integer> floorNumWaiting = new HashMap<Integer,Integer>();
+            for (int i=0; i<floorSpawns.size(); i++)
+                floorNumWaiting.put(i, 0);
             for (Passenger p : this.activePassengers) {
                 if (p.getState() == Passenger.PState.WAITING) {
                     int startFloor = p.getStartFloor();
-                    if (floorNumWaiting.containsKey(startFloor)) {
-                        int numWaiting = floorNumWaiting.get(startFloor);
-                        floorNumWaiting.put(startFloor, numWaiting);
-                    } else {
-                        floorNumWaiting.put(startFloor, 1);
-                    }
+                    int numWaiting = floorNumWaiting.get(startFloor);
+                    floorNumWaiting.put(startFloor, numWaiting);
                 }
             }
-            int leastBusyFloor = 0;
+            
+            int leastBusyFloor = (int) floorNumWaiting.keySet().toArray()[0];
             for (Integer floor : floorNumWaiting.keySet())
-                if (floorNumWaiting.get(floor) < floorNumWaiting.get(floorNumWaiting))
+                if (floorNumWaiting.get(floor) < floorNumWaiting.get(leastBusyFloor))
                     leastBusyFloor = floor;
             
+            //TODO put this random generator in its own util? why doesn't java have a better built-in smh
             int randomDestFloor = (int)(Math.round(Math.random() * (this.floorSpawns.size()-2)));
             if (randomDestFloor >= leastBusyFloor)
                 randomDestFloor++;
