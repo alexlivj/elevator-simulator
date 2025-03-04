@@ -59,7 +59,8 @@ public abstract class LinearEntity {
     
     public void moveTo(RelativeCoordinate dest, int speedPixelSec) {
         this.speedPixelSec = speedPixelSec;
-        this.path = new Pair<RelativeCoordinate, RelativeCoordinate>(new RelativeCoordinate(this.position), dest);
+        this.path = new Pair<RelativeCoordinate, RelativeCoordinate>(new RelativeCoordinate(this.position),
+                                                                     dest);
         if (this.position.getOrigin() != dest.getOrigin())
             this.position.rebaseOrigin(dest.getOrigin());
     }

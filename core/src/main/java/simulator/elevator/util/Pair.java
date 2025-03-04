@@ -9,5 +9,10 @@ public class Pair<T1, T2> {
         this.first = f;
         this.second = s;
     }
+    
+    @Override
+    public String toString() {
+        return "<"+first+","+second+">";
+    }
 
 }

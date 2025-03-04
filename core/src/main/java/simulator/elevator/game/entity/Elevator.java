@@ -7,40 +7,25 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
 import simulator.elevator.Main;
+import simulator.elevator.game.GameManager;
 import simulator.elevator.game.RelativeCoordinate;
+import simulator.elevator.util.Pair;
+import simulator.elevator.util.TextureUtility;
 
 public class Elevator extends LinearEntity {
     
+    private final Pair<Integer,Integer> yAxisBound;
     private int durability = 100;
     private boolean openDoor = true;
 
-    private static final Texture ELEVATOR_OPEN_TEXTURE;
-    static {
-        Pixmap pm = new Pixmap(Gdx.files.internal("elevator-open.png"));
-        Pixmap pmdoubled = new Pixmap(800, 560, pm.getFormat());
-        pmdoubled.drawPixmap(pm,
-                0, 0, pm.getWidth(), pm.getHeight(),
-                0, 0, pmdoubled.getWidth(), pmdoubled.getHeight()
-        );
-        ELEVATOR_OPEN_TEXTURE = new Texture(pmdoubled);
-        pm.dispose();
-        pmdoubled.dispose();
-    }
-    private static final Texture ELEVATOR_CLOSED_TEXTURE;
-    static {
-        Pixmap pm = new Pixmap(Gdx.files.internal("elevator-closed.png"));
-        Pixmap pmdoubled = new Pixmap(800, 560, pm.getFormat());
-        pmdoubled.drawPixmap(pm,
-                0, 0, pm.getWidth(), pm.getHeight(),
-                0, 0, pmdoubled.getWidth(), pmdoubled.getHeight()
-        );
-        ELEVATOR_CLOSED_TEXTURE = new Texture(pmdoubled);
-        pm.dispose();
-        pmdoubled.dispose();
-    }
+    private static final Texture ELEVATOR_OPEN_TEXTURE =
+            TextureUtility.doubleTextureSize("elevator-open.png");
+    private static final Texture ELEVATOR_CLOSED_TEXTURE =
+            TextureUtility.doubleTextureSize("elevator-closed.png");
     
-    public Elevator(RelativeCoordinate pos) {
+    public Elevator(RelativeCoordinate pos, Pair<Integer,Integer> yAxisBound) {
         super(pos, ELEVATOR_OPEN_TEXTURE); //TODO constant for elevator texture
+        this.yAxisBound = yAxisBound;
     }
     
     @Override
@@ -48,10 +33,18 @@ public class Elevator extends LinearEntity {
         super.render(game);
     }
     
-    public void move(int dy) {
+    public void move(int dy, float deltaSec) {
         RelativeCoordinate pos = getPosition();
-        Vector2 newRel = new Vector2(pos.getRelativeVector()).add(new Vector2(0,dy));
-        moveTo(new RelativeCoordinate(pos.getOrigin(), newRel), Math.abs(dy));
+        float posRelY = pos.getRelativeVector().y;
+
+        if ((posRelY < this.yAxisBound.first && dy < 0)
+                || (this.yAxisBound.second < posRelY && 0 < dy)) {
+            this.durability -= GameManager.ELEVATOR_DECAY_RATE_SEC * deltaSec;
+            haltMove();
+        } else {
+            Vector2 newRel = new Vector2(pos.getRelativeVector()).add(new Vector2(0,dy));
+            moveTo(new RelativeCoordinate(pos.getOrigin(), newRel), Math.abs(dy));
+        }
     }
     
     public void toggleDoor() {
@@ -63,6 +56,14 @@ public class Elevator extends LinearEntity {
     
     public boolean isDoorOpen() {
         return this.openDoor;
+    }
+    
+    public Vector2 getRelativePosition() {
+        return getPosition().getRelativeVector();
+    }
+    
+    public int getDurability() {
+        return this.durability;
     }
     
 }
