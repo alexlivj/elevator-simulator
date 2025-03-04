@@ -22,12 +22,15 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float deltaSec) {
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
+        ScreenUtils.clear(Color.BLACK);
         this.game.batch.begin();
         
-        this.game.manager.render(this.game, deltaSec);
+        boolean end = this.game.manager.render(this.game, deltaSec);
         
         this.game.batch.end();
+        
+        if (end)
+            this.game.setScreen(new TitleScreen(this.game));
     }
 
     @Override

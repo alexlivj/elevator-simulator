@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector2;
 
 import simulator.elevator.Main;
 import simulator.elevator.game.RelativeCoordinate;
@@ -34,6 +35,12 @@ public class Elevator extends LinearEntity {
     @Override
     public void render(Main game) {
         super.render(game);
+    }
+    
+    public void move(int dy) {
+        RelativeCoordinate pos = getPosition();
+        Vector2 newRel = new Vector2(pos.getRelativeVector()).add(new Vector2(0,dy));
+        moveTo(new RelativeCoordinate(pos.getOrigin(), newRel), Math.abs(dy));
     }
     
 }
