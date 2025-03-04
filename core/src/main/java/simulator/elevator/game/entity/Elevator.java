@@ -61,4 +61,8 @@ public class Elevator extends LinearEntity {
             setTexture(ELEVATOR_CLOSED_TEXTURE);
     }
     
+    public boolean isDoorOpen() {
+        return this.openDoor;
+    }
+    
 }

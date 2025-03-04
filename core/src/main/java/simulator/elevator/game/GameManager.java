@@ -38,19 +38,24 @@ public class GameManager {
     public boolean render(Main game, float deltaSec) {
         this.timeRemaining -= deltaSec;
         
-        int speedSec = 50;
-        int dy = 0;
-        if (Gdx.input.isKeyPressed(Input.Keys.UP))
-            dy += speedSec;
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN))
-            dy -= speedSec;
-        if (dy == 0)
-            this.elevator.haltMove();
-        else
-            this.elevator.move(dy);
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
-            this.elevator.toggleDoor();
+        if (!this.paused) { 
+            if (!this.elevator.isDoorOpen()) {
+                int speedSec = 50;
+                int dy = 0;
+                if (Gdx.input.isKeyPressed(Input.Keys.UP))
+                    dy += speedSec;
+                if (Gdx.input.isKeyPressed(Input.Keys.DOWN))
+                    dy -= speedSec;
+                if (dy == 0)
+                    this.elevator.haltMove();
+                else
+                    this.elevator.move(dy);
+            } else {
+                this.elevator.haltMove();
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
+                this.elevator.toggleDoor();
+        }
         
         for (LinearEntity e : this.entities) {
             if (!this.paused)
