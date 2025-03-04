@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 
 import simulator.elevator.game.scene.Scene;
 
-public class Passenger extends Entity {
+public class Passenger extends LinearEntity {
     
     private int happiness = 100;
     private final int startFloor;

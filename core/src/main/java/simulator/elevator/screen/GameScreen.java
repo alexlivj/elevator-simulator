@@ -1,6 +1,9 @@
 package simulator.elevator.screen;
 
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.ScreenUtils;
 
 import simulator.elevator.Main;
 
@@ -19,7 +22,12 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float deltaSec) {
+        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
+        this.game.batch.begin();
+        
         this.game.manager.render(this.game, deltaSec);
+        
+        this.game.batch.end();
     }
 
     @Override

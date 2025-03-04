@@ -7,7 +7,7 @@ import simulator.elevator.Main;
 import simulator.elevator.game.RelativeCoordinate;
 import simulator.elevator.util.Pair;
 
-public abstract class Entity {
+public abstract class LinearEntity {
 
     // position MUST remain the same obj, so that it can be used as a relative origin
     private final RelativeCoordinate position;
@@ -17,7 +17,7 @@ public abstract class Entity {
     //TODO use animation handler, probably
     private Texture texture;
     
-    public Entity(RelativeCoordinate pos, Texture texture) {
+    public LinearEntity(RelativeCoordinate pos, Texture texture) {
         this.position = pos;
         this.texture = texture;
     }

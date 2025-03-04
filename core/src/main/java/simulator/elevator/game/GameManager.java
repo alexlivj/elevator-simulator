@@ -3,9 +3,12 @@ package simulator.elevator.game;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector2;
+
 import simulator.elevator.Main;
 import simulator.elevator.game.entity.Elevator;
-import simulator.elevator.game.entity.Entity;
+import simulator.elevator.game.entity.LinearEntity;
 
 public class GameManager {
     
@@ -13,17 +16,27 @@ public class GameManager {
     
     private boolean paused = false;
     private float timeRemaining;
-    private Elevator elevator;
     
-    private final List<Entity> entities = new ArrayList<Entity>();
+    private Elevator elevator;
+    private final List<LinearEntity> entities = new ArrayList<LinearEntity>();
+    
+    private final RelativeCoordinate worldOrigin = new RelativeCoordinate(null, new Vector2(0,0)); 
     
     public GameManager() {
         reset();
     }
     
+    public void reset() {
+        this.timeRemaining = GAME_TIME_SEC;
+        this.elevator = new Elevator(new RelativeCoordinate(worldOrigin, new Vector2(0,0)));
+        this.entities.clear();
+        this.entities.add(this.elevator);
+    }
+    
     public boolean render(Main game, float deltaSec) {
         this.timeRemaining -= deltaSec;
-        for (Entity e : this.entities) {
+        
+        for (LinearEntity e : this.entities) {
             if (!this.paused)
                 e.update(deltaSec);
             e.render(game);
@@ -38,13 +51,6 @@ public class GameManager {
     
     public void resume() {
         this.paused = false;
-    }
-    
-    public void reset() {
-        this.timeRemaining = GAME_TIME_SEC;
-        this.elevator = new Elevator(null); //TODO elevator starting location
-        this.entities.clear();
-        this.entities.add(this.elevator);
     }
     
 }

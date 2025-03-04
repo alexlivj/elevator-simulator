@@ -26,7 +26,10 @@ public class RelativeCoordinate {
     }
     
     public void setAbsoluteVector(Vector2 abs) {
-        this.relativeVector = new Vector2(abs).sub(this.originOffset.getAbsoluteVector());
+        if (this.originOffset == null)
+            this.relativeVector = new Vector2(abs);
+        else
+            this.relativeVector = new Vector2(abs).sub(this.originOffset.getAbsoluteVector());
     }
     
     // this is probably memory inefficient, but fine for this project
