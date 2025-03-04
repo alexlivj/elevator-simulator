@@ -12,7 +12,7 @@ import simulator.elevator.game.entity.Elevator;
 import simulator.elevator.game.entity.LinearEntity;
 import simulator.elevator.util.Pair;
 
-public class GameManager {
+public class GameStateManager {
 
     //TODO maybe read these from somewhere
     private static final int GAME_TIME_SEC = 120;
@@ -29,7 +29,7 @@ public class GameManager {
     
     private final RelativeCoordinate worldOrigin = new RelativeCoordinate(null, new Vector2(0,0)); 
     
-    public GameManager() {
+    public GameStateManager() {
         reset();
     }
     

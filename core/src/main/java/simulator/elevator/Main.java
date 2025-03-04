@@ -6,13 +6,13 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
-import simulator.elevator.game.GameManager;
+import simulator.elevator.game.GameStateManager;
 import simulator.elevator.screen.TitleScreen;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends Game {
     
-    public GameManager manager;
+    public GameStateManager manager;
     
     public SpriteBatch batch;
     public BitmapFont font;
@@ -20,7 +20,7 @@ public class Main extends Game {
 
     @Override
     public void create() {
-        manager = new GameManager();
+        manager = new GameStateManager();
         
         batch = new SpriteBatch();
         font = new BitmapFont();

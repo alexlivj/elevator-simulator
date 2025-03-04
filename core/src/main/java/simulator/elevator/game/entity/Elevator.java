@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
 import simulator.elevator.Main;
-import simulator.elevator.game.GameManager;
+import simulator.elevator.game.GameStateManager;
 import simulator.elevator.game.RelativeCoordinate;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.TextureUtility;
@@ -36,7 +36,7 @@ public class Elevator extends LinearEntity {
 
         if ((posRelY < this.yAxisBound.first && dy < 0)
                 || (this.yAxisBound.second < posRelY && 0 < dy)) {
-            this.durability -= GameManager.ELEVATOR_DECAY_RATE_SEC * deltaSec;
+            this.durability -= GameStateManager.ELEVATOR_DECAY_RATE_SEC * deltaSec;
             haltMove();
         } else {
             Vector2 newRel = new Vector2(pos.getRelativeVector()).add(new Vector2(0,dy));
