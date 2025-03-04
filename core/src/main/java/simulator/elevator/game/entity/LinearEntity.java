@@ -78,5 +78,9 @@ public abstract class LinearEntity {
     protected RelativeCoordinate getPosition() {
         return this.position;
     }
+    
+    protected void setTexture(Texture texture) {
+        this.texture = texture;
+    }
 
 }

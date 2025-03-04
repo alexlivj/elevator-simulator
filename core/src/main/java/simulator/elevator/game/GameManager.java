@@ -48,6 +48,9 @@ public class GameManager {
             this.elevator.haltMove();
         else
             this.elevator.move(dy);
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
+            this.elevator.toggleDoor();
         
         for (LinearEntity e : this.entities) {
             if (!this.paused)
