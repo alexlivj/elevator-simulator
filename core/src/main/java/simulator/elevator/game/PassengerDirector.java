@@ -13,6 +13,7 @@ import simulator.elevator.game.entity.Passenger;
 import simulator.elevator.game.scene.Scene;
 import simulator.elevator.util.TextureUtility;
 
+//TODO does this need to exist? or should these functionalities be absorbed by GameStateManager?
 public class PassengerDirector {
 
     private final List<RelativeCoordinate> floorSpawns;
@@ -21,6 +22,7 @@ public class PassengerDirector {
     private List<Passenger> activePassengers = new ArrayList<Passenger>();
     private Passenger scenePassenger = null;
 
+    //TODO maybe read these from somewhere
     private static final float SPAWN_OCCURRENCE_SEC = 0.3f;
     private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
     private static final Texture DEF_PASSENGER_TEXTURE = TextureUtility.doubleTextureSize("passenger.png");
@@ -30,7 +32,7 @@ public class PassengerDirector {
         this.scenes = scenes;
     }
     
-    public LinearEntity directPassengers(float deltaSec) {
+    public LinearEntity spawnPassengers(float deltaSec) {
         Passenger newPassenger = null;
         
         if (Math.random() < PassengerDirector.SPAWN_OCCURRENCE_SEC / deltaSec) {
