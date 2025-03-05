@@ -38,8 +38,8 @@ public class PassengerDirector {
         if (Math.random() < PassengerDirector.SPAWN_OCCURRENCE_SEC / deltaSec) {
             Scene newScene = null;
             if (this.scenePassenger == null) {
-                if (Math.random() < PassengerDirector.SCENE_OCCURRENCE_SPAWN)
-                    newScene = scenes.remove((int)(Math.round(Math.random() * (this.scenes.size()-1))));
+                if (this.scenes.size() > 0 && Math.random() < PassengerDirector.SCENE_OCCURRENCE_SPAWN)
+                    newScene = this.scenes.remove((int)(Math.round(Math.random() * (this.scenes.size()-1))));
             }
             
             Map<Integer,Integer> floorNumWaiting = new HashMap<Integer,Integer>();
@@ -53,7 +53,7 @@ public class PassengerDirector {
                 }
             }
             
-            int leastBusyFloor = (int) floorNumWaiting.keySet().toArray()[0];
+            int leastBusyFloor = (int)(Math.round(Math.random() * (this.floorSpawns.size()-1)));
             for (Integer floor : floorNumWaiting.keySet())
                 if (floorNumWaiting.get(floor) < floorNumWaiting.get(leastBusyFloor))
                     leastBusyFloor = floor;

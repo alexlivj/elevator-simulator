@@ -10,23 +10,41 @@ import com.badlogic.gdx.math.Vector2;
 import simulator.elevator.Main;
 import simulator.elevator.game.entity.Elevator;
 import simulator.elevator.game.entity.LinearEntity;
+import simulator.elevator.game.scene.Scene;
 import simulator.elevator.util.Pair;
 
 public class GameStateManager {
 
     //TODO maybe read these from somewhere
     private static final int GAME_TIME_SEC = 120;
-    private static final int ELEVATOR_SPEED_PIXEL_SEC = 50;
+    private static final RelativeCoordinate WORLD_ORIGIN = new RelativeCoordinate(null, new Vector2(0,0));
+    private static final int FLOOR_SIZE = 192;
+    private static final List<RelativeCoordinate> FLOOR_SPAWNS = new ArrayList<RelativeCoordinate>();
+    static {
+        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(0,0)));
+        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(0,FLOOR_SIZE)));
+        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(0,FLOOR_SIZE*2)));
+        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(0,FLOOR_SIZE*3)));
+    }
+    private static final Pair<Integer,Integer> CAMERA_Y_BOUND = new Pair<Integer,Integer>(0,FLOOR_SIZE*3);
+    private static final int CAMERA_Y_OFFSET = -250;
+    private static final int ELEVATOR_SPEED_PIXEL_SEC = 30;
     public static final int ELEVATOR_DECAY_RATE_SEC = 5;
-    private static final Pair<Integer,Integer> CAMERA_Y_BOUND = new Pair<Integer,Integer>(0,400);
-    private static final Pair<Integer,Integer> ELEVATOR_Y_BOUND = new Pair<Integer,Integer>(-50,450);
+    public static final int ELEVATOR_BUFFER_PIXEL = 10;
+    private static final Pair<Integer,Integer> ELEVATOR_Y_BOUND;
+    static {
+        int lower = CAMERA_Y_BOUND.first-ELEVATOR_BUFFER_PIXEL;
+        int upper = CAMERA_Y_BOUND.second+ELEVATOR_BUFFER_PIXEL;
+        ELEVATOR_Y_BOUND = new Pair<Integer,Integer>(lower, upper);
+    }
+    private static final List<Scene> SCENES = new ArrayList<Scene>();
     
     //TODO
-    private PassengerDirector director = new PassengerDirector(null,null);
+    private PassengerDirector director = new PassengerDirector(FLOOR_SPAWNS, SCENES);
     
     private boolean paused = false;
     private float timeRemaining = GAME_TIME_SEC;
-    private final RelativeCoordinate worldOrigin = new RelativeCoordinate(null, new Vector2(0,0)); 
+    private final RelativeCoordinate worldOrigin = WORLD_ORIGIN; 
     
     private Elevator elevator;
     private final List<LinearEntity> entities = new ArrayList<LinearEntity>();
@@ -38,7 +56,8 @@ public class GameStateManager {
     public void reset() {
         this.timeRemaining = GAME_TIME_SEC;
         this.worldOrigin.getRelativeVector().set(new Vector2(0,0));
-        this.elevator = new Elevator(new RelativeCoordinate(worldOrigin, new Vector2(0,0)), ELEVATOR_Y_BOUND);
+        this.elevator = new Elevator(new RelativeCoordinate(worldOrigin, new Vector2(0,0)),
+                                     ELEVATOR_Y_BOUND);
         this.entities.clear();
         this.entities.add(this.elevator);
     }
@@ -86,7 +105,9 @@ public class GameStateManager {
     private void moveCamera() {
         Vector2 screenOrigin = new Vector2(this.elevator.getRelativePosition());
         screenOrigin.x = 0;
-        screenOrigin.y = -Math.max(CAMERA_Y_BOUND.first,Math.min(CAMERA_Y_BOUND.second,screenOrigin.y));
+        screenOrigin.y = -Math.max(GameStateManager.CAMERA_Y_BOUND.first,
+                                   Math.min(GameStateManager.CAMERA_Y_BOUND.second,screenOrigin.y));
+        screenOrigin.y -= GameStateManager.CAMERA_Y_OFFSET;
         this.worldOrigin.getRelativeVector().set(screenOrigin);
     }
     
