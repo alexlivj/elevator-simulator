@@ -72,8 +72,8 @@ public class Passenger extends LinearEntity {
                 }
                 break;
             case WAITING:
-                if (elevatorCurrFloor != null && elevatorCurrFloor == this.startFloor) {
-                    RelativeCoordinate elevatorSlot = director.requestElevatorEntry();
+                if (director.isElevatorAtFloor(this.startFloor)) {
+                    RelativeCoordinate elevatorSlot = director.requestElevatorEntry(this);
                     if (elevatorSlot != null) {
                         this.currentState = PState.LOADING;
                         moveTo(elevatorSlot, this.speedPixelSec);
@@ -85,18 +85,18 @@ public class Passenger extends LinearEntity {
             case LOADING, UNLOADING:
                 //TODO write more sophisticated "door slammed in face" code handling
                 int toFloor = this.currentState == PState.LOADING ? this.startFloor : this.destFloor;
-                if (director.getElevatorCurrentFloor() != toFloor) {
+                if (!director.isElevatorAtFloor(toFloor)) {
                     this.currentStateAction = false;
                     cancelMove();
                     this.currentState = PState.WAITING;
                     //TODO some sort of "wth bro" scene, if director commands
                 } else if (!this.isMoving()) {
                     this.currentStateAction = false;
-                    this.currentState = PState.RIDING;
+                    currentState = this.currentState == PState.LOADING ? PState.RIDING : PState.LEAVING;
                 }
                 break;
             case RIDING:
-                if (elevatorCurrFloor != null && elevatorCurrFloor == this.destFloor) {
+                if (director.isElevatorAtFloor(this.destFloor)) {
                     this.currentState = PState.UNLOADING;
                     moveTo(director.getFloorExit(this.destFloor), this.speedPixelSec);
                     this.currentStateAction = true;
@@ -105,6 +105,7 @@ public class Passenger extends LinearEntity {
             case LEAVING:
                 if (!this.isMoving()) {
                     if (!this.currentStateAction) {
+                        director.clearElevatorSlot(this);
                         moveTo(director.getFloorSpawn(this.destFloor), speedPixelSec);
                         this.currentStateAction = true;
                     } else {
