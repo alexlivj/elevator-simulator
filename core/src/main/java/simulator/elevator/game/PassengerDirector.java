@@ -21,10 +21,12 @@ public class PassengerDirector {
     private final Elevator elevator;
     private final List<RelativeCoordinate> floorSpawns;
     private final int firstWaitXPos;
+    private final int firstRidingXPos;
     private final List<Scene> scenes;
     
     private List<Passenger> activePassengers = new ArrayList<Passenger>();
     private Passenger scenePassenger = null;
+    private Passenger[] elevatorSlots = new Passenger[MAX_PASSENGERS_ELEVATOR];
 
     //TODO maybe read these from somewhere
     private static final int MAX_PASSENGERS_WORLD = 8;
@@ -39,11 +41,13 @@ public class PassengerDirector {
     private static final int ELEVATOR_FLOOR_BUFFER_PIXEL = 20;
     
     public PassengerDirector(Elevator elevator,
-                             List<RelativeCoordinate> floorSpawns, int firstWaitXPos,
+                             List<RelativeCoordinate> floorSpawns,
+                             int firstWaitXPos, int firstRidingXPos,
                              List<Scene> scenes) {
         this.elevator = elevator;
         this.floorSpawns = floorSpawns;
         this.firstWaitXPos = firstWaitXPos;
+        this.firstRidingXPos = firstRidingXPos;
         this.scenes = scenes;
     }
     
@@ -104,7 +108,6 @@ public class PassengerDirector {
                                          leastBusyFloor, randomDestFloor,
                                          texture, newScene,
                                          waitXPos, speed);
-            //TODO randomize speed
             
             this.activePassengers.add(newPassenger);
             if (newScene != null)
@@ -114,7 +117,7 @@ public class PassengerDirector {
         return newPassenger;
     }
     
-    private Integer getElevatorCurrentFloor() {
+    public Integer getElevatorCurrentFloor() {
         Integer floor = null;
         if (!this.elevator.isDoorOpen()) {
             Vector2 elevatorRelPos = this.elevator.getRelativePosition();
@@ -132,6 +135,27 @@ public class PassengerDirector {
                 floor = closestFloor;
         }
         return floor;
+    }
+    
+    public RelativeCoordinate getFreeElevatorSlot() {
+        RelativeCoordinate slotPos = null;
+        
+        int slot = -1;
+        for (int i=0; i<this.elevatorSlots.length; i++) {
+            if (this.elevatorSlots[i] == null) {
+                slot = i;
+                break;
+            }
+        }
+        
+        if (slot >= 0) {
+            int rideBuffer = slot * PassengerDirector.PASSENGER_WIDTH_PIXEL;
+            int rideXPos = this.firstRidingXPos + rideBuffer;
+            slotPos = new RelativeCoordinate(this.elevator.getPosition(),
+                                             new Vector2(rideXPos,0));
+        }
+        
+        return slotPos;
     }
     
     public RelativeCoordinate getFloorSpawn(int floor) {

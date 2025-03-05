@@ -82,7 +82,7 @@ public abstract class LinearEntity {
         return this.path != null;
     }
     
-    protected RelativeCoordinate getPosition() {
+    public RelativeCoordinate getPosition() {
         return this.position;
     }
     

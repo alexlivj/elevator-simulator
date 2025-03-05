@@ -40,6 +40,7 @@ public class GameStateManager {
     }
     private static final List<Scene> SCENES = new ArrayList<Scene>();
     private static final int WAIT_X = 245*2;
+    private static final int RIDE_X = 277*2;
     
     //TODO
     private PassengerDirector director;
@@ -53,7 +54,8 @@ public class GameStateManager {
     
     public GameStateManager() {
         director = new PassengerDirector(this.elevator,
-                                         GameStateManager.FLOOR_SPAWNS, GameStateManager.WAIT_X,
+                                         GameStateManager.FLOOR_SPAWNS, 
+                                         GameStateManager.WAIT_X, GameStateManager.RIDE_X,
                                          GameStateManager.SCENES);
         reset();
     }
