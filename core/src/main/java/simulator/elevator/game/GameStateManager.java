@@ -42,16 +42,19 @@ public class GameStateManager {
     private static final int WAIT_X = 245*2;
     
     //TODO
-    private PassengerDirector director = new PassengerDirector(FLOOR_SPAWNS, WAIT_X, SCENES);
+    private PassengerDirector director;
     
     private boolean paused = false;
     private float timeRemaining = GAME_TIME_SEC;
-    private final RelativeCoordinate worldOrigin = WORLD_ORIGIN; 
+    private final RelativeCoordinate worldOrigin = WORLD_ORIGIN;
     
     private Elevator elevator;
     private final List<LinearEntity> entities = new ArrayList<LinearEntity>();
     
     public GameStateManager() {
+        director = new PassengerDirector(this.elevator,
+                                         GameStateManager.FLOOR_SPAWNS, GameStateManager.WAIT_X,
+                                         GameStateManager.SCENES);
         reset();
     }
     
