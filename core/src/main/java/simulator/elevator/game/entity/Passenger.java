@@ -23,7 +23,7 @@ public class Passenger extends LinearEntity {
         }
         
         public boolean isBeforeOrAt(PState p) {
-            return this.value < p.value;
+            return this.value <= p.value;
         }
     }
     
@@ -56,17 +56,64 @@ public class Passenger extends LinearEntity {
     
     @Override
     public void update(float deltaSec) {
-        //TODO do the ai stuff
-        if (this.currentState == PState.ARRIVING && !this.isMoving()) {
-            if (!this.currentStateAction) {
-                RelativeCoordinate pos = new RelativeCoordinate(getPosition());
-                pos.getRelativeVector().x = this.waitX;
-                moveTo(pos, speedPixelSec);
-                this.currentStateAction = true;
-            } else {
-                this.currentState = PState.WAITING;
-                this.currentStateAction = false;
-            }
+        Integer elevatorCurrFloor = director.getElevatorCurrentFloor();
+        switch (this.currentState) {
+            case ARRIVING:
+                if (!this.isMoving()) {
+                    if (!this.currentStateAction) {
+                        RelativeCoordinate waitPos = new RelativeCoordinate(getPosition());
+                        waitPos.getRelativeVector().x = this.waitX;
+                        moveTo(waitPos, speedPixelSec);
+                        this.currentStateAction = true;
+                    } else {
+                        this.currentState = PState.WAITING;
+                        this.currentStateAction = false;
+                    }
+                }
+                break;
+            case WAITING:
+                if (elevatorCurrFloor != null && elevatorCurrFloor == this.startFloor) {
+                    RelativeCoordinate elevatorSlot = director.requestElevatorEntry();
+                    if (elevatorSlot != null) {
+                        this.currentState = PState.LOADING;
+                        moveTo(elevatorSlot, this.speedPixelSec);
+                        this.currentStateAction = true;
+                    }
+                    //TODO some sort of "elevator full" scene, if director commands
+                }
+                break;
+            case LOADING, UNLOADING:
+                //TODO write more sophisticated "door slammed in face" code handling
+                int toFloor = this.currentState == PState.LOADING ? this.startFloor : this.destFloor;
+                if (director.getElevatorCurrentFloor() != toFloor) {
+                    this.currentStateAction = false;
+                    cancelMove();
+                    this.currentState = PState.WAITING;
+                    //TODO some sort of "wth bro" scene, if director commands
+                } else if (!this.isMoving()) {
+                    this.currentStateAction = false;
+                    this.currentState = PState.RIDING;
+                }
+                break;
+            case RIDING:
+                if (elevatorCurrFloor != null && elevatorCurrFloor == this.destFloor) {
+                    this.currentState = PState.UNLOADING;
+                    moveTo(director.getFloorExit(this.destFloor), this.speedPixelSec);
+                    this.currentStateAction = true;
+                }
+                break;
+            case LEAVING:
+                if (!this.isMoving()) {
+                    if (!this.currentStateAction) {
+                        moveTo(director.getFloorSpawn(this.destFloor), speedPixelSec);
+                        this.currentStateAction = true;
+                    } else {
+                        //TODO despawn
+                    }
+                }
+                break;
+            default:
+                break;
         }
         
         super.update(deltaSec);

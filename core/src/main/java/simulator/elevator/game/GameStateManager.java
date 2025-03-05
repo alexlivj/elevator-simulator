@@ -24,8 +24,8 @@ public class GameStateManager {
     static {
         FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(40,0)));
         FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(40,FLOOR_SIZE)));
-        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(40,FLOOR_SIZE*2)));
-        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(40,FLOOR_SIZE*3)));
+        //FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(40,FLOOR_SIZE*2)));
+        //FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(40,FLOOR_SIZE*3)));
     }
     private static final Pair<Integer,Integer> CAMERA_Y_BOUND = new Pair<Integer,Integer>(0,FLOOR_SIZE*3);
     private static final int CAMERA_Y_OFFSET = -250;
@@ -53,10 +53,6 @@ public class GameStateManager {
     private final List<LinearEntity> entities = new ArrayList<LinearEntity>();
     
     public GameStateManager() {
-        director = new PassengerDirector(this.elevator,
-                                         GameStateManager.FLOOR_SPAWNS, 
-                                         GameStateManager.WAIT_X, GameStateManager.RIDE_X,
-                                         GameStateManager.SCENES);
         reset();
     }
     
@@ -67,6 +63,10 @@ public class GameStateManager {
                                      ELEVATOR_Y_BOUND);
         this.entities.clear();
         this.entities.add(this.elevator);
+        director = new PassengerDirector(this.elevator,
+                GameStateManager.FLOOR_SPAWNS, 
+                GameStateManager.WAIT_X, GameStateManager.RIDE_X,
+                GameStateManager.SCENES);
     }
     
     public boolean render(Main game, float deltaSec) {

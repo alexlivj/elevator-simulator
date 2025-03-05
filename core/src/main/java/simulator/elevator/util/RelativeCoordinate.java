@@ -21,6 +21,10 @@ public class RelativeCoordinate {
         this.relativeVector = new Vector2(original.relativeVector);
     }
     
+    public RelativeCoordinate getOrigin() {
+        return this.originOffset;
+    }
+    
     public Vector2 getRelativeVector() {
         return this.relativeVector;
     }
@@ -38,10 +42,6 @@ public class RelativeCoordinate {
             return new Vector2(this.relativeVector);
         else
             return new Vector2(this.relativeVector).add(this.originOffset.getAbsoluteVector());
-    }
-    
-    public RelativeCoordinate getOrigin() {
-        return this.originOffset;
     }
     
     public void rebaseOrigin(RelativeCoordinate newOrigin) {

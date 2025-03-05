@@ -31,8 +31,8 @@ public class PassengerDirector {
     //TODO maybe read these from somewhere
     private static final int MAX_PASSENGERS_WORLD = 8;
     private static final int MAX_PASSENGERS_FLOOR = 3;
-    private static final int MAX_PASSENGERS_ELEVATOR = 8;
-    private static final int PASSENGER_WIDTH_PIXEL = 16;
+    private static final int MAX_PASSENGERS_ELEVATOR = 1;
+    private static final int PASSENGER_WIDTH_PIXEL = 16*2;
     private static final float SPAWN_OCCURRENCE_SEC = 0.3f;
     private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
     private static final Texture DEF_PASSENGER_TEXTURE = TextureUtility.doubleTextureSize("passenger.png");
@@ -53,10 +53,7 @@ public class PassengerDirector {
     
     public LinearEntity managePassengers(float deltaSec) {
         LinearEntity newPassenger = spawnPassengers(deltaSec);
-        //TODO if elevator is at a floor, and there are ppl waiting there, and there's space
-        //     shuffle em him until elevator is at capacity or the floor is empty
-        //TODO if elevator is a floor, and riding passengers have that dest, unload them
-        //TODO if the elevator has its door closed, cancel any movement to or from
+        //TODO if elevator is not at floor, shuffle waiting passengers to front of line
         return newPassenger;
     }
     
@@ -65,6 +62,7 @@ public class PassengerDirector {
         
         if (this.activePassengers.size() < MAX_PASSENGERS_WORLD
                 && Math.random() < PassengerDirector.SPAWN_OCCURRENCE_SEC * deltaSec) {
+            
             Scene newScene = null;
             if (this.scenePassenger == null) {
                 if (this.scenes.size() > 0 && Math.random() < PassengerDirector.SCENE_OCCURRENCE_SPAWN)
@@ -78,18 +76,22 @@ public class PassengerDirector {
                 if (p.getState().isBeforeOrAt(Passenger.PState.WAITING)) {
                     int startFloor = p.getStartFloor();
                     int numWaiting = floorNumWaiting.get(startFloor);
-                    floorNumWaiting.put(startFloor, numWaiting);
+                    floorNumWaiting.put(startFloor, numWaiting+1);
                 }
             }
             
             int leastBusyFloor = (int)(Math.round(Math.random() * (this.floorSpawns.size()-1)));
+            boolean allFloorsFull = true;
             for (Integer floor : floorNumWaiting.keySet()) {
                 boolean maxWaiting =
-                        PassengerDirector.MAX_PASSENGERS_FLOOR < floorNumWaiting.get(leastBusyFloor);
+                        PassengerDirector.MAX_PASSENGERS_FLOOR <= floorNumWaiting.get(leastBusyFloor);
+                allFloorsFull = allFloorsFull && maxWaiting;
                 int numWaiting = maxWaiting ? Integer.MAX_VALUE : floorNumWaiting.get(leastBusyFloor); 
                 if (floorNumWaiting.get(floor) < numWaiting)
                     leastBusyFloor = floor;
             }
+            if (allFloorsFull)
+                return null;
             
             //TODO put this random generator in its own util? why doesn't java have a better built-in smh
             int randomDestFloor = (int)(Math.round(Math.random() * (this.floorSpawns.size()-2)));
@@ -104,6 +106,7 @@ public class PassengerDirector {
             
             int waitBuffer = floorNumWaiting.get(leastBusyFloor) * PassengerDirector.PASSENGER_WIDTH_PIXEL;
             int waitXPos = this.firstWaitXPos - waitBuffer;
+            
             newPassenger = new Passenger(this,
                                          leastBusyFloor, randomDestFloor,
                                          texture, newScene,
@@ -137,7 +140,7 @@ public class PassengerDirector {
         return floor;
     }
     
-    public RelativeCoordinate getFreeElevatorSlot() {
+    public RelativeCoordinate requestElevatorEntry() {
         RelativeCoordinate slotPos = null;
         
         int slot = -1;
@@ -159,7 +162,13 @@ public class PassengerDirector {
     }
     
     public RelativeCoordinate getFloorSpawn(int floor) {
-        return this.floorSpawns.get(floor);
+        return new RelativeCoordinate(this.floorSpawns.get(floor));
+    }
+    
+    public RelativeCoordinate getFloorExit(int floor) {
+        RelativeCoordinate exit = new RelativeCoordinate(this.floorSpawns.get(floor));
+        exit.getRelativeVector().x = this.firstWaitXPos;
+        return exit;
     }
 
 }
