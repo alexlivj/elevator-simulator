@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
 import simulator.elevator.Main;
-import simulator.elevator.game.RelativeCoordinate;
 import simulator.elevator.util.Pair;
+import simulator.elevator.util.RelativeCoordinate;
 
 public abstract class LinearEntity {
 
@@ -29,19 +29,21 @@ public abstract class LinearEntity {
             Vector2 oldAbsPos = this.position.getAbsoluteVector();
             
             // (v=(dest - pos)) * delta*speed/∥v∥
-            Vector2 absPos =
+            Vector2 absDelta =
                     new Vector2(absDest)
                      .sub(oldAbsPos);
 
             float distance =  this.speedPixelSec*deltaSec;
-            if (Math.abs(absPos.len()) <= distance) {
-                absPos.set(absDest);
+            Vector2 newAbsPos;
+            if (Math.abs(absDelta.len()) <= distance) {
+                newAbsPos = new Vector2(absDest);
                 this.haltMove();
             } else {
-                absPos.setLength(distance);
+                absDelta.setLength(distance);
+                newAbsPos = new Vector2(absDelta).add(oldAbsPos);
             }
-            
-            this.position.setAbsoluteVector(absPos.add(oldAbsPos));
+
+            this.position.setAbsoluteVector(newAbsPos);
         }
     }
     
@@ -74,6 +76,10 @@ public abstract class LinearEntity {
         //NOTE if this was rebased during the move message, this method reverts to previous origin
         if (path != null)
             this.position.set(this.path.first);
+    }
+    
+    public boolean isMoving() {
+        return this.path != null;
     }
     
     protected RelativeCoordinate getPosition() {

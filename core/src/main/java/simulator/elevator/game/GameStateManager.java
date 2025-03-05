@@ -12,6 +12,7 @@ import simulator.elevator.game.entity.Elevator;
 import simulator.elevator.game.entity.LinearEntity;
 import simulator.elevator.game.scene.Scene;
 import simulator.elevator.util.Pair;
+import simulator.elevator.util.RelativeCoordinate;
 
 public class GameStateManager {
 
@@ -21,10 +22,10 @@ public class GameStateManager {
     private static final int FLOOR_SIZE = 192;
     private static final List<RelativeCoordinate> FLOOR_SPAWNS = new ArrayList<RelativeCoordinate>();
     static {
-        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(0,0)));
-        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(0,FLOOR_SIZE)));
-        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(0,FLOOR_SIZE*2)));
-        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(0,FLOOR_SIZE*3)));
+        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(40,0)));
+        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(40,FLOOR_SIZE)));
+        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(40,FLOOR_SIZE*2)));
+        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(40,FLOOR_SIZE*3)));
     }
     private static final Pair<Integer,Integer> CAMERA_Y_BOUND = new Pair<Integer,Integer>(0,FLOOR_SIZE*3);
     private static final int CAMERA_Y_OFFSET = -250;
@@ -38,9 +39,10 @@ public class GameStateManager {
         ELEVATOR_Y_BOUND = new Pair<Integer,Integer>(lower, upper);
     }
     private static final List<Scene> SCENES = new ArrayList<Scene>();
+    private static final int WAIT_X = 245*2;
     
     //TODO
-    private PassengerDirector director = new PassengerDirector(FLOOR_SPAWNS, SCENES);
+    private PassengerDirector director = new PassengerDirector(FLOOR_SPAWNS, WAIT_X, SCENES);
     
     private boolean paused = false;
     private float timeRemaining = GAME_TIME_SEC;

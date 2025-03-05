@@ -1,4 +1,4 @@
-package simulator.elevator.game;
+package simulator.elevator.util;
 
 import com.badlogic.gdx.math.Vector2;
 
@@ -18,7 +18,7 @@ public class RelativeCoordinate {
     
     public void set(RelativeCoordinate original) {
         this.originOffset = original.originOffset;
-        this.relativeVector = original.relativeVector;
+        this.relativeVector = new Vector2(original.relativeVector);
     }
     
     public Vector2 getRelativeVector() {
