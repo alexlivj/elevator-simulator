@@ -25,7 +25,7 @@ public class PassengerDirector {
     private Passenger scenePassenger = null;
 
     //TODO maybe read these from somewhere
-    private static final int MAX_PASSENGERS_WORLD = 1;
+    private static final int MAX_PASSENGERS_WORLD = 8;
     private static final float SPAWN_OCCURRENCE_SEC = 0.3f;
     private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
     private static final Texture DEF_PASSENGER_TEXTURE = TextureUtility.doubleTextureSize("passenger.png");
@@ -42,7 +42,7 @@ public class PassengerDirector {
         Passenger newPassenger = null;
         
         if (this.activePassengers.size() < MAX_PASSENGERS_WORLD
-                && Math.random() < PassengerDirector.SPAWN_OCCURRENCE_SEC / deltaSec) {
+                && Math.random() < PassengerDirector.SPAWN_OCCURRENCE_SEC * deltaSec) {
             Scene newScene = null;
             if (this.scenePassenger == null) {
                 if (this.scenes.size() > 0 && Math.random() < PassengerDirector.SCENE_OCCURRENCE_SPAWN)
@@ -60,7 +60,7 @@ public class PassengerDirector {
                 }
             }
             
-            int leastBusyFloor = 0;//(int)(Math.round(Math.random() * (this.floorSpawns.size()-1)));
+            int leastBusyFloor = (int)(Math.round(Math.random() * (this.floorSpawns.size()-1)));
             for (Integer floor : floorNumWaiting.keySet())
                 if (floorNumWaiting.get(floor) < floorNumWaiting.get(leastBusyFloor))
                     leastBusyFloor = floor;
