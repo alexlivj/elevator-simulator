@@ -29,13 +29,13 @@ public class GameStateManager {
     }
     private static final Pair<Integer,Integer> CAMERA_Y_BOUND = new Pair<Integer,Integer>(0,FLOOR_SIZE*3);
     private static final int CAMERA_Y_OFFSET = -250;
-    private static final int ELEVATOR_SPEED_PIXEL_SEC = 100;//30;
+    private static final int ELEVATOR_SPEED_PIXEL_SEC = 30;
     public static final int ELEVATOR_DECAY_RATE_SEC = 5;
-    public static final int ELEVATOR_BUFFER_PIXEL = 10;
+    public static final int ELEVATOR_DURABILITY_BUFFER_PIXEL = 5;
     private static final Pair<Integer,Integer> ELEVATOR_Y_BOUND;
     static {
-        int lower = CAMERA_Y_BOUND.first-ELEVATOR_BUFFER_PIXEL;
-        int upper = CAMERA_Y_BOUND.second+ELEVATOR_BUFFER_PIXEL;
+        int lower = CAMERA_Y_BOUND.first-ELEVATOR_DURABILITY_BUFFER_PIXEL;
+        int upper = CAMERA_Y_BOUND.second+ELEVATOR_DURABILITY_BUFFER_PIXEL;
         ELEVATOR_Y_BOUND = new Pair<Integer,Integer>(lower, upper);
     }
     private static final List<Scene> SCENES = new ArrayList<Scene>();

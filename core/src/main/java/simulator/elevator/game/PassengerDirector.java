@@ -29,16 +29,16 @@ public class PassengerDirector {
     private Passenger[] elevatorSlots = new Passenger[MAX_PASSENGERS_ELEVATOR];
 
     //TODO maybe read these from somewhere
-    private static final int MAX_PASSENGERS_WORLD = 1;
+    private static final int MAX_PASSENGERS_WORLD = 8;
     private static final int MAX_PASSENGERS_FLOOR = 3;
     private static final int MAX_PASSENGERS_ELEVATOR = 2;
     private static final int PASSENGER_WIDTH_PIXEL = 16*2;
-    private static final float SPAWN_OCCURRENCE_SEC = 2f;//0.3f;
+    private static final float SPAWN_OCCURRENCE_SEC = 0.3f;
     private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
     private static final Texture DEF_PASSENGER_TEXTURE = TextureUtility.doubleTextureSize("passenger.png");
     private static final int MIN_SPEED_PIXEL_SEC = 20;
-    private static final int MAX_SPEED_PIXEL_SEC = 100;//40;
-    private static final int ELEVATOR_FLOOR_BUFFER_PIXEL = 20;
+    private static final int MAX_SPEED_PIXEL_SEC = 40;
+    private static final int ELEVATOR_FLOOR_BUFFER_PIXEL = 10;
     
     public PassengerDirector(Elevator elevator,
                              List<RelativeCoordinate> floorSpawns,
@@ -66,7 +66,7 @@ public class PassengerDirector {
             Scene newScene = null;
             if (this.scenePassenger == null) {
                 if (this.scenes.size() > 0 && Math.random() < PassengerDirector.SCENE_OCCURRENCE_SPAWN)
-                    newScene = this.scenes.remove((int)(Math.round(Math.random() * (this.scenes.size()-1))));
+                    newScene = this.scenes.remove(Math.round(getRandomRange(0,this.scenes.size()-1)));
             }
             
             Map<Integer,Integer> floorNumWaiting = new HashMap<Integer,Integer>();
@@ -79,8 +79,8 @@ public class PassengerDirector {
                     floorNumWaiting.put(startFloor, numWaiting+1);
                 }
             }
-            
-            int leastBusyFloor = (int)(Math.round(Math.random() * (this.floorSpawns.size()-1)));
+
+            int leastBusyFloor = Math.round(getRandomRange(0,this.floorSpawns.size()-1));
             boolean allFloorsFull = true;
             for (Integer floor : floorNumWaiting.keySet()) {
                 boolean maxWaiting =
@@ -94,15 +94,16 @@ public class PassengerDirector {
                 return null;
             
             //TODO put this random generator in its own util? why doesn't java have a better built-in smh
-            int randomDestFloor = (int)(Math.round(Math.random() * (this.floorSpawns.size()-2)));
+            int randomDestFloor = Math.round(getRandomRange(0,this.floorSpawns.size()-2));
             if (randomDestFloor >= leastBusyFloor)
                 randomDestFloor++;
             
             //TODO get random texture that matches scene, if applicable
             Texture texture = PassengerDirector.DEF_PASSENGER_TEXTURE;
             
+            int speed = Math.round(getRandomRange(PassengerDirector.MIN_SPEED_PIXEL_SEC,
+                                                  PassengerDirector.MAX_SPEED_PIXEL_SEC));
             //TODO randomly generate other stats
-            int speed = PassengerDirector.MAX_SPEED_PIXEL_SEC;
             
             //TODO we need to use wait slots, like how we do the elevator
             int waitBuffer = floorNumWaiting.get(leastBusyFloor) * PassengerDirector.PASSENGER_WIDTH_PIXEL;
@@ -183,6 +184,10 @@ public class PassengerDirector {
         RelativeCoordinate exit = new RelativeCoordinate(this.floorSpawns.get(floor));
         exit.getRelativeVector().x = this.firstWaitXPos;
         return exit;
+    }
+    
+    private float getRandomRange(float first, float second) {
+        return (float)(first + Math.random()*(second-first));
     }
 
 }
