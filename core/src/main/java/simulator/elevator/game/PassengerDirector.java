@@ -26,7 +26,8 @@ public class PassengerDirector {
     
     private List<Passenger> activePassengers = new ArrayList<Passenger>();
     private Passenger scenePassenger = null;
-    private Passenger[] elevatorSlots = new Passenger[MAX_PASSENGERS_ELEVATOR];
+    private Passenger[][] waitingSlots;
+    private Passenger[] elevatorSlots;
 
     //TODO maybe read these from somewhere
     private static final int MAX_PASSENGERS_WORLD = 8;
@@ -49,11 +50,14 @@ public class PassengerDirector {
         this.firstWaitXPos = firstWaitXPos;
         this.firstRidingXPos = firstRidingXPos;
         this.scenes = scenes;
+        
+        this.waitingSlots = new Passenger[floorSpawns.size()][PassengerDirector.MAX_PASSENGERS_FLOOR];
+        this.elevatorSlots = new Passenger[PassengerDirector.MAX_PASSENGERS_ELEVATOR];
     }
     
     public LinearEntity managePassengers(float deltaSec) {
         LinearEntity newPassenger = spawnPassengers(deltaSec);
-        //TODO if elevator is not at floor, shuffle waiting passengers to front of line
+        //TODO (?) if elevator is not at floor, shuffle waiting passengers to front of line
         return newPassenger;
     }
     
@@ -73,7 +77,7 @@ public class PassengerDirector {
             for (int i=0; i<floorSpawns.size(); i++)
                 floorNumWaiting.put(i, 0);
             for (Passenger p : this.activePassengers) {
-                if (p.getState().isBeforeOrAt(Passenger.PState.WAITING)) {
+                if (p.getState().isBeforeOrAt(Passenger.PState.LOADING)) {
                     int startFloor = p.getStartFloor();
                     int numWaiting = floorNumWaiting.get(startFloor);
                     floorNumWaiting.put(startFloor, numWaiting+1);
@@ -105,14 +109,10 @@ public class PassengerDirector {
                                                   PassengerDirector.MAX_SPEED_PIXEL_SEC));
             //TODO randomly generate other stats
             
-            //TODO we need to use wait slots, like how we do the elevator
-            int waitBuffer = floorNumWaiting.get(leastBusyFloor) * PassengerDirector.PASSENGER_WIDTH_PIXEL;
-            int waitXPos = this.firstWaitXPos - waitBuffer;
-            
             newPassenger = new Passenger(this,
                                          leastBusyFloor, randomDestFloor,
                                          texture, newScene,
-                                         waitXPos, speed);
+                                         speed);
             
             this.activePassengers.add(newPassenger);
             if (newScene != null)
@@ -170,10 +170,38 @@ public class PassengerDirector {
         return slotPos;
     }
     
+    public RelativeCoordinate requestWaitingSlot(Passenger passenger) {
+        RelativeCoordinate slotPos = new RelativeCoordinate(passenger.getPosition());
+        
+        int floor = passenger.getStartFloor();
+        int slot = -1;
+        for (int i=0; i<this.waitingSlots[floor].length; i++) {
+            if (this.waitingSlots[floor][i] == null) {
+                slot = i;
+                break;
+            }
+        }
+        System.out.println(floor+" "+slot);
+        
+        int waitBuffer = slot * PassengerDirector.PASSENGER_WIDTH_PIXEL;
+        int waitXPos = this.firstWaitXPos - waitBuffer;
+        slotPos.getRelativeVector().x = waitXPos;
+        this.waitingSlots[floor][slot] = passenger;
+        
+        return slotPos;
+    }
+    
     public void clearElevatorSlot(Passenger passenger) {
         for (int i=0; i<this.elevatorSlots.length; i++)
             if (this.elevatorSlots[i] == passenger)
                 this.elevatorSlots[i] = null;
+    }
+    
+    public void clearWaitingSlot(Passenger passenger) {
+        for (int i=0; i<this.waitingSlots.length; i++)
+            for (int j=0; j<this.waitingSlots[i].length; j++)
+            if (this.waitingSlots[i][j] == passenger)
+                this.waitingSlots[i][j] = null;
     }
     
     public RelativeCoordinate getFloorSpawn(int floor) {

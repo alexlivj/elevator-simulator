@@ -36,7 +36,6 @@ public class Passenger extends LinearEntity {
     private final int destFloor;
     private final Scene scene;
     
-    private final int waitX;
     private final int speedPixelSec;
     private float patience;
     private float generosity;
@@ -44,26 +43,22 @@ public class Passenger extends LinearEntity {
     public Passenger(PassengerDirector director,
                      int startFloor, int destFloor,
                      Texture texture, Scene scene,
-                     int waitX, int speedPixelSec) {
+                     int speedPixelSec) {
         super(director.getFloorSpawn(startFloor), texture);
         this.director = director;
         this.startFloor = startFloor;
         this.destFloor = destFloor;
         this.scene = scene;
-        this.waitX = waitX;
         this.speedPixelSec = speedPixelSec;
     }
     
     @Override
     public void update(float deltaSec) {
-        Integer elevatorCurrFloor = director.getElevatorCurrentFloor();
         switch (this.currentState) {
             case ARRIVING:
                 if (!this.isMoving()) {
                     if (!this.currentStateAction) {
-                        RelativeCoordinate waitPos = new RelativeCoordinate(getPosition());
-                        waitPos.getRelativeVector().x = this.waitX;
-                        moveTo(waitPos, speedPixelSec);
+                        moveTo(director.requestWaitingSlot(this), speedPixelSec);
                         this.currentStateAction = true;
                     } else {
                         this.currentState = PState.WAITING;
@@ -91,6 +86,8 @@ public class Passenger extends LinearEntity {
                     cancelMove();
                     director.clearElevatorSlot(this);
                     this.currentState = isLoading ? PState.WAITING : PState.RIDING;
+                    if (isLoading)
+                        director.clearWaitingSlot(this);
                     //TODO some sort of "wth bro" scene, if director commands
                 } else if (!this.isMoving()) {
                     this.currentStateAction = false;
