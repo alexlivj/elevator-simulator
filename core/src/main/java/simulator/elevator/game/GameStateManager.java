@@ -29,7 +29,7 @@ public class GameStateManager {
     }
     private static final Pair<Integer,Integer> CAMERA_Y_BOUND = new Pair<Integer,Integer>(0,FLOOR_SIZE*3);
     private static final int CAMERA_Y_OFFSET = -250;
-    private static final int ELEVATOR_SPEED_PIXEL_SEC = 30;
+    private static final int ELEVATOR_SPEED_PIXEL_SEC = 100;//30;
     public static final int ELEVATOR_DECAY_RATE_SEC = 5;
     public static final int ELEVATOR_BUFFER_PIXEL = 10;
     private static final Pair<Integer,Integer> ELEVATOR_Y_BOUND;

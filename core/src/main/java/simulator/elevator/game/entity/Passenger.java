@@ -83,16 +83,18 @@ public class Passenger extends LinearEntity {
                 }
                 break;
             case LOADING, UNLOADING:
+                boolean isLoading = this.currentState == PState.LOADING;
+                int toFloor = isLoading ? this.startFloor : this.destFloor;
                 //TODO write more sophisticated "door slammed in face" code handling
-                int toFloor = this.currentState == PState.LOADING ? this.startFloor : this.destFloor;
                 if (!director.isElevatorAtFloor(toFloor)) {
                     this.currentStateAction = false;
                     cancelMove();
-                    this.currentState = PState.WAITING;
+                    director.clearElevatorSlot(this);
+                    this.currentState = isLoading ? PState.WAITING : PState.RIDING;
                     //TODO some sort of "wth bro" scene, if director commands
                 } else if (!this.isMoving()) {
                     this.currentStateAction = false;
-                    currentState = this.currentState == PState.LOADING ? PState.RIDING : PState.LEAVING;
+                    currentState = isLoading ? PState.RIDING : PState.LEAVING;
                 }
                 break;
             case RIDING:

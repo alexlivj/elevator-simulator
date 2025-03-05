@@ -76,6 +76,7 @@ public abstract class LinearEntity {
         //NOTE if this was rebased during the move message, this method reverts to previous origin
         if (path != null)
             this.position.set(this.path.first);
+        haltMove();
     }
     
     public boolean isMoving() {

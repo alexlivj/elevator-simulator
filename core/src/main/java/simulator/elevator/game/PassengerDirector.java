@@ -33,11 +33,11 @@ public class PassengerDirector {
     private static final int MAX_PASSENGERS_FLOOR = 3;
     private static final int MAX_PASSENGERS_ELEVATOR = 2;
     private static final int PASSENGER_WIDTH_PIXEL = 16*2;
-    private static final float SPAWN_OCCURRENCE_SEC = 0.3f;
+    private static final float SPAWN_OCCURRENCE_SEC = 2f;//0.3f;
     private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
     private static final Texture DEF_PASSENGER_TEXTURE = TextureUtility.doubleTextureSize("passenger.png");
     private static final int MIN_SPEED_PIXEL_SEC = 20;
-    private static final int MAX_SPEED_PIXEL_SEC = 40;
+    private static final int MAX_SPEED_PIXEL_SEC = 100;//40;
     private static final int ELEVATOR_FLOOR_BUFFER_PIXEL = 20;
     
     public PassengerDirector(Elevator elevator,
