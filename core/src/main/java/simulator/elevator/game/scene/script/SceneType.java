@@ -1,4 +1,4 @@
-package simulator.elevator.game.scene;
+package simulator.elevator.game.scene.script;
 
 public enum SceneType {
     GREETING,

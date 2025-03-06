@@ -9,7 +9,7 @@ import simulator.elevator.util.Pair;
 import simulator.elevator.util.RelativeCoordinate;
 import simulator.elevator.util.TextureUtility;
 
-public class Elevator extends LinearEntity {
+public class Elevator extends AbstractEntity {
     
     private final Pair<Integer,Integer> yAxisBound;
     private int durability = 100;

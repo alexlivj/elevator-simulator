@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import simulator.elevator.game.entity.LinearEntity;
+import simulator.elevator.game.entity.AbstractEntity;
 import simulator.elevator.game.entity.passenger.Passenger;
 import simulator.elevator.game.entity.passenger.PassengerPersonality;
 import simulator.elevator.game.entity.passenger.PassengerState;
@@ -63,13 +63,13 @@ public class PassengerCoordinator {
             this.elevatorSlots[i] = null;
     }
     
-    public LinearEntity managePassengers(float deltaSec) {
-        LinearEntity newPassenger = spawnPassengers(deltaSec);
+    public AbstractEntity managePassengers(float deltaSec) {
+        AbstractEntity newPassenger = spawnPassengers(deltaSec);
         //TODO (?) if elevator is not at floor, shuffle waiting passengers to front of line
         return newPassenger;
     }
     
-    public LinearEntity spawnPassengers(float deltaSec) {
+    public AbstractEntity spawnPassengers(float deltaSec) {
         Passenger newPassenger = null;
         
         if (this.activePassengers.size() < MAX_PASSENGERS_WORLD

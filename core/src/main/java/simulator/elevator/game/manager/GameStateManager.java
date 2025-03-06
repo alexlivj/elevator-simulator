@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import simulator.elevator.Main;
 import simulator.elevator.game.entity.Elevator;
-import simulator.elevator.game.entity.LinearEntity;
+import simulator.elevator.game.entity.AbstractEntity;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RelativeCoordinate;
 import simulator.elevator.util.TextureUtility;
@@ -47,7 +47,7 @@ public class GameStateManager {
     private final RelativeCoordinate worldOrigin = WORLD_ORIGIN;
     
     private Elevator elevator;
-    private final List<LinearEntity> entities = new ArrayList<LinearEntity>();
+    private final List<AbstractEntity> entities = new ArrayList<AbstractEntity>();
     
     private static GameStateManager instance;
     public static GameStateManager getInstance() {
@@ -74,7 +74,7 @@ public class GameStateManager {
     public boolean render(Main game, float deltaSec) {
         this.timeRemaining -= deltaSec;
         
-        LinearEntity newEntity = PassengerCoordinator.getInstance().spawnPassengers(deltaSec);
+        AbstractEntity newEntity = PassengerCoordinator.getInstance().spawnPassengers(deltaSec);
         if (newEntity != null)
             this.entities.add(newEntity);
 
@@ -82,7 +82,7 @@ public class GameStateManager {
             handleInputs(deltaSec);
 
         if (!this.paused)
-            for (LinearEntity e : this.entities)
+            for (AbstractEntity e : this.entities)
                 e.update(deltaSec);
         
         moveCamera();
@@ -93,7 +93,7 @@ public class GameStateManager {
             game.batch.draw(FLOOR_TEXTURE, fAbsPos.x, fAbsPos.y);
         }
         
-        for (LinearEntity e : this.entities)
+        for (AbstractEntity e : this.entities)
             e.render(game);
         game.batch.draw(BLINDERS_TEXTURE, 0, 0);
         
@@ -142,7 +142,7 @@ public class GameStateManager {
         return this.elevator;
     }
     
-    public void despawnEntity(LinearEntity e) {
+    public void despawnEntity(AbstractEntity e) {
         this.entities.remove(e);
     }
     

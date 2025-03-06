@@ -2,14 +2,14 @@ package simulator.elevator.game.entity.passenger;
 
 import com.badlogic.gdx.graphics.Texture;
 
-import simulator.elevator.game.entity.LinearEntity;
+import simulator.elevator.game.entity.AbstractEntity;
 import simulator.elevator.game.manager.PassengerCoordinator;
 import simulator.elevator.game.manager.SceneDirector;
-import simulator.elevator.game.scene.Line;
 import simulator.elevator.game.scene.StarRole;
+import simulator.elevator.game.scene.script.NpcLineTree;
 import simulator.elevator.util.RelativeCoordinate;
 
-public class Passenger extends LinearEntity {
+public class Passenger extends AbstractEntity {
     
     public static final float HAPPINESS_DECAY_RATE_SEC = 0.99f;
     public static final float[] HAPPINESS_DECAY_MOD = new float[6];
@@ -98,7 +98,8 @@ public class Passenger extends LinearEntity {
                 } else if (!this.isMoving()) {
                     this.currentStateAction = false;
                     if (isLoading) {
-                        Line requestFloor = new Line(null, false, "Floor "+(this.destFloor+1)+", please.", null, null);
+                        NpcLineTree requestFloor = new NpcLineTree(
+                                null, null, "Floor "+(this.destFloor+1)+", please.", null);
                         SceneDirector.getInstance().queueInterrupt(requestFloor);
                         this.coordinator.clearWaitingSlot(this);
                         this.currentState = PassengerState.RIDING;

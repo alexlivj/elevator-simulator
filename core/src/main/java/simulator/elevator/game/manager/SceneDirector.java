@@ -12,11 +12,11 @@ import java.util.Set;
 import simulator.elevator.game.entity.passenger.Passenger;
 import simulator.elevator.game.entity.passenger.PassengerPersonality;
 import simulator.elevator.game.entity.passenger.PassengerState;
-import simulator.elevator.game.scene.Scene;
 import simulator.elevator.game.scene.CastingDirection;
-import simulator.elevator.game.scene.Line;
-import simulator.elevator.game.scene.SceneType;
 import simulator.elevator.game.scene.StarRole;
+import simulator.elevator.game.scene.script.NpcLineTree;
+import simulator.elevator.game.scene.script.Scene;
+import simulator.elevator.game.scene.script.SceneType;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RandomUtility;
 
@@ -44,8 +44,8 @@ public class SceneDirector {
     private Queue<Pair<Passenger,Scene>> queuedScenes = new LinkedList<Pair<Passenger,Scene>>();
     private Pair<Passenger,Scene> activeScene = null;
 
-    private Queue<Line> queuedInterrupts = new LinkedList<Line>();
-    private Line activeInterrupt = null;
+    private Queue<NpcLineTree> queuedInterrupts = new LinkedList<NpcLineTree>();
+    private NpcLineTree activeInterrupt = null;
     
     private static SceneDirector instance;
     public static SceneDirector getInstance() {
@@ -75,7 +75,7 @@ public class SceneDirector {
         return newStarScene;
     }
     
-    public void queueInterrupt(Line line) {
+    public void queueInterrupt(NpcLineTree line) {
         this.queuedInterrupts.add(line);
     }
     
