@@ -14,19 +14,21 @@ public class Scene {
         this.ejectLine = ejectLine;
     }
     
-    public boolean render(float delta) {
-        Line curr;
-        if (ejecting)
-            curr = ejectLine;
-        else
-            curr = script.get(index);
-        boolean finished = false;
-        return finished;
+    public boolean render(float deltaSec) {
+        Line curr = this.ejecting ? this.ejectLine : this.script.get(this.index);
+        
+        if (curr.render(deltaSec))
+            this.index++;
+        
+        return this.index >= this.script.size();
     }
     
     public void eject() {
+        this.ejecting = true;
     }
     
     public void reset() {
+        this.index = 0;
+        this.ejecting = false;
     }
 }

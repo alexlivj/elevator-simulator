@@ -7,13 +7,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 public class Line {
     
-    private static int CHAR_PER_SEC = 10;
+    private static final int CHAR_PER_SEC = 10;
     
     private final Image portrait;
     private final boolean playerLine;
     private final String npcLine;
     private final Sound npcSFX;
     private final List<String> playerOptions;
+    
+    private float timeInLineSec = 0;
     
     public Line(Image portrait, boolean playerLine,
                 String npcLine, Sound npcSFX,
@@ -25,8 +27,20 @@ public class Line {
         this.playerOptions = playerOptions;
     }
     
-    public boolean render(float timeInLine) {
+    public boolean render(float deltaSec) {
         boolean finished = false;
+        this.timeInLineSec += deltaSec;
+        
+        //TODO actually render on screen
+        System.out.println("---");
+        if (playerLine)
+            for (int i=0; i<playerOptions.size(); i++)
+                System.out.println(i+") "+playerOptions.get(i));
+        else
+            System.out.println(npcLine);
+        System.out.println("---");
+        finished = this.timeInLineSec > 5; //TODO
+        
         return finished;
     }
 

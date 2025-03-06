@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
 import simulator.elevator.Main;
@@ -13,6 +14,7 @@ import simulator.elevator.game.entity.LinearEntity;
 import simulator.elevator.game.scene.Scene;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RelativeCoordinate;
+import simulator.elevator.util.TextureUtility;
 
 public class GameStateManager {
 
@@ -20,13 +22,15 @@ public class GameStateManager {
     private static final int GAME_TIME_SEC = 120;
     private static final RelativeCoordinate WORLD_ORIGIN = new RelativeCoordinate(null, new Vector2(0,0));
     private static final int FLOOR_SIZE = 192;
-    private static final List<RelativeCoordinate> FLOOR_SPAWNS = new ArrayList<RelativeCoordinate>();
+    public static final List<RelativeCoordinate> FLOOR_SPAWNS = new ArrayList<RelativeCoordinate>();
     static {
-        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(40,0)));
-        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(40,FLOOR_SIZE)));
-        //FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(40,FLOOR_SIZE*2)));
-        //FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(40,FLOOR_SIZE*3)));
+        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(0,0)));
+        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(0,FLOOR_SIZE)));
+        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(0,FLOOR_SIZE*2)));
+        FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(0,FLOOR_SIZE*3)));
     }
+    private static final Texture FLOOR_TEXTURE = TextureUtility.doubleTextureSize("floor.png");
+    private static final Texture BLINDERS_TEXTURE = TextureUtility.doubleTextureSize("blinders.png");
     private static final Pair<Integer,Integer> CAMERA_Y_BOUND = new Pair<Integer,Integer>(0,FLOOR_SIZE*3);
     private static final int CAMERA_Y_OFFSET = -250;
     private static final int ELEVATOR_SPEED_PIXEL_SEC = 30;
@@ -38,10 +42,7 @@ public class GameStateManager {
         int upper = CAMERA_Y_BOUND.second+ELEVATOR_DURABILITY_BUFFER_PIXEL;
         ELEVATOR_Y_BOUND = new Pair<Integer,Integer>(lower, upper);
     }
-    private static final List<Scene> SCENES = new ArrayList<Scene>();
-    
-    //TODO
-    private PassengerDirector director;
+    public static final List<Scene> SCENES = new ArrayList<Scene>();
     
     private boolean paused = false;
     private float timeRemaining = GAME_TIME_SEC;
@@ -68,15 +69,12 @@ public class GameStateManager {
                                      ELEVATOR_Y_BOUND);
         this.entities.clear();
         this.entities.add(this.elevator);
-        director = new PassengerDirector(this.elevator,
-                GameStateManager.FLOOR_SPAWNS,
-                GameStateManager.SCENES);
     }
     
     public boolean render(Main game, float deltaSec) {
         this.timeRemaining -= deltaSec;
         
-        LinearEntity newEntity = this.director.spawnPassengers(deltaSec);
+        LinearEntity newEntity = PassengerDirector.getInstance().spawnPassengers(deltaSec);
         if (newEntity != null)
             this.entities.add(newEntity);
 
@@ -89,8 +87,13 @@ public class GameStateManager {
         
         moveCamera();
         
+        for (RelativeCoordinate fPos : GameStateManager.FLOOR_SPAWNS) {
+            Vector2 fAbsPos = fPos.getAbsoluteVector();
+            game.batch.draw(FLOOR_TEXTURE, fAbsPos.x, fAbsPos.y);
+        }
         for (LinearEntity e : this.entities)
             e.render(game);
+        game.batch.draw(BLINDERS_TEXTURE, 0, 0);
         //TODO render UI
         
         return this.timeRemaining <= 0;
@@ -129,6 +132,10 @@ public class GameStateManager {
     
     public void resume() {
         this.paused = false;
+    }
+    
+    public Elevator getElevator() {
+        return this.elevator;
     }
     
     public void despawnEntity(LinearEntity e) {

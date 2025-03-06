@@ -9,18 +9,16 @@ public class SceneManager {
     private Queue<Scene> scenes;
     
     public void queueScene(Scene scene) {
+        scenes.add(scene);
     }
     
-    public void forceScene(Scene scene) {
-    }
-    
-    public void render(float delta) {
+    public void render(float deltaSec) {
+        if (scenes.peek().render(deltaSec))
+            scenes.poll();
     }
     
     public void ejectCurrentScene() {
-    }
-    
-    public void forceStopCurrentScene() {
+        scenes.peek().eject();
     }
 
 }
