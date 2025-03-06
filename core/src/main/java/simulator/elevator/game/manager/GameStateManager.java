@@ -69,12 +69,14 @@ public class GameStateManager {
                                      ELEVATOR_Y_BOUND);
         this.entities.clear();
         this.entities.add(this.elevator);
+        PassengerCoordinator.getInstance().reset();
+        SceneDirector.getInstance().reset();
     }
     
     public boolean render(Main game, float deltaSec) {
         this.timeRemaining -= deltaSec;
         
-        LinearEntity newEntity = PassengerDirector.getInstance().spawnPassengers(deltaSec);
+        LinearEntity newEntity = PassengerCoordinator.getInstance().spawnPassengers(deltaSec);
         if (newEntity != null)
             this.entities.add(newEntity);
 

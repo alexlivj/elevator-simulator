@@ -17,15 +17,15 @@ import simulator.elevator.game.scene.Scene;
 import simulator.elevator.util.RelativeCoordinate;
 import simulator.elevator.util.TextureUtility;
 
-public class PassengerDirector {
+public class PassengerCoordinator {
     
     private List<Scene> availableScenes = new ArrayList<Scene>();
     
     private List<Passenger> activePassengers = new ArrayList<Passenger>();
     private Passenger scenePassenger = null;
     private final Passenger[][] waitingSlots= 
-            new Passenger[GameStateManager.FLOOR_SPAWNS.size()][PassengerDirector.MAX_PASSENGERS_FLOOR];
-    private final Passenger[] elevatorSlots = new Passenger[PassengerDirector.MAX_PASSENGERS_ELEVATOR];
+            new Passenger[GameStateManager.FLOOR_SPAWNS.size()][PassengerCoordinator.MAX_PASSENGERS_FLOOR];
+    private final Passenger[] elevatorSlots = new Passenger[PassengerCoordinator.MAX_PASSENGERS_ELEVATOR];
 
     //TODO maybe read these from somewhere
     private static final int MAX_PASSENGERS_WORLD = 8;
@@ -38,33 +38,36 @@ public class PassengerDirector {
     private static final float SPAWN_OCCURRENCE_SEC = 0.3f;
     private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
     private static final Texture DEF_PASSENGER_TEXTURE = TextureUtility.doubleTextureSize("passenger.png");
-    public static final float HAPPINESS_DECAY_RATE_SEC = 0.99f;
-    public static final float[] HAPPINESS_DECAY_MOD = new float[6];
-    static {
-        HAPPINESS_DECAY_MOD[PassengerState.ARRIVING.value] = 0f;
-        HAPPINESS_DECAY_MOD[PassengerState.WAITING.value] = 1f;
-        HAPPINESS_DECAY_MOD[PassengerState.LOADING.value] = 1.5f;
-        HAPPINESS_DECAY_MOD[PassengerState.RIDING.value] = 0.5f;
-        HAPPINESS_DECAY_MOD[PassengerState.UNLOADING.value] = 1.5f;
-        HAPPINESS_DECAY_MOD[PassengerState.LEAVING.value] = 0f;
-    }
-    public static final int DOOR_SLAM_PENALTY = -10;
     private static final int MIN_SPEED_PIXEL_SEC = 20;
     private static final int MAX_SPEED_PIXEL_SEC = 40;
-    private static final float MIN_PATIENCE = 0.8f;
-    private static final float MIN_GENEROSITY = 0.8f;
+    private static final float MIN_PATIENCE = 0f;
+    private static final float MIN_GENEROSITY = 0f;
     //NOTE max patience and generosity is just 1f, for easier balancing
-    public static final int MAX_TIP_CENTS = 10;
+    public static final int MAX_TIP_CENTS = 20;
     
-    private static PassengerDirector instance;
-    public static PassengerDirector getInstance() {
+    private static PassengerCoordinator instance;
+    public static PassengerCoordinator getInstance() {
         if (instance == null)
-            instance = new PassengerDirector();
+            instance = new PassengerCoordinator();
         return instance;
     }
     
-    private PassengerDirector() {
-        reset();
+    private PassengerCoordinator() {
+    }
+    
+    public void reset() {
+        this.availableScenes.clear();
+        this.availableScenes.addAll(GameStateManager.SCENES);
+        
+        this.activePassengers.clear();
+        this.scenePassenger = null;
+        
+        for (int i=0; i<this.waitingSlots.length; i++)
+            for (int j=0; j<this.waitingSlots[i].length; j++)
+                this.waitingSlots[i][j] = null;
+
+        for (int i=0; i<this.elevatorSlots.length; i++)
+            this.elevatorSlots[i] = null;
     }
     
     public LinearEntity managePassengers(float deltaSec) {
@@ -77,12 +80,12 @@ public class PassengerDirector {
         Passenger newPassenger = null;
         
         if (this.activePassengers.size() < MAX_PASSENGERS_WORLD
-                && Math.random() < PassengerDirector.SPAWN_OCCURRENCE_SEC * deltaSec) {
+                && Math.random() < PassengerCoordinator.SPAWN_OCCURRENCE_SEC * deltaSec) {
             
             Scene newScene = null;
             if (this.scenePassenger == null) {
                 if (this.availableScenes.size() > 0 
-                        && Math.random() < PassengerDirector.SCENE_OCCURRENCE_SPAWN) {
+                        && Math.random() < PassengerCoordinator.SCENE_OCCURRENCE_SPAWN) {
                     int randomSceneIndex = Math.round(getRandomRange(0,this.availableScenes.size()-1));
                     newScene = this.availableScenes.remove(randomSceneIndex);
                 }
@@ -103,7 +106,7 @@ public class PassengerDirector {
             boolean allFloorsFull = true;
             for (Integer floor : floorNumWaiting.keySet()) {
                 boolean maxWaiting =
-                        PassengerDirector.MAX_PASSENGERS_FLOOR <= floorNumWaiting.get(leastBusyFloor);
+                        PassengerCoordinator.MAX_PASSENGERS_FLOOR <= floorNumWaiting.get(leastBusyFloor);
                 allFloorsFull = allFloorsFull && maxWaiting;
                 int numWaiting = maxWaiting ? Integer.MAX_VALUE : floorNumWaiting.get(leastBusyFloor); 
                 if (floorNumWaiting.get(floor) < numWaiting)
@@ -117,16 +120,15 @@ public class PassengerDirector {
                 randomDestFloor++;
             
             //TODO get random texture that matches scene, if applicable
-            Texture texture = PassengerDirector.DEF_PASSENGER_TEXTURE;
+            Texture texture = PassengerCoordinator.DEF_PASSENGER_TEXTURE;
             
-            int speed = Math.round(getRandomRange(PassengerDirector.MIN_SPEED_PIXEL_SEC,
-                                                  PassengerDirector.MAX_SPEED_PIXEL_SEC));
-            float patience = getRandomRange(PassengerDirector.MIN_PATIENCE, 1f);
-            float generosity = getRandomRange(PassengerDirector.MIN_GENEROSITY, 1f);
+            int speed = Math.round(getRandomRange(PassengerCoordinator.MIN_SPEED_PIXEL_SEC,
+                                                  PassengerCoordinator.MAX_SPEED_PIXEL_SEC));
+            float patience = getRandomRange(PassengerCoordinator.MIN_PATIENCE, 1f);
+            float generosity = getRandomRange(PassengerCoordinator.MIN_GENEROSITY, 1f);
             PassengerPersonality personality = new PassengerPersonality(speed,patience,generosity);
             
-            newPassenger = new Passenger(this,
-                                         leastBusyFloor, randomDestFloor,
+            newPassenger = new Passenger(leastBusyFloor, randomDestFloor,
                                          texture, newScene,
                                          personality);
             
@@ -152,7 +154,7 @@ public class PassengerDirector {
                     distance = diffLen;
                 }
             }
-            if (distance < PassengerDirector.ELEVATOR_FLOOR_BUFFER_PIXEL)
+            if (distance < PassengerCoordinator.ELEVATOR_FLOOR_BUFFER_PIXEL)
                 floor = closestFloor;
         }
         return floor;
@@ -177,8 +179,8 @@ public class PassengerDirector {
         }
         
         if (slot >= 0) {
-            int rideBuffer = slot * PassengerDirector.PASSENGER_WIDTH_PIXEL;
-            int rideXPos = PassengerDirector.RIDE_X_OFFSET_PIXEL + rideBuffer;
+            int rideBuffer = slot * PassengerCoordinator.PASSENGER_WIDTH_PIXEL;
+            int rideXPos = PassengerCoordinator.RIDE_X_OFFSET_PIXEL + rideBuffer;
             slotPos = new RelativeCoordinate(GameStateManager.getInstance().getElevator().getPosition(),
                                              new Vector2(rideXPos,0));
             this.elevatorSlots[slot] = passenger;
@@ -207,8 +209,8 @@ public class PassengerDirector {
 
         if (slot >= 0) {
             slotPos = new RelativeCoordinate(passenger.getPosition());
-            int waitBuffer = slot * PassengerDirector.PASSENGER_WIDTH_PIXEL;
-            int waitXPos = PassengerDirector.WAIT_X_OFFSET_PIXEL - waitBuffer;
+            int waitBuffer = slot * PassengerCoordinator.PASSENGER_WIDTH_PIXEL;
+            int waitXPos = PassengerCoordinator.WAIT_X_OFFSET_PIXEL - waitBuffer;
             slotPos.getRelativeVector().x = waitXPos;
             this.waitingSlots[floor][slot] = passenger;
         }
@@ -234,7 +236,7 @@ public class PassengerDirector {
     
     public RelativeCoordinate getFloorExit(int floor) {
         RelativeCoordinate exit = new RelativeCoordinate(GameStateManager.FLOOR_SPAWNS.get(floor));
-        exit.getRelativeVector().x = PassengerDirector.WAIT_X_OFFSET_PIXEL;
+        exit.getRelativeVector().x = PassengerCoordinator.WAIT_X_OFFSET_PIXEL;
         return exit;
     }
     
@@ -248,21 +250,6 @@ public class PassengerDirector {
         clearElevatorSlot(passenger);
         this.activePassengers.remove(passenger);
         GameStateManager.getInstance().despawnEntity(passenger);
-    }
-    
-    public void reset() {
-        this.availableScenes.clear();
-        this.availableScenes.addAll(GameStateManager.SCENES);
-        
-        this.activePassengers.clear();
-        this.scenePassenger = null;
-        
-        for (int i=0; i<this.waitingSlots.length; i++)
-            for (int j=0; j<this.waitingSlots[i].length; j++)
-                this.waitingSlots[i][j] = null;
-
-        for (int i=0; i<this.elevatorSlots.length; i++)
-            this.elevatorSlots[i] = null;
     }
     
     private float getRandomRange(float first, float second) {
