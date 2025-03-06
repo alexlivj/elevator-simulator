@@ -9,7 +9,7 @@ public class Line {
     
     private static final int CHAR_PER_SEC = 10;
     
-    private final Image portrait;
+    private final PortraitType portrait;
     private final boolean playerLine;
     private final String npcLine;
     private final Sound npcSFX;
@@ -17,7 +17,7 @@ public class Line {
     
     private float timeInLineSec = 0;
     
-    public Line(Image portrait, boolean playerLine,
+    public Line(PortraitType portrait, boolean playerLine,
                 String npcLine, Sound npcSFX,
                 List<String> playerOptions) {
         this.portrait = portrait;
