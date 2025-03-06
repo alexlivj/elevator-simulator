@@ -1,25 +1,30 @@
 package simulator.elevator.game.manager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import simulator.elevator.game.entity.passenger.Passenger;
-import simulator.elevator.game.entity.passenger.PassengerPersonality;
 import simulator.elevator.game.entity.passenger.PassengerState;
 import simulator.elevator.game.scene.Scene;
+import simulator.elevator.game.scene.SceneRequirements;
 import simulator.elevator.game.scene.SceneType;
-import simulator.elevator.game.scene.StarScene;
+import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RandomUtility;
 
 public class SceneDirector {
 
-    public static final List<StarScene> ALL_STAR_SCENES = new ArrayList<StarScene>();
-    private List<StarScene> availableStarScenes = new ArrayList<StarScene>();
+    //TODO again, maybe read this from somewhere
+    private static final Map<SceneRequirements,Scene> ALL_NORMAL_SCENES = 
+            new HashMap<SceneRequirements,Scene>();
+    private static final List<StarRole> ALL_STAR_SCENES = new ArrayList<StarRole>();
     
+    private List<StarRole> availableStarScenes = new ArrayList<StarRole>();
     private Queue<Pair<Passenger,Scene>> queuedScenes;
-    private Pair<Passenger,StarScene> starScene = null;
+    private Pair<Passenger,StarRole> starScene = null;
     private Pair<Passenger,Scene> activeScene = null;
     private PassengerState activateStarScene = null;
     
@@ -39,8 +44,8 @@ public class SceneDirector {
         this.availableStarScenes.addAll(SceneDirector.ALL_STAR_SCENES);
     }
     
-    public StarScene requestStarScene() {
-        StarScene newStarScene = null;
+    public StarRole requestStarScene() {
+        StarRole newStarScene = null;
         if (this.starScene != null) {
             int newStarSceneIndex = RandomUtility.getRandomIntRange(0,availableStarScenes.size()-1);
             newStarScene = this.availableStarScenes.remove(newStarSceneIndex);
@@ -53,7 +58,7 @@ public class SceneDirector {
     }
     
     public void render(float deltaSec) {
-        if (this.activeScene.second.render(deltaSec)) {
+        if (this.activeScene == null || this.activeScene.second.render(deltaSec)) {
             if (this.activateStarScene == null) {
                 this.activeScene = this.queuedScenes.poll();
             } else {
@@ -68,8 +73,9 @@ public class SceneDirector {
         this.activateStarScene = state;
     }
     
-    public void ejectCurrentScene() {
-        this.activeScene.second.eject();
+    public void ejectPassengerCurrentScene(Passenger passenger) {
+        if (this.activeScene.first == passenger)
+            this.activeScene.second.eject();
     }
     
     public void ejectPassengerScenes(Passenger passenger) {
@@ -79,8 +85,7 @@ public class SceneDirector {
             this.queuedScenes.removeIf(ps -> ps.first == passenger);
     }
     
-    public Scene generateScene(SceneType type, PassengerPersonality personality,
-                               PassengerState state, int happiness) {
+    public Scene requestScene(Passenger passenger, SceneType type) {
         Scene newScene = null;
         if (this.starScene == null || this.activeScene.first != this.starScene.first) {
             //TODO

@@ -13,8 +13,7 @@ import simulator.elevator.game.entity.LinearEntity;
 import simulator.elevator.game.entity.passenger.Passenger;
 import simulator.elevator.game.entity.passenger.PassengerPersonality;
 import simulator.elevator.game.entity.passenger.PassengerState;
-import simulator.elevator.game.scene.Scene;
-import simulator.elevator.game.scene.StarScene;
+import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.util.RandomUtility;
 import simulator.elevator.util.RelativeCoordinate;
 import simulator.elevator.util.TextureUtility;
@@ -37,12 +36,11 @@ public class PassengerCoordinator {
     private static final float SPAWN_OCCURRENCE_SEC = 0.3f;
     private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
     private static final Texture DEF_PASSENGER_TEXTURE = TextureUtility.doubleTextureSize("passenger.png");
-    private static final int MIN_SPEED_PIXEL_SEC = 20;
-    private static final int MAX_SPEED_PIXEL_SEC = 40;
-    private static final float MIN_PATIENCE = 0f;
-    private static final float MIN_GENEROSITY = 0f;
+    public static final int MIN_SPEED_PIXEL_SEC = 20;
+    public static final int MAX_SPEED_PIXEL_SEC = 40;
+    public static final float MIN_PATIENCE = 0f;
+    public static final float MIN_GENEROSITY = 0f;
     //NOTE max patience and generosity is just 1f, for easier balancing
-    public static final int MAX_TIP_CENTS = 20;
     
     private static PassengerCoordinator instance;
     public static PassengerCoordinator getInstance() {
@@ -76,9 +74,9 @@ public class PassengerCoordinator {
         
         if (this.activePassengers.size() < MAX_PASSENGERS_WORLD
                 && Math.random() < PassengerCoordinator.SPAWN_OCCURRENCE_SEC * deltaSec) {
-            StarScene starScene = null;
+            StarRole starRole = null;
             if (Math.random() < PassengerCoordinator.SCENE_OCCURRENCE_SPAWN)
-                starScene = SceneDirector.getInstance().requestStarScene();
+                starRole = SceneDirector.getInstance().requestStarScene();
             
             Map<Integer,Integer> floorNumWaiting = new HashMap<Integer,Integer>();
             for (int i=0; i<GameStateManager.FLOOR_SPAWNS.size(); i++)
@@ -115,16 +113,12 @@ public class PassengerCoordinator {
                                                         PassengerCoordinator.MAX_SPEED_PIXEL_SEC);
             float patience = RandomUtility.getRandomRange(PassengerCoordinator.MIN_PATIENCE, 1f);
             float generosity = RandomUtility.getRandomRange(PassengerCoordinator.MIN_GENEROSITY, 1f);
-            if (starScene != null) {
-                patience = Math.max(starScene.minPersonality().patience(), patience);
-                patience = Math.min(patience, starScene.maxPersonality().patience());
-                generosity = Math.max(starScene.minPersonality().patience(), generosity);
-                generosity = Math.min(generosity, starScene.maxPersonality().patience());
-            }
             PassengerPersonality personality = new PassengerPersonality(speed,patience,generosity);
+            if (starRole != null)
+                personality = starRole.requirements().bindPersonality(personality);
             
             newPassenger = new Passenger(leastBusyFloor, randomDestFloor,
-                                         texture, starScene,
+                                         texture, starRole,
                                          personality);
             
             this.activePassengers.add(newPassenger);

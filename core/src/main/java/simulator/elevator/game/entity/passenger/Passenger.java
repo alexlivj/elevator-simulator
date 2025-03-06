@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.Texture;
 
 import simulator.elevator.game.entity.LinearEntity;
 import simulator.elevator.game.manager.PassengerCoordinator;
-import simulator.elevator.game.scene.Scene;
-import simulator.elevator.game.scene.StarScene;
+import simulator.elevator.game.manager.SceneDirector;
+import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.util.RelativeCoordinate;
 
 public class Passenger extends LinearEntity {
@@ -21,6 +21,7 @@ public class Passenger extends LinearEntity {
         HAPPINESS_DECAY_MOD[PassengerState.LEAVING.value] = 0f;
     }
     public static final float DOOR_SLAM_PENALTY = -50;
+    public static final int MAX_TIP_CENTS = 20;
     
     private final PassengerCoordinator coordinator;
     
@@ -30,22 +31,23 @@ public class Passenger extends LinearEntity {
     
     private final int startFloor;
     private final int destFloor;
-    private final StarScene starScene;
+    private final StarRole starRole;
     private final PassengerPersonality personality;
     
     public Passenger(int startFloor, int destFloor,
-                     Texture texture, StarScene starScene,
+                     Texture texture, StarRole starRole,
                      PassengerPersonality personality) {
         super(PassengerCoordinator.getInstance().getFloorSpawn(startFloor), texture);
         this.coordinator = PassengerCoordinator.getInstance();
         this.startFloor = startFloor;
         this.destFloor = destFloor;
-        this.starScene = starScene;
+        this.starRole = starRole;
         this.personality = personality;
     }
     
     @Override
     public void update(float deltaSec) {
+        PassengerState oldState = this.currentState;
         switch (this.currentState) {
             case ARRIVING:
                 if (!this.isMoving()) {
@@ -87,6 +89,8 @@ public class Passenger extends LinearEntity {
                     this.happiness = Math.max(0, this.happiness+penalty);
                     this.coordinator.clearElevatorSlot(this);
                     this.currentState = isLoading ? PassengerState.WAITING : PassengerState.RIDING;
+                    if (this.starRole != null)
+                        SceneDirector.getInstance().ejectPassengerCurrentScene(this);
                     //TODO some sort of "wth bro" scene, if director commands
                     // maybe we express indignation, and if the director approve, we use personality to select a scene
                 } else if (!this.isMoving()) {
@@ -120,6 +124,10 @@ public class Passenger extends LinearEntity {
                 break;
         }
         
+        if (this.starRole != null && oldState != this.currentState) {
+            SceneDirector.getInstance().readyStarScene(currentState);
+        }
+        
         float d = 1-Passenger.HAPPINESS_DECAY_RATE_SEC;
         float mod = this.personality.patience() * Passenger.HAPPINESS_DECAY_MOD[this.currentState.value];
         float decaySec = 1 - mod*d;
@@ -132,13 +140,21 @@ public class Passenger extends LinearEntity {
         return this.startFloor;
     }
     
+    public PassengerPersonality getPersonality() {
+        return this.personality;
+    }
+    
     public PassengerState getState() {
         return this.currentState;
     }
     
+    public float getHappiness() {
+        return this.happiness;
+    }
+    
     public int calculateTip() {
         float givingMood = 100/this.happiness * this.personality.generosity();
-        int tip = Math.round(PassengerCoordinator.MAX_TIP_CENTS * givingMood);
+        int tip = Math.round(Passenger.MAX_TIP_CENTS * givingMood);
         System.out.println("end ride tip: happiness="+this.happiness+", generosity="+this.personality.generosity()+", tip="+tip);
         return tip;
     }
