@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import simulator.elevator.game.entity.LinearEntity;
 import simulator.elevator.game.manager.PassengerCoordinator;
 import simulator.elevator.game.manager.SceneDirector;
+import simulator.elevator.game.scene.Line;
 import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.util.RelativeCoordinate;
 
@@ -88,17 +89,18 @@ public class Passenger extends LinearEntity {
                     float penalty = Passenger.DOOR_SLAM_PENALTY * 1-this.personality.patience();
                     this.happiness = Math.max(0, this.happiness+penalty);
                     this.coordinator.clearElevatorSlot(this);
-                    this.currentState = isLoading ? PassengerState.WAITING : PassengerState.RIDING;
                     if (this.starRole != null)
                         SceneDirector.getInstance().ejectPassengerCurrentScene(this);
                     //TODO some sort of "wth bro" scene, if director commands
                     // maybe we express indignation, and if the director approve, we use personality to select a scene
+                    this.currentState = isLoading ? PassengerState.WAITING : PassengerState.RIDING;
                 } else if (!this.isMoving()) {
                     this.currentStateAction = false;
                     this.currentState = isLoading ? PassengerState.RIDING : PassengerState.LEAVING;
                     if (isLoading)
                         this.coordinator.clearWaitingSlot(this);
-                    //TODO if loading, tell the player which floor where to go with a scene
+                    Line requestFloor = new Line(null, false, "Floor "+this.destFloor+", please.", null, null);
+                    SceneDirector.getInstance().queueInterrupt(requestFloor);
                 }
                 break;
             case RIDING:
