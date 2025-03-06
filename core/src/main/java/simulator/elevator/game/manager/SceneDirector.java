@@ -2,9 +2,11 @@ package simulator.elevator.game.manager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 import simulator.elevator.game.entity.passenger.Passenger;
 import simulator.elevator.game.entity.passenger.PassengerState;
@@ -18,9 +20,12 @@ import simulator.elevator.util.RandomUtility;
 public class SceneDirector {
 
     //TODO again, maybe read this from somewhere
-    private static final Map<SceneRequirements,Scene> ALL_NORMAL_SCENES = 
-            new HashMap<SceneRequirements,Scene>();
+    private static final Map<PassengerState,Map<SceneRequirements,List<Scene>>> ALL_NORMAL_SCENES = 
+            new HashMap<PassengerState,Map<SceneRequirements,List<Scene>>>();
     private static final List<StarRole> ALL_STAR_SCENES = new ArrayList<StarRole>();
+    static {
+        //TODO
+    }
     
     private List<StarRole> availableStarScenes = new ArrayList<StarRole>();
     private Queue<Pair<Passenger,Scene>> queuedScenes;
@@ -88,7 +93,25 @@ public class SceneDirector {
     public Scene requestScene(Passenger passenger, SceneType type) {
         Scene newScene = null;
         if (this.starScene == null || this.activeScene.first != this.starScene.first) {
-            //TODO
+            Map<SceneRequirements,List<Scene>> stateScenes = ALL_NORMAL_SCENES.get(passenger.getState());
+            Set<SceneRequirements> validReqs = new HashSet<SceneRequirements>(stateScenes.keySet());
+            validReqs.stream().filter(r -> r.isValidPassenger(passenger));
+            
+            int randomReqNum = RandomUtility.getRandomIntRange(0, validReqs.size());
+            int i=0;
+            SceneRequirements req = null;
+            for (SceneRequirements r : validReqs) {
+                if (i == randomReqNum) {
+                    req = r;
+                    break;
+                }
+                i++;
+            }
+            
+            if (req != null) {
+                int randomSceneNum = RandomUtility.getRandomIntRange(0, stateScenes.get(req).size());
+                newScene = stateScenes.get(req).get(randomSceneNum);
+            }
         }
         return newScene;
     }

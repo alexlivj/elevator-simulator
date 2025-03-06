@@ -11,7 +11,6 @@ import com.badlogic.gdx.math.Vector2;
 import simulator.elevator.Main;
 import simulator.elevator.game.entity.Elevator;
 import simulator.elevator.game.entity.LinearEntity;
-import simulator.elevator.game.scene.Scene;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RelativeCoordinate;
 import simulator.elevator.util.TextureUtility;
