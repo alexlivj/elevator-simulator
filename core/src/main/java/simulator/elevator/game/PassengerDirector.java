@@ -42,6 +42,15 @@ public class PassengerDirector {
     private static final int MAX_SPEED_PIXEL_SEC = 40;
     private static final int ELEVATOR_FLOOR_BUFFER_PIXEL = 10;
     public static final float HAPPINESS_DECAY_RATE_SEC = 0.99f;
+    public static final float[] HAPPINESS_DECAY_MOD = new float[6];
+    static {
+        HAPPINESS_DECAY_MOD[Passenger.PState.ARRIVING.value] = 0f;
+        HAPPINESS_DECAY_MOD[Passenger.PState.WAITING.value] = 1f;
+        HAPPINESS_DECAY_MOD[Passenger.PState.LOADING.value] = 1.5f;
+        HAPPINESS_DECAY_MOD[Passenger.PState.RIDING.value] = 0.5f;
+        HAPPINESS_DECAY_MOD[Passenger.PState.UNLOADING.value] = 1.5f;
+        HAPPINESS_DECAY_MOD[Passenger.PState.LEAVING.value] = 0f;
+    }
     
     public PassengerDirector(Elevator elevator,
                              List<RelativeCoordinate> floorSpawns,

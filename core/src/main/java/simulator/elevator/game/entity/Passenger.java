@@ -16,16 +16,7 @@ public class Passenger extends LinearEntity {
         UNLOADING(4),
         LEAVING(5);
         
-        private final int value;
-        private static final float[] HAPPINESS_DECAY_MOD = new float[6];
-        static {
-            HAPPINESS_DECAY_MOD[ARRIVING.value] = 0f;
-            HAPPINESS_DECAY_MOD[WAITING.value] = 1f;
-            HAPPINESS_DECAY_MOD[LOADING.value] = 1.5f;
-            HAPPINESS_DECAY_MOD[RIDING.value] = 0.5f;
-            HAPPINESS_DECAY_MOD[UNLOADING.value] = 1.5f;
-            HAPPINESS_DECAY_MOD[LEAVING.value] = 0f;
-        }
+        public final int value;
         
         private PState(int value) {
             this.value = value;
@@ -33,12 +24,6 @@ public class Passenger extends LinearEntity {
         
         public boolean isBeforeOrAt(PState p) {
             return this.value <= p.value;
-        }
-        
-        public float modHappiness(float deltaSec, float happiness) {
-            float d = 1-PassengerDirector.HAPPINESS_DECAY_RATE_SEC;
-            float decaySec = 1 - HAPPINESS_DECAY_MOD[this.value]*d;
-            return (float) (happiness * Math.pow(decaySec,deltaSec));
         }
     }
     
@@ -138,7 +123,11 @@ public class Passenger extends LinearEntity {
             default:
                 break;
         }
-        this.happiness = this.currentState.modHappiness(deltaSec, this.happiness);
+        
+        // decay happiness
+        float d = 1-PassengerDirector.HAPPINESS_DECAY_RATE_SEC;
+        float decaySec = 1 - PassengerDirector.HAPPINESS_DECAY_MOD[this.currentState.value]*d;
+        this.happiness *= Math.pow(decaySec,deltaSec);
         
         super.update(deltaSec);
     }
