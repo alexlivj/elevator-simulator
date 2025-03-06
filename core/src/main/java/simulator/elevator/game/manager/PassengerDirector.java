@@ -10,18 +10,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import simulator.elevator.game.entity.LinearEntity;
-import simulator.elevator.game.entity.Passenger;
+import simulator.elevator.game.entity.passenger.Passenger;
+import simulator.elevator.game.entity.passenger.PassengerPersonality;
+import simulator.elevator.game.entity.passenger.PassengerState;
 import simulator.elevator.game.scene.Scene;
 import simulator.elevator.util.RelativeCoordinate;
 import simulator.elevator.util.TextureUtility;
 
 public class PassengerDirector {
     
-    private List<Scene> remainingScenes = new ArrayList<Scene>();
+    private List<Scene> availableScenes = new ArrayList<Scene>();
     
     private List<Passenger> activePassengers = new ArrayList<Passenger>();
     private Passenger scenePassenger = null;
-    private final Passenger[][] waitingSlots = new Passenger[GameStateManager.FLOOR_SPAWNS.size()][PassengerDirector.MAX_PASSENGERS_FLOOR];;
+    private final Passenger[][] waitingSlots= 
+            new Passenger[GameStateManager.FLOOR_SPAWNS.size()][PassengerDirector.MAX_PASSENGERS_FLOOR];
     private final Passenger[] elevatorSlots = new Passenger[PassengerDirector.MAX_PASSENGERS_ELEVATOR];
 
     //TODO maybe read these from somewhere
@@ -38,12 +41,12 @@ public class PassengerDirector {
     public static final float HAPPINESS_DECAY_RATE_SEC = 0.99f;
     public static final float[] HAPPINESS_DECAY_MOD = new float[6];
     static {
-        HAPPINESS_DECAY_MOD[Passenger.PState.ARRIVING.value] = 0f;
-        HAPPINESS_DECAY_MOD[Passenger.PState.WAITING.value] = 1f;
-        HAPPINESS_DECAY_MOD[Passenger.PState.LOADING.value] = 1.5f;
-        HAPPINESS_DECAY_MOD[Passenger.PState.RIDING.value] = 0.5f;
-        HAPPINESS_DECAY_MOD[Passenger.PState.UNLOADING.value] = 1.5f;
-        HAPPINESS_DECAY_MOD[Passenger.PState.LEAVING.value] = 0f;
+        HAPPINESS_DECAY_MOD[PassengerState.ARRIVING.value] = 0f;
+        HAPPINESS_DECAY_MOD[PassengerState.WAITING.value] = 1f;
+        HAPPINESS_DECAY_MOD[PassengerState.LOADING.value] = 1.5f;
+        HAPPINESS_DECAY_MOD[PassengerState.RIDING.value] = 0.5f;
+        HAPPINESS_DECAY_MOD[PassengerState.UNLOADING.value] = 1.5f;
+        HAPPINESS_DECAY_MOD[PassengerState.LEAVING.value] = 0f;
     }
     private static final int MIN_SPEED_PIXEL_SEC = 20;
     private static final int MAX_SPEED_PIXEL_SEC = 40;
@@ -77,15 +80,18 @@ public class PassengerDirector {
             
             Scene newScene = null;
             if (this.scenePassenger == null) {
-                if (this.remainingScenes.size() > 0 && Math.random() < PassengerDirector.SCENE_OCCURRENCE_SPAWN)
-                    newScene = this.remainingScenes.remove(Math.round(getRandomRange(0,this.remainingScenes.size()-1)));
+                if (this.availableScenes.size() > 0 
+                        && Math.random() < PassengerDirector.SCENE_OCCURRENCE_SPAWN) {
+                    int randomSceneIndex = Math.round(getRandomRange(0,this.availableScenes.size()-1));
+                    newScene = this.availableScenes.remove(randomSceneIndex);
+                }
             }
             
             Map<Integer,Integer> floorNumWaiting = new HashMap<Integer,Integer>();
             for (int i=0; i<GameStateManager.FLOOR_SPAWNS.size(); i++)
                 floorNumWaiting.put(i, 0);
             for (Passenger p : this.activePassengers) {
-                if (p.getState().isBeforeOrAt(Passenger.PState.LOADING)) {
+                if (p.getState().isBeforeOrAt(PassengerState.LOADING)) {
                     int startFloor = p.getStartFloor();
                     int numWaiting = floorNumWaiting.get(startFloor);
                     floorNumWaiting.put(startFloor, numWaiting+1);
@@ -116,7 +122,7 @@ public class PassengerDirector {
                                                   PassengerDirector.MAX_SPEED_PIXEL_SEC));
             float patience = getRandomRange(PassengerDirector.MIN_PATIENCE, 1f);
             float generosity = getRandomRange(PassengerDirector.MIN_GENEROSITY, 1f);
-            Passenger.Personality personality = new Passenger.Personality(speed,patience,generosity);
+            PassengerPersonality personality = new PassengerPersonality(speed,patience,generosity);
             
             newPassenger = new Passenger(this,
                                          leastBusyFloor, randomDestFloor,
@@ -244,8 +250,8 @@ public class PassengerDirector {
     }
     
     public void reset() {
-        this.remainingScenes.clear();
-        this.remainingScenes.addAll(GameStateManager.SCENES);
+        this.availableScenes.clear();
+        this.availableScenes.addAll(GameStateManager.SCENES);
         
         this.activePassengers.clear();
         this.scenePassenger = null;
