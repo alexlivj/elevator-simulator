@@ -3,15 +3,18 @@ package simulator.elevator.game.manager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
 import simulator.elevator.game.entity.passenger.Passenger;
+import simulator.elevator.game.entity.passenger.PassengerPersonality;
 import simulator.elevator.game.entity.passenger.PassengerState;
 import simulator.elevator.game.scene.Scene;
 import simulator.elevator.game.scene.CastingDirection;
+import simulator.elevator.game.scene.Line;
 import simulator.elevator.game.scene.SceneType;
 import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.util.Pair;
@@ -24,14 +27,25 @@ public class SceneDirector {
             new HashMap<PassengerState,Map<CastingDirection,List<Scene>>>();
     private static final List<StarRole> ALL_STAR_SCENES = new ArrayList<StarRole>();
     static {
+        PassengerPersonality minInf = 
+                new PassengerPersonality(Integer.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
+        PassengerPersonality maxInf = 
+                new PassengerPersonality(Integer.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
+        CastingDirection anyoneWithAPulse = 
+                new CastingDirection(new Pair<PassengerPersonality,PassengerPersonality>(minInf, maxInf),
+                        new Pair<Float,Float>(Float.MIN_VALUE, Float.MAX_VALUE));
         //TODO
     }
     
     private List<StarRole> availableStarScenes = new ArrayList<StarRole>();
-    private Queue<Pair<Passenger,Scene>> queuedScenes;
     private Pair<Passenger,StarRole> starScene = null;
+    private PassengerState startStarScene = null;
+    
+    private Queue<Pair<Passenger,Scene>> queuedScenes = new LinkedList<Pair<Passenger,Scene>>();
     private Pair<Passenger,Scene> activeScene = null;
-    private PassengerState activateStarScene = null;
+
+    private Queue<Line> queuedInterrupts = new LinkedList<Line>();
+    private Line activeInterrupt = null;
     
     private static SceneDirector instance;
     public static SceneDirector getInstance() {
@@ -44,7 +58,10 @@ public class SceneDirector {
     
     public void reset()
     {
+        this.activeScene = null;
+        this.activeInterrupt = null;
         this.queuedScenes.clear();
+        this.queuedInterrupts.clear();
         this.availableStarScenes.clear();
         this.availableStarScenes.addAll(SceneDirector.ALL_STAR_SCENES);
     }
@@ -58,24 +75,42 @@ public class SceneDirector {
         return newStarScene;
     }
     
+    public void queueInterrupt(Line line) {
+        this.queuedInterrupts.add(line);
+    }
+    
     public void queueScene(Passenger passenger, Scene scene) {
         this.queuedScenes.add(new Pair<Passenger,Scene>(passenger, scene));
     }
     
     public void render(float deltaSec) {
-        if (this.activeScene == null || this.activeScene.second.render(deltaSec)) {
-            if (this.activateStarScene == null) {
-                this.activeScene = this.queuedScenes.poll();
+        boolean runningInterrupt = this.activeInterrupt != null;
+        boolean runningScene = !runningInterrupt && this.activeScene != null;
+        
+        boolean switchScene = !runningInterrupt || !runningScene;
+        if (runningInterrupt)
+            switchScene = this.activeInterrupt.render(deltaSec);
+        else if (runningScene)
+            switchScene = this.activeScene.second.render(deltaSec);
+        
+        if (switchScene) {
+            if (!this.queuedInterrupts.isEmpty()) {
+                this.activeInterrupt = this.queuedInterrupts.poll();
             } else {
-                this.activeScene = new Pair<Passenger,Scene>(
-                        this.starScene.first, this.starScene.second.scenes().get(this.activateStarScene));
-                this.activateStarScene = null;
+                this.activeInterrupt = null;
+                if (this.startStarScene != null) {
+                    this.activeScene = new Pair<Passenger,Scene>(
+                            this.starScene.first, this.starScene.second.scenes().get(this.startStarScene));
+                    this.startStarScene = null;
+                } else {
+                    this.activeScene = this.queuedScenes.poll(); //sets to null if empty
+                }
             }
         }
     }
     
     public void readyStarScene(PassengerState state) {
-        this.activateStarScene = state;
+        this.startStarScene = state;
     }
     
     public void ejectPassengerCurrentScene(Passenger passenger) {
