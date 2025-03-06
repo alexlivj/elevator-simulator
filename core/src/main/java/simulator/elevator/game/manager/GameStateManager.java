@@ -42,7 +42,6 @@ public class GameStateManager {
         int upper = CAMERA_Y_BOUND.second+ELEVATOR_DURABILITY_BUFFER_PIXEL;
         ELEVATOR_Y_BOUND = new Pair<Integer,Integer>(lower, upper);
     }
-    public static final List<Scene> SCENES = new ArrayList<Scene>();
     
     private boolean paused = false;
     private float timeRemaining = GAME_TIME_SEC;

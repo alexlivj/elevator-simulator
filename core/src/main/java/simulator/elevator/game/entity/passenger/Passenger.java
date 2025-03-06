@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import simulator.elevator.game.entity.LinearEntity;
 import simulator.elevator.game.manager.PassengerCoordinator;
 import simulator.elevator.game.scene.Scene;
+import simulator.elevator.game.scene.StarScene;
 import simulator.elevator.util.RelativeCoordinate;
 
 public class Passenger extends LinearEntity {
@@ -29,17 +30,17 @@ public class Passenger extends LinearEntity {
     
     private final int startFloor;
     private final int destFloor;
-    private final Scene specialScene;
+    private final StarScene starScene;
     private final PassengerPersonality personality;
     
     public Passenger(int startFloor, int destFloor,
-                     Texture texture, Scene scene,
+                     Texture texture, StarScene starScene,
                      PassengerPersonality personality) {
         super(PassengerCoordinator.getInstance().getFloorSpawn(startFloor), texture);
         this.coordinator = PassengerCoordinator.getInstance();
         this.startFloor = startFloor;
         this.destFloor = destFloor;
-        this.specialScene = scene;
+        this.starScene = starScene;
         this.personality = personality;
     }
     
