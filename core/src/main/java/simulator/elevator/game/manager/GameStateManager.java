@@ -1,4 +1,4 @@
-package simulator.elevator.game;
+package simulator.elevator.game.manager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +50,14 @@ public class GameStateManager {
     private Elevator elevator;
     private final List<LinearEntity> entities = new ArrayList<LinearEntity>();
     
-    public GameStateManager() {
+    private static GameStateManager instance;
+    public static GameStateManager getInstance() {
+        if (GameStateManager.instance == null)
+            instance = new GameStateManager();
+        return instance;
+    }
+    
+    private GameStateManager() {
         reset();
     }
     
@@ -122,6 +129,10 @@ public class GameStateManager {
     
     public void resume() {
         this.paused = false;
+    }
+    
+    public void despawnEntity(LinearEntity e) {
+        this.entities.remove(e);
     }
     
 }

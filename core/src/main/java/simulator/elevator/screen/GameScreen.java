@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import simulator.elevator.Main;
+import simulator.elevator.game.manager.GameStateManager;
 
 public class GameScreen implements Screen {
     
@@ -16,7 +17,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-        this.game.manager.reset();
+        GameStateManager.getInstance().reset();
     }
 
     @Override
@@ -24,7 +25,7 @@ public class GameScreen implements Screen {
         ScreenUtils.clear(Color.BLACK);
         this.game.batch.begin();
         
-        boolean end = this.game.manager.render(this.game, deltaSec);
+        boolean end = GameStateManager.getInstance().render(this.game, deltaSec);
         
         this.game.batch.end();
         
@@ -39,12 +40,12 @@ public class GameScreen implements Screen {
 
     @Override
     public void pause() {
-        this.game.manager.pause();
+        GameStateManager.getInstance().pause();
     }
 
     @Override
     public void resume() {
-        this.game.manager.resume();
+        GameStateManager.getInstance().resume();
     }
 
     @Override

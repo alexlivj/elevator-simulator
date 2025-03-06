@@ -2,7 +2,7 @@ package simulator.elevator.game.entity;
 
 import com.badlogic.gdx.graphics.Texture;
 
-import simulator.elevator.game.PassengerDirector;
+import simulator.elevator.game.manager.PassengerDirector;
 import simulator.elevator.game.scene.Scene;
 import simulator.elevator.util.RelativeCoordinate;
 

@@ -1,4 +1,4 @@
-package simulator.elevator.game;
+package simulator.elevator.game.manager;
 
 import java.util.List;
 import java.util.Map;
@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import simulator.elevator.game.entity.Elevator;
@@ -236,14 +235,15 @@ public class PassengerDirector {
     }
     
     public void handleTip(int tipCents) {
-        this.elevator.giveTip(tipCents);
+        int newTip = Math.max(0,tipCents-1); // director's fee :P
+        this.elevator.giveTip(newTip);
     }
     
     public void despawn(Passenger passenger) {
         clearWaitingSlot(passenger);
         clearElevatorSlot(passenger);
         this.activePassengers.remove(passenger);
-        //TODO tell GameStateManagers
+        GameStateManager.getInstance().despawnEntity(passenger);
     }
     
     private float getRandomRange(float first, float second) {

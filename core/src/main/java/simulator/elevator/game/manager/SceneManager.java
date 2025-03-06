@@ -1,6 +1,8 @@
-package simulator.elevator.game.scene;
+package simulator.elevator.game.manager;
 
 import java.util.Queue;
+
+import simulator.elevator.game.scene.Scene;
 
 public class SceneManager {
     
