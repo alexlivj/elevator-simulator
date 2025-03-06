@@ -16,20 +16,35 @@ public class Passenger extends LinearEntity {
         UNLOADING(4),
         LEAVING(5);
         
-        private final Integer value;
+        private final int value;
+        private static final float[] HAPPINESS_DECAY_MOD = new float[6];
+        static {
+            HAPPINESS_DECAY_MOD[ARRIVING.value] = 0f;
+            HAPPINESS_DECAY_MOD[WAITING.value] = 1f;
+            HAPPINESS_DECAY_MOD[LOADING.value] = 1.5f;
+            HAPPINESS_DECAY_MOD[RIDING.value] = 0.5f;
+            HAPPINESS_DECAY_MOD[UNLOADING.value] = 1.5f;
+            HAPPINESS_DECAY_MOD[LEAVING.value] = 0f;
+        }
         
-        private PState(Integer value) {
+        private PState(int value) {
             this.value = value;
         }
         
         public boolean isBeforeOrAt(PState p) {
             return this.value <= p.value;
         }
+        
+        public float modHappiness(float deltaSec, float happiness) {
+            float d = 1-PassengerDirector.HAPPINESS_DECAY_RATE_SEC;
+            float decaySec = 1 - HAPPINESS_DECAY_MOD[this.value]*d;
+            return (float) (happiness * Math.pow(decaySec,deltaSec));
+        }
     }
     
     private final PassengerDirector director;
     
-    private int happiness = 100;
+    private float happiness = 100;
     private PState currentState = PState.ARRIVING;
     private boolean currentStateAction = false;
     private final int startFloor;
@@ -58,8 +73,14 @@ public class Passenger extends LinearEntity {
             case ARRIVING:
                 if (!this.isMoving()) {
                     if (!this.currentStateAction) {
-                        moveTo(director.requestWaitingSlot(this), speedPixelSec);
-                        this.currentStateAction = true;
+                        RelativeCoordinate waitingSlot = director.requestWaitingSlot(this);
+                        if (waitingSlot == null) {
+                            //TODO do this better. this feels bandaidy
+                            director.despawn(this);
+                        } else {
+                            moveTo(waitingSlot, speedPixelSec);
+                            this.currentStateAction = true;
+                        }
                     } else {
                         this.currentState = PState.WAITING;
                         this.currentStateAction = false;
@@ -86,12 +107,13 @@ public class Passenger extends LinearEntity {
                     cancelMove();
                     director.clearElevatorSlot(this);
                     this.currentState = isLoading ? PState.WAITING : PState.RIDING;
-                    if (isLoading)
-                        director.clearWaitingSlot(this);
                     //TODO some sort of "wth bro" scene, if director commands
                 } else if (!this.isMoving()) {
                     this.currentStateAction = false;
                     currentState = isLoading ? PState.RIDING : PState.LEAVING;
+                    if (isLoading)
+                        director.clearWaitingSlot(this);
+                    //TODO if loading, tell the player which floor where to go with a scene
                 }
                 break;
             case RIDING:
@@ -104,17 +126,19 @@ public class Passenger extends LinearEntity {
             case LEAVING:
                 if (!this.isMoving()) {
                     if (!this.currentStateAction) {
+                        System.out.println("end ride: happiness="+this.happiness);
                         director.clearElevatorSlot(this);
                         moveTo(director.getFloorSpawn(this.destFloor), speedPixelSec);
                         this.currentStateAction = true;
                     } else {
-                        //TODO despawn
+                        director.despawn(this);
                     }
                 }
                 break;
             default:
                 break;
         }
+        this.happiness = this.currentState.modHappiness(deltaSec, this.happiness);
         
         super.update(deltaSec);
     }

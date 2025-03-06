@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import simulator.elevator.game.entity.Elevator;
@@ -30,16 +31,17 @@ public class PassengerDirector {
     private Passenger[] elevatorSlots;
 
     //TODO maybe read these from somewhere
-    private static final int MAX_PASSENGERS_WORLD = 8;
+    private static final int MAX_PASSENGERS_WORLD = 1;
     private static final int MAX_PASSENGERS_FLOOR = 3;
     private static final int MAX_PASSENGERS_ELEVATOR = 2;
     private static final int PASSENGER_WIDTH_PIXEL = 16*2;
-    private static final float SPAWN_OCCURRENCE_SEC = 0.3f;
+    private static final float SPAWN_OCCURRENCE_SEC = 1f;
     private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
     private static final Texture DEF_PASSENGER_TEXTURE = TextureUtility.doubleTextureSize("passenger.png");
     private static final int MIN_SPEED_PIXEL_SEC = 20;
     private static final int MAX_SPEED_PIXEL_SEC = 40;
     private static final int ELEVATOR_FLOOR_BUFFER_PIXEL = 10;
+    public static final float HAPPINESS_DECAY_RATE_SEC = 0.99f;
     
     public PassengerDirector(Elevator elevator,
                              List<RelativeCoordinate> floorSpawns,
@@ -171,7 +173,7 @@ public class PassengerDirector {
     }
     
     public RelativeCoordinate requestWaitingSlot(Passenger passenger) {
-        RelativeCoordinate slotPos = new RelativeCoordinate(passenger.getPosition());
+        RelativeCoordinate slotPos = null;
         
         int floor = passenger.getStartFloor();
         int slot = -1;
@@ -181,12 +183,20 @@ public class PassengerDirector {
                 break;
             }
         }
-        System.out.println(floor+" "+slot);
         
-        int waitBuffer = slot * PassengerDirector.PASSENGER_WIDTH_PIXEL;
-        int waitXPos = this.firstWaitXPos - waitBuffer;
-        slotPos.getRelativeVector().x = waitXPos;
-        this.waitingSlots[floor][slot] = passenger;
+        int[] numWaiting = new int[this.waitingSlots.length];
+        for (int i=0; i<this.waitingSlots.length; i++)
+            for (int j=0; j<this.waitingSlots[i].length; j++)
+                if (this.waitingSlots[i][j] != null)
+                    numWaiting[i]++;
+
+        if (slot >= 0) {
+            slotPos = new RelativeCoordinate(passenger.getPosition());
+            int waitBuffer = slot * PassengerDirector.PASSENGER_WIDTH_PIXEL;
+            int waitXPos = this.firstWaitXPos - waitBuffer;
+            slotPos.getRelativeVector().x = waitXPos;
+            this.waitingSlots[floor][slot] = passenger;
+        }
         
         return slotPos;
     }
@@ -203,7 +213,6 @@ public class PassengerDirector {
             if (this.waitingSlots[i][j] == passenger)
                 this.waitingSlots[i][j] = null;
     }
-    
     public RelativeCoordinate getFloorSpawn(int floor) {
         return new RelativeCoordinate(this.floorSpawns.get(floor));
     }
@@ -212,6 +221,13 @@ public class PassengerDirector {
         RelativeCoordinate exit = new RelativeCoordinate(this.floorSpawns.get(floor));
         exit.getRelativeVector().x = this.firstWaitXPos;
         return exit;
+    }
+    
+    public void despawn(Passenger passenger) {
+        clearWaitingSlot(passenger);
+        clearElevatorSlot(passenger);
+        this.activePassengers.remove(passenger);
+        //TODO tell GameStateManagers
     }
     
     private float getRandomRange(float first, float second) {
