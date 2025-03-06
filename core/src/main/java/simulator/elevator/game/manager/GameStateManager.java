@@ -87,14 +87,18 @@ public class GameStateManager {
         
         moveCamera();
         
+        //TODO render world
         for (RelativeCoordinate fPos : GameStateManager.FLOOR_SPAWNS) {
             Vector2 fAbsPos = fPos.getAbsoluteVector();
             game.batch.draw(FLOOR_TEXTURE, fAbsPos.x, fAbsPos.y);
         }
+        
         for (LinearEntity e : this.entities)
             e.render(game);
         game.batch.draw(BLINDERS_TEXTURE, 0, 0);
+        
         //TODO render UI
+        SceneDirector.getInstance().render(deltaSec);
         
         return this.timeRemaining <= 0;
     }

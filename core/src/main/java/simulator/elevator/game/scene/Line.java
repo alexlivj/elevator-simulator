@@ -39,9 +39,14 @@ public class Line {
         else
             System.out.println(npcLine);
         System.out.println("---");
-        finished = this.timeInLineSec > 5; //TODO
+        //finished = this.timeInLineSec > 5; //TODO
+        finished = true;
         
         return finished;
+    }
+    
+    public String getNpcLine() {
+        return this.npcLine;
     }
 
 }

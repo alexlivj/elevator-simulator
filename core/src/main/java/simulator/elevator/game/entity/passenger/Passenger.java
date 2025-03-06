@@ -74,8 +74,9 @@ public class Passenger extends LinearEntity {
                         this.currentState = PassengerState.LOADING;
                         moveTo(elevatorSlot, this.personality.speedPixelSec());
                         this.currentStateAction = true;
+                    } else {
+                        //TODO some sort of "elevator full" scene, if director commands
                     }
-                    //TODO some sort of "elevator full" scene, if director commands
                 }
                 break;
             case LOADING, UNLOADING:
@@ -96,11 +97,14 @@ public class Passenger extends LinearEntity {
                     this.currentState = isLoading ? PassengerState.WAITING : PassengerState.RIDING;
                 } else if (!this.isMoving()) {
                     this.currentStateAction = false;
-                    this.currentState = isLoading ? PassengerState.RIDING : PassengerState.LEAVING;
-                    if (isLoading)
+                    if (isLoading) {
+                        Line requestFloor = new Line(null, false, "Floor "+(this.destFloor+1)+", please.", null, null);
+                        SceneDirector.getInstance().queueInterrupt(requestFloor);
                         this.coordinator.clearWaitingSlot(this);
-                    Line requestFloor = new Line(null, false, "Floor "+this.destFloor+", please.", null, null);
-                    SceneDirector.getInstance().queueInterrupt(requestFloor);
+                        this.currentState = PassengerState.RIDING;
+                    } else {
+                        this.currentState = PassengerState.LEAVING;
+                    }
                 }
                 break;
             case RIDING:
