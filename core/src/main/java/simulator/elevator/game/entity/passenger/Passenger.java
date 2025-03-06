@@ -17,7 +17,7 @@ public class Passenger extends LinearEntity {
     
     private final int startFloor;
     private final int destFloor;
-    private final Scene ridingScene;
+    private final Scene specialScene;
     private final PassengerPersonality personality;
     
     public Passenger(PassengerDirector director,
@@ -28,7 +28,7 @@ public class Passenger extends LinearEntity {
         this.director = director;
         this.startFloor = startFloor;
         this.destFloor = destFloor;
-        this.ridingScene = scene;
+        this.specialScene = scene;
         this.personality = personality;
     }
     
@@ -71,6 +71,7 @@ public class Passenger extends LinearEntity {
                     // ideally, we'd only want the reset to happen if the door intersects with the passsenger
                     this.currentStateAction = false;
                     cancelMove();
+                    this.happiness = Math.max(0, this.happiness+PassengerDirector.DOOR_SLAM_PENALTY);
                     this.director.clearElevatorSlot(this);
                     this.currentState = isLoading ? PassengerState.WAITING : PassengerState.RIDING;
                     //TODO some sort of "wth bro" scene, if director commands
@@ -106,7 +107,6 @@ public class Passenger extends LinearEntity {
                 break;
         }
         
-        // decay happiness
         float d = 1-PassengerDirector.HAPPINESS_DECAY_RATE_SEC;
         float mod = this.personality.patience() * PassengerDirector.HAPPINESS_DECAY_MOD[this.currentState.value];
         float decaySec = 1 - mod*d;

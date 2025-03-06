@@ -48,6 +48,7 @@ public class PassengerDirector {
         HAPPINESS_DECAY_MOD[PassengerState.UNLOADING.value] = 1.5f;
         HAPPINESS_DECAY_MOD[PassengerState.LEAVING.value] = 0f;
     }
+    public static final int DOOR_SLAM_PENALTY = -10;
     private static final int MIN_SPEED_PIXEL_SEC = 20;
     private static final int MAX_SPEED_PIXEL_SEC = 40;
     private static final float MIN_PATIENCE = 0.8f;
