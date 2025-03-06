@@ -11,7 +11,7 @@ import java.util.Set;
 import simulator.elevator.game.entity.passenger.Passenger;
 import simulator.elevator.game.entity.passenger.PassengerState;
 import simulator.elevator.game.scene.Scene;
-import simulator.elevator.game.scene.SceneRequirements;
+import simulator.elevator.game.scene.CastingDirection;
 import simulator.elevator.game.scene.SceneType;
 import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.util.Pair;
@@ -20,8 +20,8 @@ import simulator.elevator.util.RandomUtility;
 public class SceneDirector {
 
     //TODO again, maybe read this from somewhere
-    private static final Map<PassengerState,Map<SceneRequirements,List<Scene>>> ALL_NORMAL_SCENES = 
-            new HashMap<PassengerState,Map<SceneRequirements,List<Scene>>>();
+    private static final Map<PassengerState,Map<CastingDirection,List<Scene>>> ALL_NORMAL_SCENES = 
+            new HashMap<PassengerState,Map<CastingDirection,List<Scene>>>();
     private static final List<StarRole> ALL_STAR_SCENES = new ArrayList<StarRole>();
     static {
         //TODO
@@ -93,14 +93,14 @@ public class SceneDirector {
     public Scene requestScene(Passenger passenger, SceneType type) {
         Scene newScene = null;
         if (this.starScene == null || this.activeScene.first != this.starScene.first) {
-            Map<SceneRequirements,List<Scene>> stateScenes = ALL_NORMAL_SCENES.get(passenger.getState());
-            Set<SceneRequirements> validReqs = new HashSet<SceneRequirements>(stateScenes.keySet());
+            Map<CastingDirection,List<Scene>> stateScenes = ALL_NORMAL_SCENES.get(passenger.getState());
+            Set<CastingDirection> validReqs = new HashSet<CastingDirection>(stateScenes.keySet());
             validReqs.stream().filter(r -> r.isValidPassenger(passenger));
             
             int randomReqNum = RandomUtility.getRandomIntRange(0, validReqs.size());
             int i=0;
-            SceneRequirements req = null;
-            for (SceneRequirements r : validReqs) {
+            CastingDirection req = null;
+            for (CastingDirection r : validReqs) {
                 if (i == randomReqNum) {
                     req = r;
                     break;

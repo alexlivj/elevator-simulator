@@ -4,6 +4,6 @@ import java.util.Map;
 
 import simulator.elevator.game.entity.passenger.PassengerState;
 
-public record StarRole(Map<PassengerState,Scene> scenes, SceneRequirements requirements) {
+public record StarRole(Map<PassengerState,Scene> scenes, CastingDirection requirements) {
 
 }

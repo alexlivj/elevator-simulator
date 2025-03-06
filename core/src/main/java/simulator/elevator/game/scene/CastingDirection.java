@@ -4,7 +4,7 @@ import simulator.elevator.game.entity.passenger.Passenger;
 import simulator.elevator.game.entity.passenger.PassengerPersonality;
 import simulator.elevator.util.Pair;
 
-public class SceneRequirements {
+public class CastingDirection {
     
     private enum PersonalityTrait {
         PATIENCE,
@@ -15,7 +15,7 @@ public class SceneRequirements {
     private final Pair<PassengerPersonality,PassengerPersonality> personalityBounds;
     private final Pair<Float,Float> hapinessBounds;
     
-    public SceneRequirements(Pair<PassengerPersonality,PassengerPersonality> personalityBounds,
+    public CastingDirection(Pair<PassengerPersonality,PassengerPersonality> personalityBounds,
                              Pair<Float,Float> hapinessBounds) {
         this.personalityBounds = personalityBounds;
         this.hapinessBounds = hapinessBounds;
