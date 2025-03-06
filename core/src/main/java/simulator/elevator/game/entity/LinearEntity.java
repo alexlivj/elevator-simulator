@@ -87,6 +87,16 @@ public abstract class LinearEntity {
         return this.position;
     }
     
+    public float getAbsDistanceFromStart() {
+        if (path == null) {
+            return 0;
+        } else {
+            Vector2 pos = this.position.getAbsoluteVector();
+            Vector2 start = this.path.first.getAbsoluteVector();
+            return new Vector2(pos).sub(start).len();
+        }
+    }
+    
     protected void setTexture(Texture texture) {
         this.texture = texture;
     }

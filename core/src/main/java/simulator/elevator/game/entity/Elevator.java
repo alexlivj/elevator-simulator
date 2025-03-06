@@ -14,6 +14,7 @@ public class Elevator extends LinearEntity {
     private final Pair<Integer,Integer> yAxisBound;
     private int durability = 100;
     private boolean openDoor = true;
+    private int tipCents = 0;
 
     private static final Texture ELEVATOR_OPEN_TEXTURE =
             TextureUtility.doubleTextureSize("elevator-open.png");
@@ -61,6 +62,15 @@ public class Elevator extends LinearEntity {
     
     public int getDurability() {
         return this.durability;
+    }
+    
+    public void giveTip(int tipCents) {
+        this.tipCents += tipCents;
+        System.out.println("new elevator tip total: "+this.tipCents+" cents");
+    }
+    
+    public int getTipTotal() {
+        return this.tipCents;
     }
     
 }

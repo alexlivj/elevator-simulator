@@ -27,29 +27,29 @@ public class Passenger extends LinearEntity {
         }
     }
     
+    public record Personality (int speedPixelSec, float patience, float generosity) {}
+    
     private final PassengerDirector director;
     
     private float happiness = 100;
     private PState currentState = PState.ARRIVING;
     private boolean currentStateAction = false;
+    
     private final int startFloor;
     private final int destFloor;
     private final Scene scene;
-    
-    private final int speedPixelSec;
-    private float patience;
-    private float generosity;
+    private final Personality personality;
     
     public Passenger(PassengerDirector director,
                      int startFloor, int destFloor,
                      Texture texture, Scene scene,
-                     int speedPixelSec) {
+                     Personality personality) {
         super(director.getFloorSpawn(startFloor), texture);
         this.director = director;
         this.startFloor = startFloor;
         this.destFloor = destFloor;
         this.scene = scene;
-        this.speedPixelSec = speedPixelSec;
+        this.personality = personality;
     }
     
     @Override
@@ -60,10 +60,10 @@ public class Passenger extends LinearEntity {
                     if (!this.currentStateAction) {
                         RelativeCoordinate waitingSlot = director.requestWaitingSlot(this);
                         if (waitingSlot == null) {
-                            //TODO do this better. this feels bandaidy
+                            // this should never happen, but just in case....
                             director.despawn(this);
                         } else {
-                            moveTo(waitingSlot, speedPixelSec);
+                            moveTo(waitingSlot, this.personality.speedPixelSec);
                             this.currentStateAction = true;
                         }
                     } else {
@@ -77,7 +77,7 @@ public class Passenger extends LinearEntity {
                     RelativeCoordinate elevatorSlot = director.requestElevatorEntry(this);
                     if (elevatorSlot != null) {
                         this.currentState = PState.LOADING;
-                        moveTo(elevatorSlot, this.speedPixelSec);
+                        moveTo(elevatorSlot, this.personality.speedPixelSec);
                         this.currentStateAction = true;
                     }
                     //TODO some sort of "elevator full" scene, if director commands
@@ -86,37 +86,39 @@ public class Passenger extends LinearEntity {
             case LOADING, UNLOADING:
                 boolean isLoading = this.currentState == PState.LOADING;
                 int toFloor = isLoading ? this.startFloor : this.destFloor;
-                //TODO write more sophisticated "door slammed in face" code handling
-                if (!director.isElevatorAtFloor(toFloor)) {
+                if (!this.director.isElevatorAtFloor(toFloor)) {
+                    //TODO write more sophisticated "door slammed in face" checking
+                    // ideally, we'd only want the reset to happen if the door intersects with the passsenger
                     this.currentStateAction = false;
                     cancelMove();
-                    director.clearElevatorSlot(this);
+                    this.director.clearElevatorSlot(this);
                     this.currentState = isLoading ? PState.WAITING : PState.RIDING;
                     //TODO some sort of "wth bro" scene, if director commands
+                    // maybe we express indignation, and if the director approve, we use personality to select a scene
                 } else if (!this.isMoving()) {
                     this.currentStateAction = false;
-                    currentState = isLoading ? PState.RIDING : PState.LEAVING;
+                    this.currentState = isLoading ? PState.RIDING : PState.LEAVING;
                     if (isLoading)
-                        director.clearWaitingSlot(this);
+                        this.director.clearWaitingSlot(this);
                     //TODO if loading, tell the player which floor where to go with a scene
                 }
                 break;
             case RIDING:
-                if (director.isElevatorAtFloor(this.destFloor)) {
+                if (this.director.isElevatorAtFloor(this.destFloor)) {
                     this.currentState = PState.UNLOADING;
-                    moveTo(director.getFloorExit(this.destFloor), this.speedPixelSec);
+                    moveTo(this.director.getFloorExit(this.destFloor), this.personality.speedPixelSec);
                     this.currentStateAction = true;
                 }
                 break;
             case LEAVING:
                 if (!this.isMoving()) {
                     if (!this.currentStateAction) {
-                        System.out.println("end ride: happiness="+this.happiness);
-                        director.clearElevatorSlot(this);
-                        moveTo(director.getFloorSpawn(this.destFloor), speedPixelSec);
+                        this.director.handleTip(calculateTip());
+                        this.director.clearElevatorSlot(this);
+                        moveTo(this.director.getFloorSpawn(this.destFloor), this.personality.speedPixelSec);
                         this.currentStateAction = true;
                     } else {
-                        director.despawn(this);
+                        this.director.despawn(this);
                     }
                 }
                 break;
@@ -126,7 +128,8 @@ public class Passenger extends LinearEntity {
         
         // decay happiness
         float d = 1-PassengerDirector.HAPPINESS_DECAY_RATE_SEC;
-        float decaySec = 1 - PassengerDirector.HAPPINESS_DECAY_MOD[this.currentState.value]*d;
+        float mod = this.personality.patience * PassengerDirector.HAPPINESS_DECAY_MOD[this.currentState.value];
+        float decaySec = 1 - mod*d;
         this.happiness *= Math.pow(decaySec,deltaSec);
         
         super.update(deltaSec);
@@ -138,6 +141,12 @@ public class Passenger extends LinearEntity {
     
     public PState getState() {
         return this.currentState;
+    }
+    
+    public int calculateTip() {
+        int tip = Math.round(PassengerDirector.MAX_TIP_CENTS * 100/this.happiness * this.personality.generosity);
+        System.out.println("end ride tip: happiness="+this.happiness+", generosity="+this.personality.generosity+", tip="+tip);
+        return tip;
     }
 
 }

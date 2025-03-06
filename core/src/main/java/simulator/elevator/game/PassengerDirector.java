@@ -21,8 +21,6 @@ public class PassengerDirector {
 
     private final Elevator elevator;
     private final List<RelativeCoordinate> floorSpawns;
-    private final int firstWaitXPos;
-    private final int firstRidingXPos;
     private final List<Scene> scenes;
     
     private List<Passenger> activePassengers = new ArrayList<Passenger>();
@@ -31,16 +29,16 @@ public class PassengerDirector {
     private Passenger[] elevatorSlots;
 
     //TODO maybe read these from somewhere
-    private static final int MAX_PASSENGERS_WORLD = 1;
+    private static final int MAX_PASSENGERS_WORLD = 8;
     private static final int MAX_PASSENGERS_FLOOR = 3;
     private static final int MAX_PASSENGERS_ELEVATOR = 2;
+    private static final int ELEVATOR_FLOOR_BUFFER_PIXEL = 10;
     private static final int PASSENGER_WIDTH_PIXEL = 16*2;
+    private static final int WAIT_X_OFFSET_PIXEL = 245*2;
+    private static final int RIDE_X_OFFSET_PIXEL = 277*2;
     private static final float SPAWN_OCCURRENCE_SEC = 1f;
     private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
     private static final Texture DEF_PASSENGER_TEXTURE = TextureUtility.doubleTextureSize("passenger.png");
-    private static final int MIN_SPEED_PIXEL_SEC = 20;
-    private static final int MAX_SPEED_PIXEL_SEC = 40;
-    private static final int ELEVATOR_FLOOR_BUFFER_PIXEL = 10;
     public static final float HAPPINESS_DECAY_RATE_SEC = 0.99f;
     public static final float[] HAPPINESS_DECAY_MOD = new float[6];
     static {
@@ -51,15 +49,18 @@ public class PassengerDirector {
         HAPPINESS_DECAY_MOD[Passenger.PState.UNLOADING.value] = 1.5f;
         HAPPINESS_DECAY_MOD[Passenger.PState.LEAVING.value] = 0f;
     }
+    private static final int MIN_SPEED_PIXEL_SEC = 20;
+    private static final int MAX_SPEED_PIXEL_SEC = 40;
+    private static final float MIN_PATIENCE = 0.8f;
+    private static final float MIN_GENEROSITY = 0.8f;
+    //NOTE max patience and generosity is just 1f, for easier balancing
+    public static final int MAX_TIP_CENTS = 10;
     
     public PassengerDirector(Elevator elevator,
                              List<RelativeCoordinate> floorSpawns,
-                             int firstWaitXPos, int firstRidingXPos,
                              List<Scene> scenes) {
         this.elevator = elevator;
         this.floorSpawns = floorSpawns;
-        this.firstWaitXPos = firstWaitXPos;
-        this.firstRidingXPos = firstRidingXPos;
         this.scenes = scenes;
         
         this.waitingSlots = new Passenger[floorSpawns.size()][PassengerDirector.MAX_PASSENGERS_FLOOR];
@@ -118,12 +119,14 @@ public class PassengerDirector {
             
             int speed = Math.round(getRandomRange(PassengerDirector.MIN_SPEED_PIXEL_SEC,
                                                   PassengerDirector.MAX_SPEED_PIXEL_SEC));
-            //TODO randomly generate other stats
+            float patience = getRandomRange(PassengerDirector.MIN_PATIENCE, 1f);
+            float generosity = getRandomRange(PassengerDirector.MIN_GENEROSITY, 1f);
+            Passenger.Personality personality = new Passenger.Personality(speed,patience,generosity);
             
             newPassenger = new Passenger(this,
                                          leastBusyFloor, randomDestFloor,
                                          texture, newScene,
-                                         speed);
+                                         personality);
             
             this.activePassengers.add(newPassenger);
             if (newScene != null)
@@ -172,7 +175,7 @@ public class PassengerDirector {
         
         if (slot >= 0) {
             int rideBuffer = slot * PassengerDirector.PASSENGER_WIDTH_PIXEL;
-            int rideXPos = this.firstRidingXPos + rideBuffer;
+            int rideXPos = PassengerDirector.RIDE_X_OFFSET_PIXEL + rideBuffer;
             slotPos = new RelativeCoordinate(this.elevator.getPosition(),
                                              new Vector2(rideXPos,0));
             this.elevatorSlots[slot] = passenger;
@@ -202,7 +205,7 @@ public class PassengerDirector {
         if (slot >= 0) {
             slotPos = new RelativeCoordinate(passenger.getPosition());
             int waitBuffer = slot * PassengerDirector.PASSENGER_WIDTH_PIXEL;
-            int waitXPos = this.firstWaitXPos - waitBuffer;
+            int waitXPos = PassengerDirector.WAIT_X_OFFSET_PIXEL - waitBuffer;
             slotPos.getRelativeVector().x = waitXPos;
             this.waitingSlots[floor][slot] = passenger;
         }
@@ -228,8 +231,12 @@ public class PassengerDirector {
     
     public RelativeCoordinate getFloorExit(int floor) {
         RelativeCoordinate exit = new RelativeCoordinate(this.floorSpawns.get(floor));
-        exit.getRelativeVector().x = this.firstWaitXPos;
+        exit.getRelativeVector().x = PassengerDirector.WAIT_X_OFFSET_PIXEL;
         return exit;
+    }
+    
+    public void handleTip(int tipCents) {
+        this.elevator.giveTip(tipCents);
     }
     
     public void despawn(Passenger passenger) {

@@ -39,8 +39,6 @@ public class GameStateManager {
         ELEVATOR_Y_BOUND = new Pair<Integer,Integer>(lower, upper);
     }
     private static final List<Scene> SCENES = new ArrayList<Scene>();
-    private static final int WAIT_X = 245*2;
-    private static final int RIDE_X = 277*2;
     
     //TODO
     private PassengerDirector director;
@@ -64,8 +62,7 @@ public class GameStateManager {
         this.entities.clear();
         this.entities.add(this.elevator);
         director = new PassengerDirector(this.elevator,
-                GameStateManager.FLOOR_SPAWNS, 
-                GameStateManager.WAIT_X, GameStateManager.RIDE_X,
+                GameStateManager.FLOOR_SPAWNS,
                 GameStateManager.SCENES);
     }
     
@@ -87,6 +84,7 @@ public class GameStateManager {
         
         for (LinearEntity e : this.entities)
             e.render(game);
+        //TODO render UI
         
         return this.timeRemaining <= 0;
     }
