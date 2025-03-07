@@ -3,7 +3,6 @@ package simulator.elevator.game.manager;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
@@ -29,7 +28,6 @@ public class GameStateManager implements InputProcessor {
         FLOOR_SPAWNS.add(new RelativeCoordinate(WORLD_ORIGIN, new Vector2(0,FLOOR_SIZE*3)));
     }
     private static final Texture FLOOR_TEXTURE = TextureUtility.doubleTextureSize("floor.png");
-    private static final Texture BLINDERS_TEXTURE = TextureUtility.doubleTextureSize("blinders.png");
     private static final Pair<Integer,Integer> CAMERA_Y_BOUND = new Pair<Integer,Integer>(0,FLOOR_SIZE*3);
     private static final int CAMERA_Y_OFFSET = -250;
     private static final int ELEVATOR_SPEED_PIXEL_SEC = 30;
@@ -45,6 +43,7 @@ public class GameStateManager implements InputProcessor {
             new Pair<Integer,Integer>(100-50,100+50);
     private static final Vector2 SLIDER_CENTER = new Vector2(320*2, 100);
     private static final Vector2 BUTTON_CENTER = new Vector2(264*2, 50);
+    private static final Texture STATIC_UI = TextureUtility.doubleTextureSize("static-ui.png");
     
     private boolean paused = false;
     private float timeRemaining = GAME_TIME_SEC;
@@ -54,7 +53,6 @@ public class GameStateManager implements InputProcessor {
     private final List<AbstractEntity> entities = new ArrayList<AbstractEntity>();
     private final List<AbstractEntity> deadEntities = new ArrayList<AbstractEntity>();
 
-    private boolean spaceKeyUp = true;
     private record Box(Vector2 pos, Vector2 size) {
         public boolean containsScreenPoint(int x, int y) {
             Vector2 point = translateScreen(x,y);
@@ -116,9 +114,9 @@ public class GameStateManager implements InputProcessor {
         
         for (AbstractEntity e : this.entities)
             e.render(game);
-        game.batch.draw(BLINDERS_TEXTURE, 0, 0);
         
         //TODO render UI
+        game.batch.draw(STATIC_UI, 0, 0);
         SceneDirector.getInstance().render(deltaSec);
         game.batch.draw(this.doorToggleButton,
                 this.doorToggleButtonBox.pos.x,
