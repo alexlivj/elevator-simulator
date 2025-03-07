@@ -7,6 +7,7 @@ import simulator.elevator.game.manager.PassengerCoordinator;
 import simulator.elevator.game.manager.SceneDirector;
 import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.game.scene.script.NpcLineTree;
+import simulator.elevator.game.scene.script.SceneType;
 import simulator.elevator.util.RelativeCoordinate;
 
 public class Passenger extends AbstractEntity {
@@ -23,8 +24,9 @@ public class Passenger extends AbstractEntity {
     }
     public static final float DOOR_SLAM_PENALTY = -50;
     public static final int MAX_TIP_CENTS = 20;
-    
+
     private final PassengerCoordinator coordinator;
+    private final SceneDirector director;
     
     private float happiness = 100;
     private PassengerState currentState = PassengerState.ARRIVING;
@@ -40,6 +42,7 @@ public class Passenger extends AbstractEntity {
                      PassengerPersonality personality) {
         super(PassengerCoordinator.getInstance().getFloorSpawn(startFloor), texture);
         this.coordinator = PassengerCoordinator.getInstance();
+        this.director = SceneDirector.getInstance();
         this.startFloor = startFloor;
         this.destFloor = destFloor;
         this.starRole = starRole;
@@ -75,7 +78,7 @@ public class Passenger extends AbstractEntity {
                         moveTo(elevatorSlot, this.personality.speedPixelSec());
                         this.currentStateAction = true;
                     } else {
-                        //TODO some sort of "elevator full" scene, if director commands
+                        SceneDirector.getInstance().requestScene(this, SceneType.ELEVATOR_FULL);
                     }
                 }
                 break;
@@ -91,7 +94,7 @@ public class Passenger extends AbstractEntity {
                     this.happiness = Math.max(0, this.happiness+penalty);
                     this.coordinator.clearElevatorSlot(this);
                     if (this.starRole != null)
-                        SceneDirector.getInstance().ejectPassengerCurrentScene(this);
+                        this.director.ejectPassengerCurrentScene(this);
                     //TODO some sort of "wth bro" scene, if director commands
                     // maybe we express indignation, and if the director approve, we use personality to select a scene
                     this.currentState = isLoading ? PassengerState.WAITING : PassengerState.RIDING;
@@ -100,7 +103,7 @@ public class Passenger extends AbstractEntity {
                     if (isLoading) {
                         NpcLineTree requestFloor = new NpcLineTree(
                                 null, null, "Floor "+(this.destFloor+1)+", please.", null);
-                        SceneDirector.getInstance().queueInterrupt(requestFloor);
+                        this.director.queueInterrupt(requestFloor);
                         this.coordinator.clearWaitingSlot(this);
                         this.currentState = PassengerState.RIDING;
                     } else {
@@ -123,6 +126,7 @@ public class Passenger extends AbstractEntity {
                         moveTo(this.coordinator.getFloorSpawn(this.destFloor), this.personality.speedPixelSec());
                         this.currentStateAction = true;
                     } else {
+                        this.director.removePassengerScenes(this);
                         this.coordinator.despawn(this);
                     }
                 }
@@ -132,7 +136,7 @@ public class Passenger extends AbstractEntity {
         }
         
         if (this.starRole != null && oldState != this.currentState) {
-            SceneDirector.getInstance().readyStarScene(currentState);
+            this.director.readyStarScene(currentState);
         }
         
         float d = 1-Passenger.HAPPINESS_DECAY_RATE_SEC;

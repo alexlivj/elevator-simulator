@@ -15,16 +15,19 @@ import simulator.elevator.game.entity.passenger.PassengerState;
 import simulator.elevator.game.scene.CastingDirection;
 import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.game.scene.script.NpcLineTree;
+import simulator.elevator.game.scene.script.PortraitType;
 import simulator.elevator.game.scene.script.Scene;
 import simulator.elevator.game.scene.script.SceneType;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RandomUtility;
 
 public class SceneDirector {
+    
+    private record ActiveScene (Passenger passenger, SceneType type, Scene scene) {}
 
     //TODO again, maybe read this from somewhere
-    private static final Map<PassengerState,Map<CastingDirection,List<Scene>>> ALL_NORMAL_SCENES = 
-            new HashMap<PassengerState,Map<CastingDirection,List<Scene>>>();
+    private static final Map<SceneType,Map<CastingDirection,List<Scene>>> ALL_NORMAL_SCENES = 
+            new HashMap<SceneType,Map<CastingDirection,List<Scene>>>();
     private static final List<StarRole> ALL_STAR_SCENES = new ArrayList<StarRole>();
     static {
         PassengerPersonality minInf = 
@@ -34,15 +37,25 @@ public class SceneDirector {
         CastingDirection anyoneWithAPulse = 
                 new CastingDirection(new Pair<PassengerPersonality,PassengerPersonality>(minInf, maxInf),
                         new Pair<Float,Float>(Float.MIN_VALUE, Float.MAX_VALUE));
-        //TODO
+        
+        Map<CastingDirection,List<Scene>> elevatorFullMap = new HashMap<CastingDirection,List<Scene>>();
+        ALL_NORMAL_SCENES.put(SceneType.ELEVATOR_FULL, elevatorFullMap);
+        List<Scene> elevatorFullPulseScenes = new ArrayList<Scene>();
+        elevatorFullMap.put(anyoneWithAPulse, elevatorFullPulseScenes);
+        
+        Scene simpleElevatorFull = new Scene(
+                new NpcLineTree(PortraitType.PLAYER_NEUTRAL, null, "Sorry, elevator's full.", null),
+                null);
+        elevatorFullPulseScenes.add(simpleElevatorFull);
     }
+    private static final int MAX_SCENES = 3;
     
     private List<StarRole> availableStarScenes = new ArrayList<StarRole>();
     private Pair<Passenger,StarRole> starScene = null;
     private PassengerState startStarScene = null;
     
-    private Queue<Pair<Passenger,Scene>> queuedScenes = new LinkedList<Pair<Passenger,Scene>>();
-    private Pair<Passenger,Scene> activeScene = null;
+    private Queue<ActiveScene> queuedScenes = new LinkedList<ActiveScene>();
+    private ActiveScene activeScene = null;
 
     private Queue<NpcLineTree> queuedInterrupts = new LinkedList<NpcLineTree>();
     private NpcLineTree activeInterrupt = null;
@@ -79,10 +92,6 @@ public class SceneDirector {
         this.queuedInterrupts.add(line);
     }
     
-    public void queueScene(Passenger passenger, Scene scene) {
-        this.queuedScenes.add(new Pair<Passenger,Scene>(passenger, scene));
-    }
-    
     public void render(float deltaSec) {
         boolean runningInterrupt = this.activeInterrupt != null;
         boolean runningScene = !runningInterrupt && this.activeScene != null;
@@ -91,7 +100,7 @@ public class SceneDirector {
         if (runningInterrupt)
             switchScene = this.activeInterrupt.render(deltaSec);
         else if (runningScene)
-            switchScene = this.activeScene.second.render(deltaSec);
+            switchScene = this.activeScene.scene().render(deltaSec);
         
         if (switchScene) {
             if (!this.queuedInterrupts.isEmpty()) {
@@ -99,8 +108,8 @@ public class SceneDirector {
             } else {
                 this.activeInterrupt = null;
                 if (this.startStarScene != null) {
-                    this.activeScene = new Pair<Passenger,Scene>(
-                            this.starScene.first, this.starScene.second.scenes().get(this.startStarScene));
+                    this.activeScene = new ActiveScene(this.starScene.first, SceneType.STAR, 
+                            this.starScene.second.scenes().get(this.startStarScene));
                     this.startStarScene = null;
                 } else {
                     this.activeScene = this.queuedScenes.poll(); //sets to null if empty
@@ -114,21 +123,24 @@ public class SceneDirector {
     }
     
     public void ejectPassengerCurrentScene(Passenger passenger) {
-        if (this.activeScene.first == passenger)
-            this.activeScene.second.eject();
+        if (this.activeScene != null && this.activeScene.passenger() == passenger)
+            this.activeScene.scene().eject();
     }
     
-    public void ejectPassengerScenes(Passenger passenger) {
-        if (this.queuedScenes.peek().first == passenger)
-            this.queuedScenes.peek().second.eject();
+    public void removePassengerScenes(Passenger passenger) {
+        if (this.activeScene != null && this.activeScene.passenger() == passenger)
+            this.activeScene.scene().eject();
         else
-            this.queuedScenes.removeIf(ps -> ps.first == passenger);
+            this.queuedScenes.removeIf(as -> as.passenger() == passenger);
     }
     
-    public Scene requestScene(Passenger passenger, SceneType type) {
+    public void requestScene(Passenger passenger, SceneType type) {
         Scene newScene = null;
-        if (this.starScene == null || this.activeScene.first != this.starScene.first) {
-            Map<CastingDirection,List<Scene>> stateScenes = ALL_NORMAL_SCENES.get(passenger.getState());
+        System.out.println(type+" "+this.hasSceneType(type)+" "+this.numScenes());
+        if ((this.starScene == null || this.activeScene.passenger() != this.starScene.first)
+                && !this.hasSceneType(type)
+                && this.numScenes() < SceneDirector.MAX_SCENES) {
+            Map<CastingDirection,List<Scene>> stateScenes = ALL_NORMAL_SCENES.get(type);
             Set<CastingDirection> validReqs = new HashSet<CastingDirection>(stateScenes.keySet());
             validReqs.stream().filter(r -> r.isValidPassenger(passenger));
             
@@ -144,11 +156,22 @@ public class SceneDirector {
             }
             
             if (req != null) {
-                int randomSceneNum = RandomUtility.getRandomIntRange(0, stateScenes.get(req).size());
+                int randomSceneNum = RandomUtility.getRandomIntRange(0, stateScenes.get(req).size()-1);
                 newScene = stateScenes.get(req).get(randomSceneNum);
             }
         }
-        return newScene;
+        if (newScene != null)
+            this.queuedScenes.add(new ActiveScene(passenger, type, newScene));
+    }
+    
+    private boolean hasSceneType(SceneType type) {
+        Queue<ActiveScene> queueCopy = new LinkedList<ActiveScene>(this.queuedScenes);
+        return (this.activeScene != null && this.activeScene.type() == type)
+                || queueCopy.stream().map(as -> as.type()).anyMatch(t -> t == type);
+    }
+    
+    private int numScenes() {
+        return this.queuedScenes.size() + ((this.activeScene != null) ? 1 : 0);
     }
 
 }

@@ -5,7 +5,6 @@ public abstract class AbstractLineTree {
     private static final int CHAR_PER_SEC = 10;
 
     private final PortraitType portrait;
-    
     protected boolean isLineDone;
     protected float timeInLineSec = 0;
 

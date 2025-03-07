@@ -14,6 +14,8 @@ public class Scene {
     public boolean render(float deltaSec) {
         AbstractLineTree curr = this.ejecting ? this.ejectLine : this.script;
         
+        if (curr == null)
+            return true;
         return curr.render(deltaSec);
     }
     
