@@ -159,8 +159,7 @@ public class GameStateManager implements InputProcessor {
         if (this.elevatorSliderBox.pos().y < GameStateManager.SLIDER_CENTER.y)
             dSlider *= -1;
         float maxSlider = new Vector2(this.elevatorSliderBox.pos().x, GameStateManager.SLIDER_Y_BOUND.first).sub(GameStateManager.SLIDER_CENTER).len();
-        int dy = Math.round(dSlider/maxSlider * Elevator.ELEVATOR_SPEED_PIXEL_SEC);
-        this.elevator.move(dy);
+        this.elevator.move(dSlider/maxSlider);
     }
     
     private static Vector2 translateScreen(int x, int y) {
