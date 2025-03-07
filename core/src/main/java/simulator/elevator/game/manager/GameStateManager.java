@@ -41,6 +41,10 @@ public class GameStateManager implements InputProcessor {
         int upper = CAMERA_Y_BOUND.second+ELEVATOR_DURABILITY_BUFFER_PIXEL;
         ELEVATOR_Y_BOUND = new Pair<Integer,Integer>(lower, upper);
     }
+    private static final Pair<Integer,Integer> SLIDER_Y_BOUND = 
+            new Pair<Integer,Integer>(100-50,100+50);
+    private static final Vector2 SLIDER_CENTER = new Vector2(320*2, 100);
+    private static final Vector2 BUTTON_CENTER = new Vector2(264*2, 50);
     
     private boolean paused = false;
     private float timeRemaining = GAME_TIME_SEC;
@@ -51,15 +55,23 @@ public class GameStateManager implements InputProcessor {
     private final List<AbstractEntity> deadEntities = new ArrayList<AbstractEntity>();
 
     private boolean spaceKeyUp = true;
-    private record Box(Pair<Integer,Integer> pos, Pair<Integer,Integer> size) {
-        public boolean containsPoint(int x, int y) {
-            return (pos.first < x && x < pos.first+size.first)
-                    && (pos.second < y && y < pos.second+size.second);
+    private record Box(Vector2 pos, Vector2 size) {
+        public boolean containsScreenPoint(int x, int y) {
+            Vector2 point = translateScreen(x,y);
+
+            return (this.pos.x < point.x && point.x < this.pos.x+this.size.x)
+                    && (this.pos.y < point.y && point.y < this.pos.y+this.size.y);
         }
     }
-    private Box doorToggleButtonBox = new Box(
-            new Pair<Integer,Integer>((420-75)*2, (280-75)*2),
-            new Pair<Integer,Integer>(75*2,75*2));
+    private Texture doorToggleButton = TextureUtility.doubleTextureSize("button.png");
+    private Box doorToggleButtonBox = new Box(new Vector2(BUTTON_CENTER),
+                                              new Vector2(doorToggleButton.getWidth(),
+                                                          doorToggleButton.getHeight()));
+    private Texture elevatorSlider = TextureUtility.doubleTextureSize("slider.png");
+    private Box elevatorSliderBox = new Box(new Vector2(SLIDER_CENTER),
+                                            new Vector2(elevatorSlider.getWidth(),
+                                                        elevatorSlider.getHeight()));
+    private Vector2 sliderSelectOffset = null;
     
     private static GameStateManager instance;
     public static GameStateManager getInstance() {
@@ -108,6 +120,12 @@ public class GameStateManager implements InputProcessor {
         
         //TODO render UI
         SceneDirector.getInstance().render(deltaSec);
+        game.batch.draw(this.doorToggleButton,
+                this.doorToggleButtonBox.pos.x,
+                this.doorToggleButtonBox.pos.y);
+        game.batch.draw(this.elevatorSlider,
+                this.elevatorSliderBox.pos.x,
+                this.elevatorSliderBox.pos.y);
         
         // to stop the mysterious concurrency errors
         for (AbstractEntity d : this.deadEntities)
@@ -140,6 +158,11 @@ public class GameStateManager implements InputProcessor {
     public void despawnEntity(AbstractEntity e) {
         this.deadEntities.add(e);
     }
+    
+    private static Vector2 translateScreen(int x, int y) {
+        // for some reason, 0,0 for input is the top left, instead of bottom left corner
+        return new Vector2(x,560-y);
+    }
 
     @Override
     public boolean keyDown(int keyCode) {
@@ -163,7 +186,7 @@ public class GameStateManager implements InputProcessor {
         
         if (!this.elevator.isDoorOpen())
             this.elevator.move(dy);
-        
+
         return true;
     }
 
@@ -171,7 +194,7 @@ public class GameStateManager implements InputProcessor {
     public boolean keyUp(int keyCode) {
         if (this.paused)
             return false;
-        
+       
         switch (keyCode) {
         case Input.Keys.UP:
         case Input.Keys.DOWN:
@@ -181,28 +204,48 @@ public class GameStateManager implements InputProcessor {
             this.spaceKeyUp = true;
             break;
         }
-        
+
         return true;
     }
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        // TODO Auto-generated method stub
-        return false;
+        if (this.paused)
+            return false;
+        
+        if (this.elevatorSliderBox.containsScreenPoint(screenX, screenY))
+            this.sliderSelectOffset = translateScreen(screenX, screenY).sub(this.elevatorSliderBox.pos());
+
+        return true;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        // TODO Auto-generated method stub
-        return false;
+        if (this.sliderSelectOffset != null) {
+            Vector2 newPos = translateScreen(screenX, screenY).sub(this.sliderSelectOffset);
+            newPos.x = this.elevatorSliderBox.pos().x;
+            newPos.y = Math.max(SLIDER_Y_BOUND.first, Math.min(newPos.y, SLIDER_Y_BOUND.second));
+            this.elevatorSliderBox.pos().set(newPos);
+
+            //TODO there's gotta be a better way....
+            float dSlider = new Vector2(newPos).sub(GameStateManager.SLIDER_CENTER).len();
+            if (newPos.y < GameStateManager.SLIDER_CENTER.y)
+                dSlider *= -1;
+            float maxSlider = new Vector2(newPos.x, GameStateManager.SLIDER_Y_BOUND.first).sub(GameStateManager.SLIDER_CENTER).len();
+            int dy = Math.round(dSlider/maxSlider * GameStateManager.ELEVATOR_SPEED_PIXEL_SEC);
+            this.elevator.move(dy);
+        }
+
+        return true;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        if (this.doorToggleButtonBox.containsPoint(screenX, screenY))
+        if (this.doorToggleButtonBox.containsScreenPoint(screenX, screenY))
             this.elevator.toggleDoor();
+        this.sliderSelectOffset = null;
         
-        return false;
+        return true;
     }
 
     @Override
