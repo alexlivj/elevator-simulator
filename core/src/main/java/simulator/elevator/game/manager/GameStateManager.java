@@ -48,6 +48,7 @@ public class GameStateManager {
     
     private Elevator elevator;
     private final List<AbstractEntity> entities = new ArrayList<AbstractEntity>();
+    private final List<AbstractEntity> deadEntities = new ArrayList<AbstractEntity>();
     
     private static GameStateManager instance;
     public static GameStateManager getInstance() {
@@ -100,6 +101,10 @@ public class GameStateManager {
         //TODO render UI
         SceneDirector.getInstance().render(deltaSec);
         
+        // to stop the mysterious concurrency errors
+        for (AbstractEntity d : this.deadEntities)
+            this.entities.remove(d);
+        
         return this.timeRemaining <= 0;
     }
     
@@ -143,7 +148,7 @@ public class GameStateManager {
     }
     
     public void despawnEntity(AbstractEntity e) {
-        this.entities.remove(e);
+        this.deadEntities.add(e);
     }
     
 }
