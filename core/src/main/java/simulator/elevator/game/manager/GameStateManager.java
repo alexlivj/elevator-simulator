@@ -159,53 +159,19 @@ public class GameStateManager implements InputProcessor {
         this.deadEntities.add(e);
     }
     
+    private void useSliderValue() {
+        //TODO there's gotta be a better way to math this....
+        float dSlider = new Vector2(this.elevatorSliderBox.pos()).sub(GameStateManager.SLIDER_CENTER).len();
+        if (this.elevatorSliderBox.pos().y < GameStateManager.SLIDER_CENTER.y)
+            dSlider *= -1;
+        float maxSlider = new Vector2(this.elevatorSliderBox.pos().x, GameStateManager.SLIDER_Y_BOUND.first).sub(GameStateManager.SLIDER_CENTER).len();
+        int dy = Math.round(dSlider/maxSlider * GameStateManager.ELEVATOR_SPEED_PIXEL_SEC);
+        this.elevator.move(dy);
+    }
+    
     private static Vector2 translateScreen(int x, int y) {
         // for some reason, 0,0 for input is the top left, instead of bottom left corner
         return new Vector2(x,560-y);
-    }
-
-    @Override
-    public boolean keyDown(int keyCode) {
-        if (this.paused)
-            return false;
-        
-        int dy = 0;
-        switch (keyCode) {
-        case Input.Keys.UP:
-            dy += ELEVATOR_SPEED_PIXEL_SEC;
-            break;
-        case Input.Keys.DOWN:
-            dy -= ELEVATOR_SPEED_PIXEL_SEC;
-            break;
-        case Input.Keys.SPACE:
-            if (this.spaceKeyUp)
-                this.elevator.toggleDoor();
-            this.spaceKeyUp = false;
-            break;
-        }
-        
-        if (!this.elevator.isDoorOpen())
-            this.elevator.move(dy);
-
-        return true;
-    }
-
-    @Override
-    public boolean keyUp(int keyCode) {
-        if (this.paused)
-            return false;
-       
-        switch (keyCode) {
-        case Input.Keys.UP:
-        case Input.Keys.DOWN:
-            this.elevator.haltMove();
-            break;
-        case Input.Keys.SPACE:
-            this.spaceKeyUp = true;
-            break;
-        }
-
-        return true;
     }
 
     @Override
@@ -213,7 +179,7 @@ public class GameStateManager implements InputProcessor {
         if (this.paused)
             return false;
         
-        if (this.elevatorSliderBox.containsScreenPoint(screenX, screenY))
+        if (!this.elevator.isDoorOpen() && this.elevatorSliderBox.containsScreenPoint(screenX, screenY))
             this.sliderSelectOffset = translateScreen(screenX, screenY).sub(this.elevatorSliderBox.pos());
 
         return true;
@@ -226,14 +192,7 @@ public class GameStateManager implements InputProcessor {
             newPos.x = this.elevatorSliderBox.pos().x;
             newPos.y = Math.max(SLIDER_Y_BOUND.first, Math.min(newPos.y, SLIDER_Y_BOUND.second));
             this.elevatorSliderBox.pos().set(newPos);
-
-            //TODO there's gotta be a better way....
-            float dSlider = new Vector2(newPos).sub(GameStateManager.SLIDER_CENTER).len();
-            if (newPos.y < GameStateManager.SLIDER_CENTER.y)
-                dSlider *= -1;
-            float maxSlider = new Vector2(newPos.x, GameStateManager.SLIDER_Y_BOUND.first).sub(GameStateManager.SLIDER_CENTER).len();
-            int dy = Math.round(dSlider/maxSlider * GameStateManager.ELEVATOR_SPEED_PIXEL_SEC);
-            this.elevator.move(dy);
+            useSliderValue();
         }
 
         return true;
@@ -241,11 +200,23 @@ public class GameStateManager implements InputProcessor {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        if (this.doorToggleButtonBox.containsScreenPoint(screenX, screenY))
-            this.elevator.toggleDoor();
+        if (this.doorToggleButtonBox.containsScreenPoint(screenX, screenY)) {
+            if (!this.elevator.toggleDoor())
+                useSliderValue();
+        }
         this.sliderSelectOffset = null;
         
         return true;
+    }
+
+    @Override
+    public boolean keyDown(int keyCode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keyCode) {
+        return false;
     }
 
     @Override

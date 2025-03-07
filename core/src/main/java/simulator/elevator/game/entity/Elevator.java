@@ -30,7 +30,7 @@ public class Elevator extends AbstractEntity {
     
     @Override
     public void update(float deltaSec) {
-
+        // this is silly...
         if (this.deltaY != 0) {
             RelativeCoordinate pos = getPosition();
             float posRelY = pos.getRelativeVector().y;
@@ -62,13 +62,15 @@ public class Elevator extends AbstractEntity {
         super.haltMove();
     }
     
-    public void toggleDoor() {
+    public boolean toggleDoor() {
         if (this.openDoor = !this.openDoor) {
+            haltMove();
             setTexture(ELEVATOR_OPEN_TEXTURE);
         } else {
             setTexture(ELEVATOR_CLOSED_TEXTURE);
             SceneDirector.getInstance().notifyDoorJustClosed();
         }
+        return this.openDoor;
     }
     
     public boolean isDoorOpen() {
