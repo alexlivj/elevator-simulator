@@ -3,7 +3,7 @@ package simulator.elevator.game.manager;
 import java.util.List;
 import java.util.Map;
 
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
@@ -16,7 +16,6 @@ import simulator.elevator.game.entity.passenger.PassengerState;
 import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.util.RandomUtility;
 import simulator.elevator.util.RelativeCoordinate;
-import simulator.elevator.util.TextureUtility;
 
 public class PassengerCoordinator {
 
@@ -30,18 +29,76 @@ public class PassengerCoordinator {
     private static final int RIDE_X_OFFSET_PIXEL = 277*2;
     private static final float SPAWN_OCCURRENCE_SEC = 0.3f;
     private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
-    private static final Texture DEF_PASSENGER_TEXTURE = TextureUtility.doubleTextureSize("passenger.png");
-    public static final int MIN_SPEED_PIXEL_SEC = 20;
-    public static final int MAX_SPEED_PIXEL_SEC = 40;
-    public static final float MIN_PATIENCE = 0f;
-    public static final float MIN_GENEROSITY = 0f;
+    private static final int MIN_SPEED_PIXEL_SEC = 20;
+    private static final int MAX_SPEED_PIXEL_SEC = 40;
+    private static final float MIN_PATIENCE = 0f;
+    private static final float MIN_GENEROSITY = 0f;
     //NOTE max patience and generosity is just 1f, for easier balancing
+    private static final Color[] POSSIBLE_COLORS = new Color[PassengerCoordinator.MAX_PASSENGERS_WORLD];
+    static {
+        float h = 0f;
+        float s = 0.15f;
+        float v = 0.88f;
+        
+        int shift = RandomUtility.getRandomIntRange(0, MAX_PASSENGERS_WORLD-1);
+        for (int i=0; i<MAX_PASSENGERS_WORLD; i++)
+            PassengerCoordinator.POSSIBLE_COLORS[(i+shift) % MAX_PASSENGERS_WORLD] =
+                    hsvToRgb(h+((float)i)/((float)MAX_PASSENGERS_WORLD),s,v);
+    }
+    private static Color hsvToRgb (float h, float s, float v) {
+        float r = 1f;
+        float g = 1f;
+        float b = 1f;
+        
+        int i = (int) Math.floor(h*6);
+        float f = h * 6 - i;
+        float p = v * (1 - s);
+        float q = v * (1 - f * s);
+        float t = v * (1 - (1 - f) * s);
+        
+        switch (i % 6) {
+        case 0:
+            r = v;
+            g = t;
+            b = p;
+            break;
+        case 1:
+            r = q;
+            g = v;
+            b = p;
+            break;
+        case 2:
+            r = p;
+            g = v;
+            b = t;
+            break;
+        case 3:
+            r = p;
+            g = q;
+            b = v;
+            break;
+        case 4:
+            r = t;
+            g = p;
+            b = v;
+            break;
+        case 5:
+            r = v;
+            g = p; 
+            b = q;
+            break;
+        }
+        
+        return new Color(r, g, b, 1f);
+    }
     
     private List<Passenger> activePassengers = new ArrayList<Passenger>();
+    private boolean firstPassenger = true;
+    
     private final Passenger[][] waitingSlots= 
             new Passenger[GameStateManager.FLOOR_SPAWNS.size()][PassengerCoordinator.MAX_PASSENGERS_FLOOR];
     private final Passenger[] elevatorSlots = new Passenger[PassengerCoordinator.MAX_PASSENGERS_ELEVATOR];
-    private boolean firstPassenger = true;
+    private final Passenger[] colorSlots = new Passenger[PassengerCoordinator.MAX_PASSENGERS_WORLD];
     
     private static PassengerCoordinator instance;
     public static PassengerCoordinator getInstance() {
@@ -62,6 +119,9 @@ public class PassengerCoordinator {
 
         for (int i=0; i<this.elevatorSlots.length; i++)
             this.elevatorSlots[i] = null;
+
+        for (int i=0; i<this.colorSlots.length; i++)
+            this.colorSlots[i] = null;
         
         this.firstPassenger = true;
     }
@@ -113,8 +173,8 @@ public class PassengerCoordinator {
             if (randomDestFloor >= leastBusyFloor)
                 randomDestFloor++;
             
-            //TODO get random texture that matches scene, if applicable
-            Texture texture = PassengerCoordinator.DEF_PASSENGER_TEXTURE;
+            //TODO get random color
+            Color color = new Color(Color.WHITE);
             
             int speed = RandomUtility.getRandomIntRange(PassengerCoordinator.MIN_SPEED_PIXEL_SEC,
                                                         PassengerCoordinator.MAX_SPEED_PIXEL_SEC);
@@ -125,8 +185,11 @@ public class PassengerCoordinator {
                 personality = starRole.requirements().bindPersonality(personality);
             
             newPassenger = new Passenger(leastBusyFloor, randomDestFloor,
-                                         texture, starRole,
-                                         personality);
+                                         color,
+                                         personality, starRole);
+            Color randomColor = requestColorSlot(newPassenger);
+            if (randomColor != null)
+                color.set(randomColor);
             
             this.activePassengers.add(newPassenger);
             this.firstPassenger = false;
@@ -213,6 +276,25 @@ public class PassengerCoordinator {
         return slotPos;
     }
     
+    public Color requestColorSlot(Passenger passenger) {
+        Color color = null;
+        
+        int slot = -1;
+        for (int i=0; i<this.colorSlots.length; i++) {
+            if (this.colorSlots[i] == null) {
+                slot = i;
+                break;
+            }
+        }
+        
+        if (slot >= 0) {
+            color = PassengerCoordinator.POSSIBLE_COLORS[slot];
+            this.colorSlots[slot] = passenger;
+        }
+        
+        return color;
+    }
+    
     public void clearElevatorSlot(Passenger passenger) {
         for (int i=0; i<this.elevatorSlots.length; i++)
             if (this.elevatorSlots[i] == passenger)
@@ -225,6 +307,13 @@ public class PassengerCoordinator {
                 if (this.waitingSlots[i][j] == passenger)
                     this.waitingSlots[i][j] = null;
     }
+    
+    public void clearColorSlot(Passenger passenger) {
+        for (int i=0; i<this.colorSlots.length; i++)
+            if (this.colorSlots[i] == passenger)
+                this.colorSlots[i] = null;
+    }
+    
     public RelativeCoordinate getFloorSpawn(int floor) {
         return new RelativeCoordinate(GameStateManager.FLOOR_SPAWNS.get(floor));
     }
@@ -243,6 +332,7 @@ public class PassengerCoordinator {
     public void despawn(Passenger passenger) {
         clearWaitingSlot(passenger);
         clearElevatorSlot(passenger);
+        clearColorSlot(passenger);
         this.activePassengers.remove(passenger);
         GameStateManager.getInstance().despawnEntity(passenger);
     }

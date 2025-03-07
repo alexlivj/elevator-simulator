@@ -1,7 +1,9 @@
 package simulator.elevator.game.entity.passenger;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 
+import simulator.elevator.Main;
 import simulator.elevator.game.entity.AbstractEntity;
 import simulator.elevator.game.manager.PassengerCoordinator;
 import simulator.elevator.game.manager.SceneDirector;
@@ -9,9 +11,11 @@ import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.game.scene.script.StatementLineTree;
 import simulator.elevator.game.scene.script.SceneType;
 import simulator.elevator.util.RelativeCoordinate;
+import simulator.elevator.util.TextureUtility;
 
 public class Passenger extends AbstractEntity {
-    
+
+    private static final Texture DEF_TEXTURE = TextureUtility.doubleTextureSize("passenger.png");
     public static final float HAPPINESS_DECAY_RATE_SEC = 0.99f;
     public static final float[] HAPPINESS_DECAY_MOD = new float[6];
     static {
@@ -34,17 +38,19 @@ public class Passenger extends AbstractEntity {
     
     private final int startFloor;
     private final int destFloor;
+    private final Color color;
     private final StarRole starRole;
     private final PassengerPersonality personality;
     
     public Passenger(int startFloor, int destFloor,
-                     Texture texture, StarRole starRole,
-                     PassengerPersonality personality) {
-        super(PassengerCoordinator.getInstance().getFloorSpawn(startFloor), texture);
+                     Color color, 
+                     PassengerPersonality personality, StarRole starRole) {
+        super(PassengerCoordinator.getInstance().getFloorSpawn(startFloor), Passenger.DEF_TEXTURE);
         this.coordinator = PassengerCoordinator.getInstance();
         this.director = SceneDirector.getInstance();
         this.startFloor = startFloor;
         this.destFloor = destFloor;
+        this.color = color;
         this.starRole = starRole;
         this.personality = personality;
     }
@@ -145,6 +151,17 @@ public class Passenger extends AbstractEntity {
         this.happiness *= Math.pow(decaySec,deltaSec);
         
         super.update(deltaSec);
+    }
+    
+    @Override
+    public void render(Main game) {
+        game.batch.setColor(this.color);
+        super.render(game);
+        game.batch.setColor(Color.WHITE);
+    }
+    
+    public Color getColor() {
+        return this.color;
     }
     
     public int getStartFloor() {

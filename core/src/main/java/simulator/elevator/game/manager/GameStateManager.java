@@ -204,11 +204,13 @@ public class GameStateManager implements InputProcessor {
 
     @Override
     public boolean keyDown(int keyCode) {
+        // not relevant
         return false;
     }
 
     @Override
     public boolean keyUp(int keyCode) {
+        // not relevant
         return false;
     }
 
