@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import simulator.elevator.Main;
 import simulator.elevator.game.manager.GameStateManager;
+import simulator.elevator.game.manager.SceneDirector;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RelativeCoordinate;
 import simulator.elevator.util.TextureUtility;
@@ -46,10 +47,12 @@ public class Elevator extends AbstractEntity {
     }
     
     public void toggleDoor() {
-        if (this.openDoor = !this.openDoor)
+        if (this.openDoor = !this.openDoor) {
             setTexture(ELEVATOR_OPEN_TEXTURE);
-        else
+        } else {
             setTexture(ELEVATOR_CLOSED_TEXTURE);
+            SceneDirector.getInstance().notifyDoorJustClosed();
+        }
     }
     
     public boolean isDoorOpen() {

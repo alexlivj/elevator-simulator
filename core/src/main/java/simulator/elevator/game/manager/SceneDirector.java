@@ -178,6 +178,10 @@ public class SceneDirector {
             this.queuedScenes.add(new ActiveScene(passenger, type, newScene));
     }
     
+    public void notifyDoorJustClosed() {
+        this.acceptingSceneType.put(SceneType.ELEVATOR_FULL, true);
+    }
+    
     private boolean hasSceneType(SceneType type) {
         Queue<ActiveScene> queueCopy = new LinkedList<ActiveScene>(this.queuedScenes);
         return (this.activeScene != null && this.activeScene.type() == type)
