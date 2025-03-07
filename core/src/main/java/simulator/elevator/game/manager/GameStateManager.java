@@ -30,8 +30,6 @@ public class GameStateManager implements InputProcessor {
     private static final Texture FLOOR_TEXTURE = TextureUtility.doubleTextureSize("floor.png");
     private static final Pair<Integer,Integer> CAMERA_Y_BOUND = new Pair<Integer,Integer>(0,FLOOR_SIZE*3);
     private static final int CAMERA_Y_OFFSET = -250;
-    private static final int ELEVATOR_SPEED_PIXEL_SEC = 30;
-    public static final int ELEVATOR_DECAY_RATE_SEC = 5;
     public static final int ELEVATOR_DURABILITY_BUFFER_PIXEL = 5;
     private static final Pair<Integer,Integer> ELEVATOR_Y_BOUND;
     static {
@@ -106,7 +104,6 @@ public class GameStateManager implements InputProcessor {
         
         moveCamera();
         
-        //TODO render world
         for (RelativeCoordinate fPos : GameStateManager.FLOOR_SPAWNS) {
             Vector2 fAbsPos = fPos.getAbsoluteVector();
             game.batch.draw(FLOOR_TEXTURE, fAbsPos.x, fAbsPos.y);
@@ -115,21 +112,20 @@ public class GameStateManager implements InputProcessor {
         for (AbstractEntity e : this.entities)
             e.render(game);
         
-        //TODO render UI
         game.batch.draw(STATIC_UI, 0, 0);
-        SceneDirector.getInstance().render(deltaSec);
         game.batch.draw(this.doorToggleButton,
                 this.doorToggleButtonBox.pos.x,
                 this.doorToggleButtonBox.pos.y);
         game.batch.draw(this.elevatorSlider,
                 this.elevatorSliderBox.pos.x,
                 this.elevatorSliderBox.pos.y);
+        SceneDirector.getInstance().render(deltaSec);
         
         // to stop the mysterious concurrency errors
         for (AbstractEntity d : this.deadEntities)
             this.entities.remove(d);
         
-        return this.timeRemaining <= 0;
+        return this.timeRemaining <= 0 || this.elevator.isBroken();
     }
     
     private void moveCamera() {
@@ -163,7 +159,7 @@ public class GameStateManager implements InputProcessor {
         if (this.elevatorSliderBox.pos().y < GameStateManager.SLIDER_CENTER.y)
             dSlider *= -1;
         float maxSlider = new Vector2(this.elevatorSliderBox.pos().x, GameStateManager.SLIDER_Y_BOUND.first).sub(GameStateManager.SLIDER_CENTER).len();
-        int dy = Math.round(dSlider/maxSlider * GameStateManager.ELEVATOR_SPEED_PIXEL_SEC);
+        int dy = Math.round(dSlider/maxSlider * Elevator.ELEVATOR_SPEED_PIXEL_SEC);
         this.elevator.move(dy);
     }
     

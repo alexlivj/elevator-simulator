@@ -12,9 +12,14 @@ import simulator.elevator.util.TextureUtility;
 
 public class Elevator extends AbstractEntity {
     
+    //TODO maybe read this from somewhere
+    public static final int ELEVATOR_SPEED_PIXEL_SEC = 30;
+    private static final int ELEVATOR_UNSAFE_SPEED_PIXEL_SEC = 10;
+    private static final float ELEVATOR_DECAY_RATE_SEC = 3;
+    
     private int deltaY = 0;
     private final Pair<Integer,Integer> yAxisBound;
-    private int durability = 100;
+    private float durability = 100;
     private boolean openDoor = true;
     private int tipCents = 0;
 
@@ -36,9 +41,15 @@ public class Elevator extends AbstractEntity {
             float posRelY = pos.getRelativeVector().y;
             if ((posRelY < this.yAxisBound.first && this.deltaY < 0)
                     || (this.yAxisBound.second < posRelY && 0 < this.deltaY)) {
-                this.durability -= GameStateManager.ELEVATOR_DECAY_RATE_SEC * deltaSec;
+                this.durability -= Elevator.ELEVATOR_DECAY_RATE_SEC * deltaSec;
                 haltMove();
             } else {
+                if (this.deltaY > Elevator.ELEVATOR_UNSAFE_SPEED_PIXEL_SEC) {
+                    float maxUnsafeDiff = Elevator.ELEVATOR_SPEED_PIXEL_SEC - Elevator.ELEVATOR_UNSAFE_SPEED_PIXEL_SEC;
+                    float unsafeDeltaY = Elevator.ELEVATOR_SPEED_PIXEL_SEC - this.deltaY;
+                    float unsafeMagnitude = 1 - unsafeDeltaY / maxUnsafeDiff;
+                    this.durability -= unsafeMagnitude*Elevator.ELEVATOR_DECAY_RATE_SEC * deltaSec;
+                }
                 Vector2 newRel = new Vector2(pos.getRelativeVector()).add(new Vector2(0,this.deltaY));
                 moveTo(new RelativeCoordinate(pos.getOrigin(), newRel), Math.abs(this.deltaY));
             }
@@ -81,8 +92,8 @@ public class Elevator extends AbstractEntity {
         return getPosition().getRelativeVector();
     }
     
-    public int getDurability() {
-        return this.durability;
+    public boolean isBroken() {
+        return this.durability <= 0;
     }
     
     public void giveTip(int tipCents) {
