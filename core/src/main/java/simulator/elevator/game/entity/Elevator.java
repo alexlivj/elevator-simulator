@@ -24,7 +24,7 @@ public class Elevator extends AbstractEntity {
             TextureUtility.doubleTextureSize("elevator-closed.png");
     
     public Elevator(RelativeCoordinate pos, Pair<Integer,Integer> yAxisBound) {
-        super(pos, ELEVATOR_OPEN_TEXTURE); //TODO constant for elevator texture
+        super(pos, ELEVATOR_OPEN_TEXTURE);
         this.yAxisBound = yAxisBound;
     }
     

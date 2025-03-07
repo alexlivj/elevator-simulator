@@ -3,7 +3,6 @@ package simulator.elevator.game.manager;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
@@ -52,6 +51,15 @@ public class GameStateManager implements InputProcessor {
     private final List<AbstractEntity> deadEntities = new ArrayList<AbstractEntity>();
 
     private boolean spaceKeyUp = true;
+    private record Box(Pair<Integer,Integer> pos, Pair<Integer,Integer> size) {
+        public boolean containsPoint(int x, int y) {
+            return (pos.first < x && x < pos.first+size.first)
+                    && (pos.second < y && y < pos.second+size.second);
+        }
+    }
+    private Box doorToggleButtonBox = new Box(
+            new Pair<Integer,Integer>((420-75)*2, (280-75)*2),
+            new Pair<Integer,Integer>(75*2,75*2));
     
     private static GameStateManager instance;
     public static GameStateManager getInstance() {
@@ -191,7 +199,9 @@ public class GameStateManager implements InputProcessor {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        // TODO Auto-generated method stub
+        if (this.doorToggleButtonBox.containsPoint(screenX, screenY))
+            this.elevator.toggleDoor();
+        
         return false;
     }
 
