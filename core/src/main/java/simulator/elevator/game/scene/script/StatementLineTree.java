@@ -2,22 +2,22 @@ package simulator.elevator.game.scene.script;
 
 import com.badlogic.gdx.audio.Sound;
 
-public class NpcLineTree extends AbstractLineTree {
+public class StatementLineTree extends AbstractLineTree {
     
-    private final String npcLine;
-    private final Sound npcSFX;
+    private final String line;
+    private final Sound sfx;
     private final AbstractLineTree nextLine;
     
-    public NpcLineTree(PortraitType portrait, Sound npcSFX, String npcLine, AbstractLineTree nextLine) {
+    public StatementLineTree(PortraitType portrait, Sound npcSFX, String npcLine, AbstractLineTree nextLine) {
         super(portrait);
-        this.npcSFX = npcSFX;
-        this.npcLine = npcLine;
+        this.sfx = npcSFX;
+        this.line = npcLine;
         this.nextLine = nextLine;
     }
     
     @Override
     protected String getLineForRender() {
-        return this.npcLine;
+        return this.line;
     }
     
     @Override
@@ -27,7 +27,8 @@ public class NpcLineTree extends AbstractLineTree {
 
     @Override
     protected void resetChildLines() {
-        this.nextLine.reset();
+        if (this.nextLine != null)
+            this.nextLine.reset();
     }
 
 }

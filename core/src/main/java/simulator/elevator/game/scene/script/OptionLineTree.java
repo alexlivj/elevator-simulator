@@ -4,12 +4,12 @@ import java.util.List;
 
 import simulator.elevator.util.Pair;
 
-public class PlayerLineTree extends AbstractLineTree {
+public class OptionLineTree extends AbstractLineTree {
 
     private final List<Pair<String,AbstractLineTree>> playerOptions;
     private int selectedOptionIndex = -1;
     
-    public PlayerLineTree(PortraitType portrait, List<Pair<String,AbstractLineTree>> playerOptions) {
+    public OptionLineTree(PortraitType portrait, List<Pair<String,AbstractLineTree>> playerOptions) {
         super(portrait);
         this.playerOptions = playerOptions;
     }

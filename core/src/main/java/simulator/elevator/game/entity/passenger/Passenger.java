@@ -6,7 +6,7 @@ import simulator.elevator.game.entity.AbstractEntity;
 import simulator.elevator.game.manager.PassengerCoordinator;
 import simulator.elevator.game.manager.SceneDirector;
 import simulator.elevator.game.scene.StarRole;
-import simulator.elevator.game.scene.script.NpcLineTree;
+import simulator.elevator.game.scene.script.StatementLineTree;
 import simulator.elevator.game.scene.script.SceneType;
 import simulator.elevator.util.RelativeCoordinate;
 
@@ -101,7 +101,7 @@ public class Passenger extends AbstractEntity {
                 } else if (!this.isMoving()) {
                     this.currentStateAction = false;
                     if (isLoading) {
-                        NpcLineTree requestFloor = new NpcLineTree(
+                        StatementLineTree requestFloor = new StatementLineTree(
                                 null, null, "Floor "+(this.destFloor+1)+", please.", null);
                         this.director.queueInterrupt(requestFloor);
                         this.coordinator.clearWaitingSlot(this);
