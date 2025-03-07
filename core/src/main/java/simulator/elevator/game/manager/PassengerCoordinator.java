@@ -19,11 +19,6 @@ import simulator.elevator.util.RelativeCoordinate;
 import simulator.elevator.util.TextureUtility;
 
 public class PassengerCoordinator {
-    
-    private List<Passenger> activePassengers = new ArrayList<Passenger>();
-    private final Passenger[][] waitingSlots= 
-            new Passenger[GameStateManager.FLOOR_SPAWNS.size()][PassengerCoordinator.MAX_PASSENGERS_FLOOR];
-    private final Passenger[] elevatorSlots = new Passenger[PassengerCoordinator.MAX_PASSENGERS_ELEVATOR];
 
     //TODO maybe read these from somewhere
     private static final int MAX_PASSENGERS_WORLD = 8;
@@ -41,6 +36,12 @@ public class PassengerCoordinator {
     public static final float MIN_PATIENCE = 0f;
     public static final float MIN_GENEROSITY = 0f;
     //NOTE max patience and generosity is just 1f, for easier balancing
+    
+    private List<Passenger> activePassengers = new ArrayList<Passenger>();
+    private final Passenger[][] waitingSlots= 
+            new Passenger[GameStateManager.FLOOR_SPAWNS.size()][PassengerCoordinator.MAX_PASSENGERS_FLOOR];
+    private final Passenger[] elevatorSlots = new Passenger[PassengerCoordinator.MAX_PASSENGERS_ELEVATOR];
+    private boolean firstPassenger = true;
     
     private static PassengerCoordinator instance;
     public static PassengerCoordinator getInstance() {
@@ -61,6 +62,8 @@ public class PassengerCoordinator {
 
         for (int i=0; i<this.elevatorSlots.length; i++)
             this.elevatorSlots[i] = null;
+        
+        this.firstPassenger = true;
     }
     
     public AbstractEntity managePassengers(float deltaSec) {
@@ -73,34 +76,38 @@ public class PassengerCoordinator {
         Passenger newPassenger = null;
         
         if (this.activePassengers.size() < MAX_PASSENGERS_WORLD
-                && Math.random() < PassengerCoordinator.SPAWN_OCCURRENCE_SEC * deltaSec) {
+                && (this.firstPassenger 
+                        || Math.random() < PassengerCoordinator.SPAWN_OCCURRENCE_SEC * deltaSec)) {
             StarRole starRole = null;
             if (Math.random() < PassengerCoordinator.SCENE_OCCURRENCE_SPAWN)
                 starRole = SceneDirector.getInstance().requestStarScene();
             
-            Map<Integer,Integer> floorNumWaiting = new HashMap<Integer,Integer>();
-            for (int i=0; i<GameStateManager.FLOOR_SPAWNS.size(); i++)
-                floorNumWaiting.put(i, 0);
-            for (Passenger p : this.activePassengers) {
-                if (p.getState().isBeforeOrAt(PassengerState.LOADING)) {
-                    int startFloor = p.getStartFloor();
-                    int numWaiting = floorNumWaiting.get(startFloor);
-                    floorNumWaiting.put(startFloor, numWaiting+1);
+            int leastBusyFloor = 0;
+            if (!this.firstPassenger) {
+                Map<Integer,Integer> floorNumWaiting = new HashMap<Integer,Integer>();
+                for (int i=0; i<GameStateManager.FLOOR_SPAWNS.size(); i++)
+                    floorNumWaiting.put(i, 0);
+                for (Passenger p : this.activePassengers) {
+                    if (p.getState().isBeforeOrAt(PassengerState.LOADING)) {
+                        int startFloor = p.getStartFloor();
+                        int numWaiting = floorNumWaiting.get(startFloor);
+                        floorNumWaiting.put(startFloor, numWaiting+1);
+                    }
                 }
+    
+                leastBusyFloor = RandomUtility.getRandomIntRange(0,GameStateManager.FLOOR_SPAWNS.size()-1);
+                boolean allFloorsFull = true;
+                for (Integer floor : floorNumWaiting.keySet()) {
+                    boolean maxWaiting =
+                            PassengerCoordinator.MAX_PASSENGERS_FLOOR <= floorNumWaiting.get(leastBusyFloor);
+                    allFloorsFull = allFloorsFull && maxWaiting;
+                    int numWaiting = maxWaiting ? Integer.MAX_VALUE : floorNumWaiting.get(leastBusyFloor); 
+                    if (floorNumWaiting.get(floor) < numWaiting)
+                        leastBusyFloor = floor;
+                }
+                if (allFloorsFull)
+                    return null;
             }
-
-            int leastBusyFloor = RandomUtility.getRandomIntRange(0,GameStateManager.FLOOR_SPAWNS.size()-1);
-            boolean allFloorsFull = true;
-            for (Integer floor : floorNumWaiting.keySet()) {
-                boolean maxWaiting =
-                        PassengerCoordinator.MAX_PASSENGERS_FLOOR <= floorNumWaiting.get(leastBusyFloor);
-                allFloorsFull = allFloorsFull && maxWaiting;
-                int numWaiting = maxWaiting ? Integer.MAX_VALUE : floorNumWaiting.get(leastBusyFloor); 
-                if (floorNumWaiting.get(floor) < numWaiting)
-                    leastBusyFloor = floor;
-            }
-            if (allFloorsFull)
-                return null;
             
             int randomDestFloor = RandomUtility.getRandomIntRange(0,GameStateManager.FLOOR_SPAWNS.size()-2);
             if (randomDestFloor >= leastBusyFloor)
@@ -122,6 +129,7 @@ public class PassengerCoordinator {
                                          personality);
             
             this.activePassengers.add(newPassenger);
+            this.firstPassenger = false;
         }
         
         return newPassenger;
