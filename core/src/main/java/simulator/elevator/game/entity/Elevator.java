@@ -12,6 +12,7 @@ import simulator.elevator.util.TextureUtility;
 
 public class Elevator extends AbstractEntity {
     
+    private int deltaY = 0;
     private final Pair<Integer,Integer> yAxisBound;
     private int durability = 100;
     private boolean openDoor = true;
@@ -28,22 +29,37 @@ public class Elevator extends AbstractEntity {
     }
     
     @Override
+    public void update(float deltaSec) {
+
+        if (this.deltaY != 0) {
+            RelativeCoordinate pos = getPosition();
+            float posRelY = pos.getRelativeVector().y;
+            if ((posRelY < this.yAxisBound.first && this.deltaY < 0)
+                    || (this.yAxisBound.second < posRelY && 0 < this.deltaY)) {
+                this.durability -= GameStateManager.ELEVATOR_DECAY_RATE_SEC * deltaSec;
+                haltMove();
+            } else {
+                Vector2 newRel = new Vector2(pos.getRelativeVector()).add(new Vector2(0,this.deltaY));
+                moveTo(new RelativeCoordinate(pos.getOrigin(), newRel), Math.abs(this.deltaY));
+            }
+        }
+        
+        super.update(deltaSec);
+    }
+    
+    @Override
     public void render(Main game) {
         super.render(game);
     }
     
-    public void move(int dy, float deltaSec) {
-        RelativeCoordinate pos = getPosition();
-        float posRelY = pos.getRelativeVector().y;
-
-        if ((posRelY < this.yAxisBound.first && dy < 0)
-                || (this.yAxisBound.second < posRelY && 0 < dy)) {
-            this.durability -= GameStateManager.ELEVATOR_DECAY_RATE_SEC * deltaSec;
-            haltMove();
-        } else {
-            Vector2 newRel = new Vector2(pos.getRelativeVector()).add(new Vector2(0,dy));
-            moveTo(new RelativeCoordinate(pos.getOrigin(), newRel), Math.abs(dy));
-        }
+    public void move(int dy) {
+        this.deltaY = dy;
+    }
+    
+    @Override
+    public void haltMove() {
+        this.deltaY = 0;
+        super.haltMove();
     }
     
     public void toggleDoor() {

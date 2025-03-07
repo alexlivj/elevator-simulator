@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
@@ -15,7 +16,7 @@ import simulator.elevator.util.Pair;
 import simulator.elevator.util.RelativeCoordinate;
 import simulator.elevator.util.TextureUtility;
 
-public class GameStateManager {
+public class GameStateManager implements InputProcessor {
 
     //TODO maybe read these from somewhere
     private static final int GAME_TIME_SEC = 120;
@@ -49,6 +50,8 @@ public class GameStateManager {
     private Elevator elevator;
     private final List<AbstractEntity> entities = new ArrayList<AbstractEntity>();
     private final List<AbstractEntity> deadEntities = new ArrayList<AbstractEntity>();
+
+    private boolean spaceKeyUp = true;
     
     private static GameStateManager instance;
     public static GameStateManager getInstance() {
@@ -80,9 +83,6 @@ public class GameStateManager {
             this.entities.add(newEntity);
 
         if (!this.paused)
-            handleInputs(deltaSec);
-
-        if (!this.paused)
             for (AbstractEntity e : this.entities)
                 e.update(deltaSec);
         
@@ -108,24 +108,6 @@ public class GameStateManager {
         return this.timeRemaining <= 0;
     }
     
-    private void handleInputs(float deltaSec) {
-        if (!this.elevator.isDoorOpen()) {
-            int dy = 0;
-            if (Gdx.input.isKeyPressed(Input.Keys.UP))
-                dy += ELEVATOR_SPEED_PIXEL_SEC;
-            if (Gdx.input.isKeyPressed(Input.Keys.DOWN))
-                dy -= ELEVATOR_SPEED_PIXEL_SEC;
-            if (dy == 0)
-                this.elevator.haltMove();
-            else
-                this.elevator.move(dy, deltaSec);
-        } else {
-            this.elevator.haltMove();
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
-            this.elevator.toggleDoor();
-    }
-    
     private void moveCamera() {
         Vector2 screenOrigin = new Vector2(this.elevator.getRelativePosition());
         screenOrigin.x = 0;
@@ -149,6 +131,92 @@ public class GameStateManager {
     
     public void despawnEntity(AbstractEntity e) {
         this.deadEntities.add(e);
+    }
+
+    @Override
+    public boolean keyDown(int keyCode) {
+        if (this.paused)
+            return false;
+        
+        int dy = 0;
+        switch (keyCode) {
+        case Input.Keys.UP:
+            dy += ELEVATOR_SPEED_PIXEL_SEC;
+            break;
+        case Input.Keys.DOWN:
+            dy -= ELEVATOR_SPEED_PIXEL_SEC;
+            break;
+        case Input.Keys.SPACE:
+            if (this.spaceKeyUp)
+                this.elevator.toggleDoor();
+            this.spaceKeyUp = false;
+            break;
+        }
+        
+        if (!this.elevator.isDoorOpen())
+            this.elevator.move(dy);
+        
+        return true;
+    }
+
+    @Override
+    public boolean keyUp(int keyCode) {
+        if (this.paused)
+            return false;
+        
+        switch (keyCode) {
+        case Input.Keys.UP:
+        case Input.Keys.DOWN:
+            this.elevator.haltMove();
+            break;
+        case Input.Keys.SPACE:
+            this.spaceKeyUp = true;
+            break;
+        }
+        
+        return true;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        // not relevant
+        return false;
+    }
+
+    @Override
+    public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
+        // not relevant on desktop
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        // not relevant
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(float amountX, float amountY) {
+        // not relevant?
+        return false;
     }
     
 }

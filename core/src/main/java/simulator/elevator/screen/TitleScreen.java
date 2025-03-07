@@ -1,5 +1,6 @@
 package simulator.elevator.screen;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 
 import simulator.elevator.Main;
@@ -14,7 +15,7 @@ public class TitleScreen implements Screen {
 
     @Override
     public void show() {
-        // TODO Auto-generated method stub
+        Gdx.input.setInputProcessor(null);
     }
 
     @Override
