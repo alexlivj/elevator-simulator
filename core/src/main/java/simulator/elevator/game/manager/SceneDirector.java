@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import simulator.elevator.Main;
 import simulator.elevator.game.entity.passenger.Passenger;
 import simulator.elevator.game.entity.passenger.PassengerPersonality;
 import simulator.elevator.game.entity.passenger.PassengerState;
@@ -95,16 +96,16 @@ public class SceneDirector {
         this.queuedInterrupts.add(line);
     }
     
-    public void render(float deltaSec) {
+    public void render(Main game, float deltaSec) {
         boolean runningInterrupt = this.activeInterrupt != null;
         boolean runningScene = !runningInterrupt && this.activeScene != null;
 
         boolean switchInterrupt = !runningInterrupt;
         boolean switchScene = !runningScene;
         if (runningInterrupt)
-            switchInterrupt = this.activeInterrupt.render(deltaSec);
+            switchInterrupt = this.activeInterrupt.render(game, deltaSec);
         else if (runningScene)
-            switchScene = this.activeScene.scene().render(deltaSec);
+            switchScene = this.activeScene.scene().render(game, deltaSec);
         
         if (switchInterrupt) {
             if (this.activeInterrupt != null)

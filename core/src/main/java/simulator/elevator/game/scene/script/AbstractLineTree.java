@@ -1,8 +1,10 @@
 package simulator.elevator.game.scene.script;
 
+import simulator.elevator.Main;
+
 public abstract class AbstractLineTree {
     
-    private static final int CHAR_PER_SEC = 10;
+    private static final int CHAR_PER_SEC = 8;
 
     private final PortraitType portrait;
     protected boolean isLineDone;
@@ -12,7 +14,7 @@ public abstract class AbstractLineTree {
         this.portrait = portrait;
     }
     
-    public boolean render(float deltaSec) {
+    public boolean render(Main game, float deltaSec) {
         boolean finished = false;
         
         if (this.isLineDone) {
@@ -20,14 +22,12 @@ public abstract class AbstractLineTree {
             if (nextLine == null)
                 finished = true;
             else
-                getNextLine().render(deltaSec);
+                getNextLine().render(game, deltaSec);
         } else {
-            //TODO actually render on screen
-            System.out.println("---");
-            System.out.println(getLineForRender());
-            System.out.println("---");
             this.timeInLineSec += deltaSec;
-            this.isLineDone = true;
+            float doneTime = getLineForRender().length()/AbstractLineTree.CHAR_PER_SEC;
+            game.font.draw(game.batch, getLineForRender(), 100, 120);
+            this.isLineDone = this.timeInLineSec >= doneTime;
         }
         
         return finished;

@@ -1,5 +1,7 @@
 package simulator.elevator.game.scene.script;
 
+import simulator.elevator.Main;
+
 public class Scene {
 
     private final StatementLineTree ejectLine;
@@ -11,12 +13,12 @@ public class Scene {
         this.ejectLine = ejectLine;
     }
     
-    public boolean render(float deltaSec) {
+    public boolean render(Main game, float deltaSec) {
         AbstractLineTree curr = this.ejecting ? this.ejectLine : this.script;
 
         if (curr == null)
             return true;
-        return curr.render(deltaSec);
+        return curr.render(game, deltaSec);
     }
     
     public void eject() {
