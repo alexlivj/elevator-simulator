@@ -179,7 +179,7 @@ public class GameStateManager implements InputProcessor {
         if (this.paused)
             return false;
         
-        if (!this.elevator.isDoorOpen() && this.elevatorSliderBox.containsScreenPoint(screenX, screenY))
+        if (this.elevatorSliderBox.containsScreenPoint(screenX, screenY))
             this.sliderSelectOffset = translateScreen(screenX, screenY).sub(this.elevatorSliderBox.pos());
 
         return true;

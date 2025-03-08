@@ -35,7 +35,7 @@ public class Elevator extends AbstractEntity {
     @Override
     public void update(float deltaSec) {
         // this is silly...
-        if (this.deltaY != 0) {
+        if (this.deltaY != 0 && !this.openDoor) {
             RelativeCoordinate pos = getPosition();
             float posRelY = pos.getRelativeVector().y;
             if ((posRelY < this.yAxisBound.first && this.deltaY < 0)
