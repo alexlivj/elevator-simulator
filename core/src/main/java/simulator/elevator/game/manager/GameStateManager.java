@@ -125,7 +125,7 @@ public class GameStateManager implements InputProcessor {
         int tipCents = this.elevator.getTipTotal();
         int tipPartCents = tipCents % 100;
         int tipPartDollars = (int) (tipCents / 100f);
-        String tipString = "$"+tipPartDollars+"."+(tipPartCents == 0 ? "00" : tipPartCents);
+        String tipString = "$"+tipPartDollars+"."+(tipPartCents < 10 ? "0" : "")+tipPartCents;
         game.font.draw(game.batch, tipString, 30, 540);
         game.font.draw(game.batch, Integer.toString((int)this.timeRemaining)+"s", 780, 540);
         SceneDirector.getInstance().render(game, deltaSec);
