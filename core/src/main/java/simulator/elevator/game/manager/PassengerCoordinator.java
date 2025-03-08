@@ -31,9 +31,6 @@ public class PassengerCoordinator {
     private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
     private static final int MIN_SPEED_PIXEL_SEC = 20;
     private static final int MAX_SPEED_PIXEL_SEC = 40;
-    private static final float MIN_PATIENCE = 0f;
-    private static final float MIN_GENEROSITY = 0f;
-    //NOTE max patience and generosity is just 1f, for easier balancing
     private static final Color[] POSSIBLE_COLORS = new Color[PassengerCoordinator.MAX_PASSENGERS_WORLD];
     static {
         float h = 0f;
@@ -178,8 +175,8 @@ public class PassengerCoordinator {
             
             int speed = RandomUtility.getRandomIntRange(PassengerCoordinator.MIN_SPEED_PIXEL_SEC,
                                                         PassengerCoordinator.MAX_SPEED_PIXEL_SEC);
-            float patience = RandomUtility.getRandomRange(PassengerCoordinator.MIN_PATIENCE, 1f);
-            float generosity = RandomUtility.getRandomRange(PassengerCoordinator.MIN_GENEROSITY, 1f);
+            float patience = RandomUtility.getRandomRange(0f, 1f);
+            float generosity = RandomUtility.getRandomRange(0f, 1f);
             PassengerPersonality personality = new PassengerPersonality(speed,patience,generosity);
             if (starRole != null)
                 personality = starRole.requirements().bindPersonality(personality);
