@@ -119,6 +119,7 @@ public class GameStateManager implements InputProcessor {
         game.batch.draw(this.elevatorSlider,
                 this.elevatorSliderBox.pos.x,
                 this.elevatorSliderBox.pos.y);
+        game.font.draw(game.batch, Integer.toString(this.elevator.getDurability()), 780, 30);
         SceneDirector.getInstance().render(deltaSec);
         
         // to stop the mysterious concurrency errors

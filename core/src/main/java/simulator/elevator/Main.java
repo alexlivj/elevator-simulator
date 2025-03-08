@@ -2,8 +2,11 @@ package simulator.elevator;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import simulator.elevator.screen.TitleScreen;
@@ -13,17 +16,15 @@ public class Main extends Game {
     
     public SpriteBatch batch;
     public BitmapFont font;
-    public FitViewport viewport;
+    public Camera camera;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
         font = new BitmapFont();
-        viewport = new FitViewport(8, 5);
-
-        //font has 15pt, but we need to scale it to our viewport by ratio of viewport height to screen height 
-        font.setUseIntegerPositions(false);
-        font.getData().setScale(viewport.getWorldHeight() / Gdx.graphics.getHeight());
+        camera = new OrthographicCamera(840,560);
+        camera.position.set(420,280,0);
+        camera.update();
 
         this.setScreen(new TitleScreen(this));
     }

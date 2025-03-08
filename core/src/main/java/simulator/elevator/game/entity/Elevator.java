@@ -41,7 +41,9 @@ public class Elevator extends AbstractEntity {
             if ((posRelY < this.yAxisBound.first && this.deltaY < 0)
                     || (this.yAxisBound.second < posRelY && 0 < this.deltaY)) {
                 this.durability -= Elevator.ELEVATOR_DECAY_RATE_SEC * deltaSec;
+                int dy = this.deltaY;
                 haltMove();
+                this.deltaY = dy; 
             } else {
                 if (this.deltaY > Elevator.ELEVATOR_UNSAFE_SPEED_PIXEL_SEC) {
                     float maxUnsafeDiff = Elevator.ELEVATOR_SPEED_PIXEL_SEC - Elevator.ELEVATOR_UNSAFE_SPEED_PIXEL_SEC;
@@ -93,6 +95,10 @@ public class Elevator extends AbstractEntity {
     
     public boolean isBroken() {
         return this.durability <= 0;
+    }
+    
+    public int getDurability() {
+        return Math.round(this.durability);
     }
     
     public void giveTip(int tipCents) {

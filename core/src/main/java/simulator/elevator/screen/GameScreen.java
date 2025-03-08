@@ -25,8 +25,10 @@ public class GameScreen implements Screen {
     @Override
     public void render(float deltaSec) {
         ScreenUtils.clear(Color.BLACK);
+
+        this.game.batch.setProjectionMatrix(this.game.camera.combined);
         this.game.batch.begin();
-        
+
         boolean end = GameStateManager.getInstance().render(this.game, deltaSec);
         
         this.game.batch.end();
