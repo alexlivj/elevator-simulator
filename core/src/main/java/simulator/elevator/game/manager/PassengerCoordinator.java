@@ -222,6 +222,13 @@ public class PassengerCoordinator {
         return false;
     }
     
+    public boolean arePeopleUnloading() {
+        boolean hasUnloading = false;
+        for (Passenger p : this.activePassengers)
+            hasUnloading = hasUnloading || p.getState() == PassengerState.UNLOADING;
+        return hasUnloading;
+    }
+    
     public RelativeCoordinate requestElevatorEntry(Passenger passenger) {
         RelativeCoordinate slotPos = null;
         

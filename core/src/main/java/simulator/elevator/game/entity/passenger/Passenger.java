@@ -83,7 +83,7 @@ public class Passenger extends AbstractEntity {
                         this.currentState = PassengerState.LOADING;
                         moveTo(elevatorSlot, this.personality.speedPixelSec());
                         this.currentStateAction = true;
-                    } else {
+                    } else if (!this.coordinator.arePeopleUnloading()) {
                         SceneDirector.getInstance().requestScene(this, SceneType.ELEVATOR_FULL);
                     }
                 }
