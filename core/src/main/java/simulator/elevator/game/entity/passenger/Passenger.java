@@ -183,7 +183,6 @@ public class Passenger extends AbstractEntity {
     public int calculateTip() {
         float givingMood = 100/this.happiness * this.personality.generosity();
         int tip = Math.round(Passenger.MAX_TIP_CENTS * givingMood);
-        System.out.println("end ride tip: happiness="+this.happiness+", generosity="+this.personality.generosity()+", tip="+tip);
         return tip;
     }
 

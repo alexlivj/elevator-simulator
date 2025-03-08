@@ -120,6 +120,12 @@ public class GameStateManager implements InputProcessor {
                 this.elevatorSliderBox.pos.x,
                 this.elevatorSliderBox.pos.y);
         game.font.draw(game.batch, Integer.toString(this.elevator.getDurability()), 780, 30);
+        int tipCents = this.elevator.getTipTotal();
+        int tipPartCents = tipCents % 100;
+        int tipPartDollars = tipCents / 100;
+        String tipString = "$"+tipPartDollars+"."+(tipPartCents == 0 ? "00" : tipPartCents);
+        game.font.draw(game.batch, tipString, 30, 540);
+        game.font.draw(game.batch, Integer.toString((int)this.timeRemaining), 780, 540);
         SceneDirector.getInstance().render(deltaSec);
         
         // to stop the mysterious concurrency errors
