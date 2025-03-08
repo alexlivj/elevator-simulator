@@ -45,9 +45,10 @@ public class Elevator extends AbstractEntity {
                 haltMove();
                 this.deltaY = dy; 
             } else {
-                if (this.deltaY > Elevator.ELEVATOR_UNSAFE_SPEED_PIXEL_SEC) {
+                float absDeltaY = Math.abs(this.deltaY);
+                if (absDeltaY > Elevator.ELEVATOR_UNSAFE_SPEED_PIXEL_SEC) {
                     float maxUnsafeDiff = Elevator.ELEVATOR_SPEED_PIXEL_SEC - Elevator.ELEVATOR_UNSAFE_SPEED_PIXEL_SEC;
-                    float unsafeDeltaY = Elevator.ELEVATOR_SPEED_PIXEL_SEC - this.deltaY;
+                    float unsafeDeltaY = Elevator.ELEVATOR_SPEED_PIXEL_SEC - absDeltaY;
                     float unsafeMagnitude = 1 - unsafeDeltaY / maxUnsafeDiff;
                     this.durability -= unsafeMagnitude*Elevator.ELEVATOR_DECAY_RATE_SEC * deltaSec;
                 }
