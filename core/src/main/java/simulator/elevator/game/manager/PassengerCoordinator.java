@@ -25,8 +25,9 @@ public class PassengerCoordinator {
     private static final int MAX_PASSENGERS_ELEVATOR = 2;
     private static final int ELEVATOR_FLOOR_BUFFER_PIXEL = 10;
     private static final int PASSENGER_WIDTH_PIXEL = 16*2;
-    private static final int WAIT_X_OFFSET_PIXEL = 245*2;
-    private static final int RIDE_X_OFFSET_PIXEL = 277*2;
+    private static final int DOOR_PIXEL = 272*2;
+    private static final int WAIT_X_OFFSET_PIXEL = DOOR_PIXEL-27*2;
+    private static final int RIDE_X_OFFSET_PIXEL = DOOR_PIXEL+5*2;
     private static final float SPAWN_OCCURRENCE_SEC = 0.3f;
     private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
     private static final int MIN_SPEED_PIXEL_SEC = 40;
