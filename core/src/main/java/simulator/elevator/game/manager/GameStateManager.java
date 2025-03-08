@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import simulator.elevator.Main;
 import simulator.elevator.game.entity.Elevator;
+import simulator.elevator.game.scene.script.OptionLineTree;
 import simulator.elevator.game.entity.AbstractEntity;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RelativeCoordinate;
@@ -68,6 +69,7 @@ public class GameStateManager implements InputProcessor {
                                             new Vector2(elevatorSlider.getWidth(),
                                                         elevatorSlider.getHeight()));
     private Vector2 sliderSelectOffset = null;
+    private Pair<OptionLineTree,List<Box>> playerOptionBoxes = null;
     
     private static GameStateManager instance;
     public static GameStateManager getInstance() {
@@ -122,7 +124,7 @@ public class GameStateManager implements InputProcessor {
         game.font.draw(game.batch, Integer.toString(this.elevator.getDurability())+"%", 780, 30);
         int tipCents = this.elevator.getTipTotal();
         int tipPartCents = tipCents % 100;
-        int tipPartDollars = tipCents / 100;
+        int tipPartDollars = (int) (tipCents / 100f);
         String tipString = "$"+tipPartDollars+"."+(tipPartCents == 0 ? "00" : tipPartCents);
         game.font.draw(game.batch, tipString, 30, 540);
         game.font.draw(game.batch, Integer.toString((int)this.timeRemaining)+"s", 780, 540);
@@ -160,6 +162,17 @@ public class GameStateManager implements InputProcessor {
         this.deadEntities.add(e);
     }
     
+    public void addPlayerOptionBoxes(OptionLineTree tree, int numBoxes) {
+        List<Box> newBoxes = new ArrayList<Box>();
+        for (int i=0; i<numBoxes; i++)
+            newBoxes.add(new Box(new Vector2(205*2, 210*2+15*2*i), new Vector2(180*2, 15*2)));
+        this.playerOptionBoxes = new Pair<OptionLineTree,List<Box>>(tree, newBoxes);
+    }
+    
+    public void clearPlayerOptions() {
+        this.playerOptionBoxes = null;
+    }
+    
     private void useSliderValue() {
         //TODO there's gotta be a better way to math this....
         float dSlider = new Vector2(this.elevatorSliderBox.pos()).sub(GameStateManager.SLIDER_CENTER).len();
@@ -181,7 +194,16 @@ public class GameStateManager implements InputProcessor {
         
         if (this.elevatorSliderBox.containsScreenPoint(screenX, screenY))
             this.sliderSelectOffset = translateScreen(screenX, screenY).sub(this.elevatorSliderBox.pos());
-
+        
+        if (this.playerOptionBoxes != null) {
+            for (int i=0; i<this.playerOptionBoxes.second.size(); i++) {
+                if (this.playerOptionBoxes.second.get(i).containsScreenPoint(screenX, screenY)) {
+                    this.playerOptionBoxes.first.setSelection(i);
+                    break;
+                }
+            }
+        }
+        
         return true;
     }
 

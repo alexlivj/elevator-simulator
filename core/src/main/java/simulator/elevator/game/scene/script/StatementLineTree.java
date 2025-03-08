@@ -15,6 +15,11 @@ public class StatementLineTree extends AbstractLineTree {
         this.nextLine = nextLine;
     }
     
+    protected boolean isLineDone() {
+        float doneTime = this.line.length()/AbstractLineTree.CHAR_PER_SEC;
+        return this.timeInLineSec >= doneTime;
+    }
+    
     @Override
     protected String getLineForRender() {
         return this.line;

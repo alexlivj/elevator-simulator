@@ -4,10 +4,10 @@ import simulator.elevator.Main;
 
 public abstract class AbstractLineTree {
     
-    private static final int CHAR_PER_SEC = 8;
+    protected static final int CHAR_PER_SEC = 8;
 
     private final PortraitType portrait;
-    protected boolean isLineDone;
+    protected boolean done = false;
     protected float timeInLineSec = 0;
 
     public AbstractLineTree(PortraitType portrait) {
@@ -15,31 +15,32 @@ public abstract class AbstractLineTree {
     }
     
     public boolean render(Main game, float deltaSec) {
+        this.timeInLineSec += deltaSec;
         boolean finished = false;
         
-        if (this.isLineDone) {
+        if (this.done) {
             AbstractLineTree nextLine = getNextLine();
             if (nextLine == null)
                 finished = true;
             else
                 getNextLine().render(game, deltaSec);
         } else {
-            this.timeInLineSec += deltaSec;
-            float doneTime = getLineForRender().length()/AbstractLineTree.CHAR_PER_SEC;
             game.font.draw(game.batch, getLineForRender(), 100, 120);
-            this.isLineDone = this.timeInLineSec >= doneTime;
+            this.done = isLineDone();
         }
         
         return finished;
     }
     
     public void reset() {
-        this.isLineDone = false;
+        this.done = false;
         this.timeInLineSec = 0f;
         resetChildLines();
     }
     
     protected abstract String getLineForRender();
+    
+    protected abstract boolean isLineDone();
     
     protected abstract AbstractLineTree getNextLine();
     
