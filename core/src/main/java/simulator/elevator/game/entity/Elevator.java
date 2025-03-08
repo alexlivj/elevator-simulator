@@ -103,7 +103,6 @@ public class Elevator extends AbstractEntity {
     
     public void giveTip(int tipCents) {
         this.tipCents += tipCents;
-        System.out.println("new elevator tip total: "+this.tipCents+" cents");
     }
     
     public int getTipTotal() {

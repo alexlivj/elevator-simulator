@@ -29,8 +29,8 @@ public class PassengerCoordinator {
     private static final int RIDE_X_OFFSET_PIXEL = 277*2;
     private static final float SPAWN_OCCURRENCE_SEC = 0.3f;
     private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
-    private static final int MIN_SPEED_PIXEL_SEC = 20;
-    private static final int MAX_SPEED_PIXEL_SEC = 40;
+    private static final int MIN_SPEED_PIXEL_SEC = 40;
+    private static final int MAX_SPEED_PIXEL_SEC = 60;
     private static final Color[] POSSIBLE_COLORS = new Color[PassengerCoordinator.MAX_PASSENGERS_WORLD];
     static {
         float h = 0f;
