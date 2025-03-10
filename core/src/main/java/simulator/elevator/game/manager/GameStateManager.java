@@ -171,7 +171,7 @@ public class GameStateManager implements InputProcessor {
     public void addPlayerOptionBoxes(OptionLineTree tree, int numBoxes) {
         List<Box> newBoxes = new ArrayList<Box>();
         for (int i=0; i<numBoxes; i++)
-            newBoxes.add(new Box(new Vector2(45*2, 50*2-17*2*i), new Vector2(180*2, 15*2)));
+            newBoxes.add(new Box(new Vector2(45*2, 50*2-18*2*i), new Vector2(180*2, 18*2)));
         this.playerOptionBoxes = new Pair<OptionLineTree,List<Box>>(tree, newBoxes);
     }
     
