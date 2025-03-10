@@ -17,6 +17,8 @@ import simulator.elevator.game.scene.CastingDirection;
 import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.game.scene.script.StatementLineTree;
 import simulator.elevator.game.scene.script.AbstractLineTree;
+import simulator.elevator.game.scene.script.LineReturn;
+import simulator.elevator.game.scene.script.Option;
 import simulator.elevator.game.scene.script.OptionLineTree;
 import simulator.elevator.game.scene.script.PortraitType;
 import simulator.elevator.game.scene.script.Scene;
@@ -25,8 +27,6 @@ import simulator.elevator.util.Pair;
 import simulator.elevator.util.RandomUtility;
 
 public class SceneDirector {
-    
-    private record ActiveScene (Passenger passenger, SceneType type, Scene scene) {}
 
     //TODO again, maybe read this from somewhere
     private static final Map<SceneType,Map<CastingDirection,List<Scene>>> ALL_NORMAL_SCENES = 
@@ -54,14 +54,17 @@ public class SceneDirector {
         //TODO this is awful to look at and worse to write. please read these from somewhere
         Map<PassengerState,Scene> grandmaScenes = new HashMap<PassengerState,Scene>();
         StatementLineTree ggResponseLine = new StatementLineTree(PortraitType.NPC_NEUTRAL, null, "of course, dear", null);
-        List<Pair<String,AbstractLineTree>> ggAnswerOptions = new ArrayList<Pair<String,AbstractLineTree>>();
-        ggAnswerOptions.add(new Pair<String,AbstractLineTree>("Sure!", ggResponseLine));
-        ggAnswerOptions.add(new Pair<String,AbstractLineTree>("oh well, thank you, but no. no thank you", ggResponseLine));
+        List<Option> ggAnswerOptions = new ArrayList<Option>();
+        ggAnswerOptions.add(new Option("Sure!", null, ggResponseLine));
+        ggAnswerOptions.add(new Option("oh well, thank you, but no. no thank you",
+                passenger -> passenger.modHappiness(0.90f),
+                ggResponseLine));
         OptionLineTree ggPlayerAnswerLine = new OptionLineTree(PortraitType.PLAYER_NEUTRAL, ggAnswerOptions);
         StatementLineTree ggOfferLine = new StatementLineTree(PortraitType.NPC_NEUTRAL, null, "do you want a butterscotch?", ggPlayerAnswerLine);
-        List<Pair<String,AbstractLineTree>> ggInitialOptions = new ArrayList<Pair<String,AbstractLineTree>>();
-        ggInitialOptions.add(new Pair<String,AbstractLineTree>("The sun is shining...so I hear", ggOfferLine));
-        ggInitialOptions.add(new Pair<String,AbstractLineTree>("if you say so", ggOfferLine));
+        StatementLineTree ggRealizeLine = new StatementLineTree(PortraitType.NPC_NEUTRAL, null, "oh right, you've been in here the whole, haven't you", ggOfferLine);
+        List<Option> ggInitialOptions = new ArrayList<Option>();
+        ggInitialOptions.add(new Option("The sun is shining...so I hear", null, ggRealizeLine));
+        ggInitialOptions.add(new Option("if you say so", null, ggOfferLine));
         OptionLineTree ggPlayerInitialLine = new OptionLineTree(PortraitType.PLAYER_NEUTRAL, ggInitialOptions);
         StatementLineTree ggInitialLine = new StatementLineTree(PortraitType.NPC_NEUTRAL, null, "hello, dear! lovely day we're having, isn't it?", ggPlayerInitialLine);
         Scene grandmaGreeting = new Scene(
@@ -82,6 +85,9 @@ public class SceneDirector {
         elevatorFullPulseScenes.add(simpleElevatorFull);
     }
     private static final int MAX_SCENES = 3;
+
+    
+    private record ActiveScene (Passenger passenger, SceneType type, Scene scene) {}
     
     private List<StarRole> availableStarScenes = new ArrayList<StarRole>();
     private Pair<Passenger,StarRole> starScene = null;
@@ -141,9 +147,9 @@ public class SceneDirector {
         boolean switchInterrupt = this.activeInterrupt == null;
         boolean switchScene = this.activeScene == null;
         if (runningInterrupt)
-            switchInterrupt = this.activeInterrupt.render(game, deltaSec);
+            switchInterrupt = this.activeInterrupt.render(game, deltaSec).second == LineReturn.FINISH;
         else if (runningScene)
-            switchScene = this.activeScene.scene().render(game, deltaSec);
+            switchScene = this.activeScene.scene().render(game, deltaSec, this.activeScene.passenger());
         
         if (switchInterrupt) {
             if (this.activeInterrupt != null)

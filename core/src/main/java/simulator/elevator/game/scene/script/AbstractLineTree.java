@@ -1,6 +1,7 @@
 package simulator.elevator.game.scene.script;
 
 import simulator.elevator.Main;
+import simulator.elevator.util.Pair;
 
 public abstract class AbstractLineTree {
     
@@ -14,22 +15,24 @@ public abstract class AbstractLineTree {
         this.portrait = portrait;
     }
     
-    public boolean render(Main game, float deltaSec) {
+    public Pair<OptionConsequence,LineReturn> render(Main game, float deltaSec) {
         this.timeInLineSec += deltaSec;
-        boolean finished = false;
+        Pair<OptionConsequence,LineReturn> lineOut = 
+                new Pair<OptionConsequence,LineReturn>(null,LineReturn.CONTINUE);
         
         if (this.done) {
             AbstractLineTree nextLine = getNextLine();
             if (nextLine == null)
-                finished = true;
+                lineOut = new Pair<OptionConsequence,LineReturn>(null,LineReturn.FINISH);
             else
-                finished = getNextLine().render(game, deltaSec);
+                lineOut = getNextLine().render(game, deltaSec);
         } else {
             game.font.draw(game.batch, getLineForRender(), 100, 120);
+            lineOut = new Pair<OptionConsequence,LineReturn>(getConsequence(),LineReturn.CONTINUE);
             this.done = isLineDone();
         }
         
-        return finished;
+        return lineOut;
     }
     
     public void reset() {
@@ -43,6 +46,8 @@ public abstract class AbstractLineTree {
     protected abstract boolean isLineDone();
     
     protected abstract AbstractLineTree getNextLine();
+    
+    protected abstract OptionConsequence getConsequence();
     
     protected abstract void resetChildLines();
     

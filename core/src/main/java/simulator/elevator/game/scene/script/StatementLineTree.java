@@ -36,4 +36,9 @@ public class StatementLineTree extends AbstractLineTree {
             this.nextLine.reset();
     }
 
+    @Override
+    protected OptionConsequence getConsequence() {
+        return null;
+    }
+
 }

@@ -1,6 +1,8 @@
 package simulator.elevator.game.scene.script;
 
 import simulator.elevator.Main;
+import simulator.elevator.game.entity.passenger.Passenger;
+import simulator.elevator.util.Pair;
 
 public class Scene {
 
@@ -13,12 +15,18 @@ public class Scene {
         this.ejectLine = ejectLine;
     }
     
-    public boolean render(Main game, float deltaSec) {
+    public boolean render(Main game, float deltaSec, Passenger passenger) {
         AbstractLineTree curr = this.ejecting ? this.ejectLine : this.script;
 
         if (curr == null)
             return true;
-        return curr.render(game, deltaSec);
+        Pair<OptionConsequence,LineReturn> lineOut = curr.render(game, deltaSec);
+        if (lineOut.first != null)
+            lineOut.first.modifyPassenger(passenger);
+        if (lineOut.second == LineReturn.EJECT)
+            this.ejecting = true;
+        
+        return lineOut.second == LineReturn.FINISH;
     }
     
     public void eject() {

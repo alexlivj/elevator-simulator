@@ -9,11 +9,11 @@ public class OptionLineTree extends AbstractLineTree {
     
     protected static final int TIMEOUT_SEC = 8;
 
-    private final List<Pair<String,AbstractLineTree>> playerOptions;
+    private final List<Option> playerOptions;
     private int selectedOptionIndex = -1;
     private boolean firstRender = true;
     
-    public OptionLineTree(PortraitType portrait, List<Pair<String,AbstractLineTree>> playerOptions) {
+    public OptionLineTree(PortraitType portrait, List<Option> playerOptions) {
         super(portrait);
         this.playerOptions = playerOptions;
     }
@@ -38,7 +38,7 @@ public class OptionLineTree extends AbstractLineTree {
         
         String line = "";
         for (int i=0; i<playerOptions.size(); i++)
-            line += (i+1)+") " + playerOptions.get(i).first + "\n\n";
+            line += (i+1)+") " + playerOptions.get(i).line() + "\n\n";
         return line;
     }
     
@@ -56,13 +56,21 @@ public class OptionLineTree extends AbstractLineTree {
         int index = this.selectedOptionIndex;
         if (index == -1)
             index = 0;
-        return playerOptions.get(index).second;
+        return playerOptions.get(index).next();
     }
 
     @Override
     protected void resetChildLines() {
-        for (Pair<String,AbstractLineTree> p : this.playerOptions)
-            p.second.reset();
+        for (Option o : this.playerOptions)
+            o.next().reset();
+    }
+
+    @Override
+    protected OptionConsequence getConsequence() {
+        if (this.selectedOptionIndex >= 0)
+            return this.playerOptions.get(this.selectedOptionIndex).consequence();
+        
+        return null;
     }
     
 }
