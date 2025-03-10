@@ -15,7 +15,8 @@ public class Elevator extends AbstractEntity {
     private static final int ELEVATOR_SPEED_PIXEL_SEC = 30;
     private static final int ELEVATOR_UNSAFE_SPEED_PIXEL_SEC = 20;
     private static final float ELEVATOR_UNSAFE_DECAY_RATE_SEC = 3;
-    private static final float ELEVATOR_HALT_DECAY_PER_PIXEL_SEC = 0.5f;
+    private static final float ELEVATOR_HALT_DECAY_PER_PIXEL_SEC = 0.1f;
+    private static final float ELEVATOR_BOUND_HALT_DECAY_MOD = 0.05f;
     
     private int deltaY = 0;
     private final Pair<Integer,Integer> yAxisBound;
@@ -42,6 +43,7 @@ public class Elevator extends AbstractEntity {
             if ((posRelY < this.yAxisBound.first && this.deltaY < 0)
                     || (this.yAxisBound.second < posRelY && 0 < this.deltaY)) {
                 int dy = this.deltaY;
+                this.deltaY *= ELEVATOR_BOUND_HALT_DECAY_MOD;
                 haltMove();
                 this.deltaY = dy; 
             } else {
