@@ -43,6 +43,7 @@ public class GameStateManager implements InputProcessor {
     private static final Vector2 SLIDER_CENTER = new Vector2(320*2, 100);
     private static final Vector2 BUTTON_CENTER = new Vector2(264*2, 50);
     private static final Texture STATIC_UI = TextureUtility.doubleTextureSize("static-ui.png");
+    private static final Texture OPTION_BOX = TextureUtility.doubleTextureSize("option.png");
     
     private boolean paused = false;
     private float timeRemaining = GAME_TIME_SEC;
@@ -121,6 +122,7 @@ public class GameStateManager implements InputProcessor {
         game.batch.draw(this.elevatorSlider,
                 this.elevatorSliderBox.pos.x,
                 this.elevatorSliderBox.pos.y);
+        
         game.font.draw(game.batch, Integer.toString(this.elevator.getDurability())+"%", 780, 30);
         int tipCents = this.elevator.getTipTotal();
         int tipPartCents = tipCents % 100;
@@ -128,7 +130,11 @@ public class GameStateManager implements InputProcessor {
         String tipString = "$"+tipPartDollars+"."+(tipPartCents < 10 ? "0" : "")+tipPartCents;
         game.font.draw(game.batch, tipString, 30, 540);
         game.font.draw(game.batch, Integer.toString((int)this.timeRemaining)+"s", 780, 540);
+        
         SceneDirector.getInstance().render(game, deltaSec);
+        if (this.playerOptionBoxes != null)
+            for (Box b : this.playerOptionBoxes.second)
+                game.batch.draw(OPTION_BOX, b.pos.x, b.pos.y);
         
         // to stop the mysterious concurrency errors
         for (AbstractEntity d : this.deadEntities)
@@ -165,7 +171,7 @@ public class GameStateManager implements InputProcessor {
     public void addPlayerOptionBoxes(OptionLineTree tree, int numBoxes) {
         List<Box> newBoxes = new ArrayList<Box>();
         for (int i=0; i<numBoxes; i++)
-            newBoxes.add(new Box(new Vector2(205*2, 210*2+15*2*i), new Vector2(180*2, 15*2)));
+            newBoxes.add(new Box(new Vector2(45*2, 50*2-15*2*i), new Vector2(180*2, 15*2)));
         this.playerOptionBoxes = new Pair<OptionLineTree,List<Box>>(tree, newBoxes);
     }
     

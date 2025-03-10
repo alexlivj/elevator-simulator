@@ -16,6 +16,8 @@ import simulator.elevator.game.entity.passenger.PassengerState;
 import simulator.elevator.game.scene.CastingDirection;
 import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.game.scene.script.StatementLineTree;
+import simulator.elevator.game.scene.script.AbstractLineTree;
+import simulator.elevator.game.scene.script.OptionLineTree;
 import simulator.elevator.game.scene.script.PortraitType;
 import simulator.elevator.game.scene.script.Scene;
 import simulator.elevator.game.scene.script.SceneType;
@@ -39,11 +41,40 @@ public class SceneDirector {
                 new CastingDirection(new Pair<PassengerPersonality,PassengerPersonality>(minInf, maxInf),
                         new Pair<Float,Float>(Float.MIN_VALUE, Float.MAX_VALUE));
         
+        PassengerPersonality minKind = 
+                new PassengerPersonality(Integer.MIN_VALUE, 80, 80);
+        PassengerPersonality maxSlow = 
+                new PassengerPersonality(30, Float.MAX_VALUE, Float.MAX_VALUE);
+        CastingDirection grandma = 
+                new CastingDirection(new Pair<PassengerPersonality,PassengerPersonality>(minKind, maxSlow),
+                        new Pair<Float,Float>(Float.MIN_VALUE, Float.MAX_VALUE));
+        
+        // STAR
+        
+        Map<PassengerState,Scene> grandmaScenes = new HashMap<PassengerState,Scene>();
+        StatementLineTree ggResponseLine = new StatementLineTree(PortraitType.NPC_NEUTRAL, null, "of course, dear", null);
+        List<Pair<String,AbstractLineTree>> ggAnswerOptions = new ArrayList<Pair<String,AbstractLineTree>>();
+        ggAnswerOptions.add(new Pair<String,AbstractLineTree>("Sure!", ggResponseLine));
+        ggAnswerOptions.add(new Pair<String,AbstractLineTree>("oh well, thank you, but no. no thank you", ggResponseLine));
+        OptionLineTree ggPlayerAnswerLine = new OptionLineTree(PortraitType.PLAYER_NEUTRAL, ggAnswerOptions);
+        StatementLineTree ggOfferLine = new StatementLineTree(PortraitType.NPC_NEUTRAL, null, "do you want a butterscotch?", ggPlayerAnswerLine);
+        List<Pair<String,AbstractLineTree>> ggInitialOptions = new ArrayList<Pair<String,AbstractLineTree>>();
+        ggInitialOptions.add(new Pair<String,AbstractLineTree>("The sun is shining...so I hear", ggOfferLine));
+        ggInitialOptions.add(new Pair<String,AbstractLineTree>("if you say so", ggOfferLine));
+        OptionLineTree ggPlayerInitialLine = new OptionLineTree(PortraitType.PLAYER_NEUTRAL, ggInitialOptions);
+        StatementLineTree ggInitialLine = new StatementLineTree(PortraitType.NPC_NEUTRAL, null, "hello, dear! lovely day we're having, isn't it?", ggPlayerInitialLine);
+        Scene grandmaGreeting = new Scene(
+                ggInitialLine,
+                new StatementLineTree(PortraitType.NPC_NEUTRAL, null, "oh! ok then...", null));
+        grandmaScenes.put(PassengerState.RIDING, grandmaGreeting);
+        ALL_STAR_SCENES.add(new StarRole(grandmaScenes, grandma));
+        
+        // ELEVATOR_FULL
         Map<CastingDirection,List<Scene>> elevatorFullMap = new HashMap<CastingDirection,List<Scene>>();
         ALL_NORMAL_SCENES.put(SceneType.ELEVATOR_FULL, elevatorFullMap);
+        
         List<Scene> elevatorFullPulseScenes = new ArrayList<Scene>();
         elevatorFullMap.put(anyoneWithAPulse, elevatorFullPulseScenes);
-        
         Scene simpleElevatorFull = new Scene(
                 new StatementLineTree(PortraitType.PLAYER_NEUTRAL, null, "Sorry, elevator's full.", null),
                 null);
@@ -85,11 +116,17 @@ public class SceneDirector {
     
     public StarRole requestStarScene() {
         StarRole newStarScene = null;
-        if (this.starScene != null) {
+        if (this.starScene == null && this.availableStarScenes.size() > 0) {
             int newStarSceneIndex = RandomUtility.getRandomIntRange(0,availableStarScenes.size()-1);
             newStarScene = this.availableStarScenes.remove(newStarSceneIndex);
+            this.starScene = new Pair<Passenger,StarRole>(null,newStarScene);
         }
         return newStarScene;
+    }
+    
+    public void offerStarPassenger(Passenger passenger) {
+        if (this.starScene != null && this.starScene.first == null)
+            this.starScene = new Pair<Passenger,StarRole>(passenger, this.starScene.second);
     }
     
     public void queueInterrupt(StatementLineTree line) {
@@ -100,8 +137,8 @@ public class SceneDirector {
         boolean runningInterrupt = this.activeInterrupt != null;
         boolean runningScene = !runningInterrupt && this.activeScene != null;
 
-        boolean switchInterrupt = !runningInterrupt;
-        boolean switchScene = !runningScene;
+        boolean switchInterrupt = this.activeInterrupt == null;
+        boolean switchScene = this.activeScene == null;
         if (runningInterrupt)
             switchInterrupt = this.activeInterrupt.render(game, deltaSec);
         else if (runningScene)
@@ -120,8 +157,9 @@ public class SceneDirector {
                 this.activeScene.scene().reset();
             this.activeScene = null;
             if (this.startStarScene != null) {
-                this.activeScene = new ActiveScene(this.starScene.first, SceneType.STAR, 
-                        this.starScene.second.scenes().get(this.startStarScene));
+                Scene starScene = this.starScene.second.scenes().get(this.startStarScene);
+                if (starScene != null)
+                    this.activeScene = new ActiveScene(this.starScene.first, SceneType.STAR, starScene);
                 this.startStarScene = null;
             } else {
                 if (this.queuedScenes.peek() != null)

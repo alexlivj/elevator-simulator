@@ -30,7 +30,7 @@ public class PassengerCoordinator {
     private static final int RIDE_X_OFFSET_PIXEL = DOOR_PIXEL+5*2;
     private static final float SPAWN_OCCURRENCE_SEC = 0.3f;
     private static final float SCENE_OCCURRENCE_SPAWN = 0.3f;
-    private static final int MIN_SPEED_PIXEL_SEC = 40;
+    private static final int MIN_SPEED_PIXEL_SEC = 30;
     private static final int MAX_SPEED_PIXEL_SEC = 60;
     private static final Color[] POSSIBLE_COLORS = new Color[PassengerCoordinator.MAX_PASSENGERS_WORLD];
     static {
@@ -188,6 +188,10 @@ public class PassengerCoordinator {
             Color randomColor = requestColorSlot(newPassenger);
             if (randomColor != null)
                 color.set(randomColor);
+            if (starRole != null) {
+                SceneDirector.getInstance().offerStarPassenger(newPassenger);
+                System.out.println("spawning star role! "+randomColor+" on "+leastBusyFloor);
+            }
             
             this.activePassengers.add(newPassenger);
             this.firstPassenger = false;

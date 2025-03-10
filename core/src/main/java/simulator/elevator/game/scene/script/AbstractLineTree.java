@@ -23,7 +23,7 @@ public abstract class AbstractLineTree {
             if (nextLine == null)
                 finished = true;
             else
-                getNextLine().render(game, deltaSec);
+                finished = getNextLine().render(game, deltaSec);
         } else {
             game.font.draw(game.batch, getLineForRender(), 100, 120);
             this.done = isLineDone();
