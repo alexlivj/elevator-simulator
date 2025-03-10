@@ -13,8 +13,9 @@ public class Elevator extends AbstractEntity {
     
     //TODO maybe read this from somewhere
     private static final int ELEVATOR_SPEED_PIXEL_SEC = 30;
-    private static final int ELEVATOR_UNSAFE_SPEED_PIXEL_SEC = 10;
-    private static final float ELEVATOR_DECAY_RATE_SEC = 3;
+    private static final int ELEVATOR_UNSAFE_SPEED_PIXEL_SEC = 20;
+    private static final float ELEVATOR_UNSAFE_DECAY_RATE_SEC = 3;
+    private static final float ELEVATOR_HALT_DECAY_PER_PIXEL_SEC = 0.5f;
     
     private int deltaY = 0;
     private final Pair<Integer,Integer> yAxisBound;
@@ -40,7 +41,6 @@ public class Elevator extends AbstractEntity {
             float posRelY = pos.getRelativeVector().y;
             if ((posRelY < this.yAxisBound.first && this.deltaY < 0)
                     || (this.yAxisBound.second < posRelY && 0 < this.deltaY)) {
-                this.durability -= Elevator.ELEVATOR_DECAY_RATE_SEC * deltaSec;
                 int dy = this.deltaY;
                 haltMove();
                 this.deltaY = dy; 
@@ -50,7 +50,7 @@ public class Elevator extends AbstractEntity {
                     float maxUnsafeDiff = Elevator.ELEVATOR_SPEED_PIXEL_SEC - Elevator.ELEVATOR_UNSAFE_SPEED_PIXEL_SEC;
                     float unsafeDeltaY = Elevator.ELEVATOR_SPEED_PIXEL_SEC - absDeltaY;
                     float unsafeMagnitude = 1 - unsafeDeltaY / maxUnsafeDiff;
-                    this.durability -= unsafeMagnitude*Elevator.ELEVATOR_DECAY_RATE_SEC * deltaSec;
+                    this.durability -= unsafeMagnitude*Elevator.ELEVATOR_UNSAFE_DECAY_RATE_SEC * deltaSec;
                 }
                 Vector2 newRel = new Vector2(pos.getRelativeVector()).add(new Vector2(0,this.deltaY));
                 moveTo(new RelativeCoordinate(pos.getOrigin(), newRel), Math.abs(this.deltaY));
@@ -71,6 +71,7 @@ public class Elevator extends AbstractEntity {
     
     @Override
     public void haltMove() {
+        this.durability -= Elevator.ELEVATOR_HALT_DECAY_PER_PIXEL_SEC * Math.abs(this.deltaY);
         this.deltaY = 0;
         super.haltMove();
     }
