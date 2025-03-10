@@ -9,83 +9,20 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import simulator.elevator.Level;
 import simulator.elevator.Main;
 import simulator.elevator.game.entity.passenger.Passenger;
-import simulator.elevator.game.entity.passenger.PassengerPersonality;
 import simulator.elevator.game.entity.passenger.PassengerState;
 import simulator.elevator.game.scene.CastingDirection;
 import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.game.scene.script.StatementLineTree;
-import simulator.elevator.game.scene.script.AbstractLineTree;
 import simulator.elevator.game.scene.script.LineReturn;
-import simulator.elevator.game.scene.script.Option;
-import simulator.elevator.game.scene.script.OptionLineTree;
-import simulator.elevator.game.scene.script.PortraitType;
 import simulator.elevator.game.scene.script.Scene;
 import simulator.elevator.game.scene.script.SceneType;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RandomUtility;
 
 public class SceneDirector {
-
-    //TODO again, maybe read this from somewhere
-    private static final Map<SceneType,Map<CastingDirection,List<Scene>>> ALL_NORMAL_SCENES = 
-            new HashMap<SceneType,Map<CastingDirection,List<Scene>>>();
-    private static final List<StarRole> ALL_STAR_SCENES = new ArrayList<StarRole>();
-    static {
-        PassengerPersonality minInf = 
-                new PassengerPersonality(Integer.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
-        PassengerPersonality maxInf = 
-                new PassengerPersonality(Integer.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
-        CastingDirection anyoneWithAPulse = 
-                new CastingDirection(new Pair<PassengerPersonality,PassengerPersonality>(minInf, maxInf),
-                        new Pair<Float,Float>(Float.MIN_VALUE, Float.MAX_VALUE));
-        
-        PassengerPersonality minKind = 
-                new PassengerPersonality(Integer.MIN_VALUE, 80, 80);
-        PassengerPersonality maxSlow = 
-                new PassengerPersonality(30, Float.MAX_VALUE, Float.MAX_VALUE);
-        CastingDirection grandma = 
-                new CastingDirection(new Pair<PassengerPersonality,PassengerPersonality>(minKind, maxSlow),
-                        new Pair<Float,Float>(Float.MIN_VALUE, Float.MAX_VALUE));
-        
-        // STAR
-        
-        //TODO this is awful to look at and worse to write. please read these from somewhere
-        Map<PassengerState,Scene> grandmaScenes = new HashMap<PassengerState,Scene>();
-        StatementLineTree ggResponseLine = new StatementLineTree(PortraitType.NPC_NEUTRAL, null, "of course, dear", null);
-        List<Option> ggAnswerOptions = new ArrayList<Option>();
-        ggAnswerOptions.add(new Option("Sure!", null, ggResponseLine));
-        ggAnswerOptions.add(new Option("oh well, thank you, but no. no thank you",
-                passenger -> passenger.modHappiness(0.90f),
-                ggResponseLine));
-        OptionLineTree ggPlayerAnswerLine = new OptionLineTree(PortraitType.PLAYER_NEUTRAL, ggAnswerOptions);
-        StatementLineTree ggOfferLine = new StatementLineTree(PortraitType.NPC_NEUTRAL, null, "do you want a butterscotch?", ggPlayerAnswerLine);
-        StatementLineTree ggRealizeLine = new StatementLineTree(PortraitType.NPC_NEUTRAL, null, "oh right, you've been in here the whole, haven't you", ggOfferLine);
-        List<Option> ggInitialOptions = new ArrayList<Option>();
-        ggInitialOptions.add(new Option("The sun is shining...so I hear", null, ggRealizeLine));
-        ggInitialOptions.add(new Option("if you say so", null, ggOfferLine));
-        OptionLineTree ggPlayerInitialLine = new OptionLineTree(PortraitType.PLAYER_NEUTRAL, ggInitialOptions);
-        StatementLineTree ggInitialLine = new StatementLineTree(PortraitType.NPC_NEUTRAL, null, "hello, dear! lovely day we're having, isn't it?", ggPlayerInitialLine);
-        Scene grandmaGreeting = new Scene(
-                ggInitialLine,
-                new StatementLineTree(PortraitType.NPC_NEUTRAL, null, "oh! ok then...", null));
-        grandmaScenes.put(PassengerState.RIDING, grandmaGreeting);
-        ALL_STAR_SCENES.add(new StarRole(grandmaScenes, grandma));
-        
-        // ELEVATOR_FULL
-        Map<CastingDirection,List<Scene>> elevatorFullMap = new HashMap<CastingDirection,List<Scene>>();
-        ALL_NORMAL_SCENES.put(SceneType.ELEVATOR_FULL, elevatorFullMap);
-        
-        List<Scene> elevatorFullPulseScenes = new ArrayList<Scene>();
-        elevatorFullMap.put(anyoneWithAPulse, elevatorFullPulseScenes);
-        Scene simpleElevatorFull = new Scene(
-                new StatementLineTree(PortraitType.PLAYER_NEUTRAL, null, "Sorry, elevator's full.", null),
-                null);
-        elevatorFullPulseScenes.add(simpleElevatorFull);
-    }
-    private static final int MAX_SCENES = 3;
-
     
     private record ActiveScene (Passenger passenger, SceneType type, Scene scene) {}
     
@@ -118,7 +55,11 @@ public class SceneDirector {
         this.queuedScenes.clear();
         this.queuedInterrupts.clear();
         this.availableStarScenes.clear();
-        this.availableStarScenes.addAll(SceneDirector.ALL_STAR_SCENES);
+        this.availableStarScenes.addAll(getLevel().ALL_STAR_SCENES);
+    }
+    
+    public Level getLevel() {
+        return GameStateManager.getInstance().getLevel();
     }
     
     public StarRole requestStarScene() {
@@ -197,28 +138,30 @@ public class SceneDirector {
                     || (this.activeScene != null && this.activeScene.passenger() != this.starScene.first))
                 && this.acceptingSceneType.get(type)
                 && !this.hasSceneType(type)
-                && this.numScenes() < SceneDirector.MAX_SCENES) {
-            Map<CastingDirection,List<Scene>> stateScenes = ALL_NORMAL_SCENES.get(type);
-            Set<CastingDirection> validReqs = new HashSet<CastingDirection>(stateScenes.keySet());
-            validReqs.stream().filter(r -> r.isValidPassenger(passenger));
-            
-            int randomReqNum = RandomUtility.getRandomIntRange(0, validReqs.size());
-            int i=0;
-            CastingDirection req = null;
-            for (CastingDirection r : validReqs) {
-                if (i == randomReqNum) {
-                    req = r;
-                    break;
-                }
-                i++;
-            }
-            
-            if (req != null) {
-                int randomSceneNum = RandomUtility.getRandomIntRange(0, stateScenes.get(req).size()-1);
-                newScene = stateScenes.get(req).get(randomSceneNum);
+                && this.numScenes() < getLevel().MAX_SCENES) {
+            Map<CastingDirection,List<Scene>> stateScenes = getLevel().ALL_NORMAL_SCENES.get(type);
+            if (stateScenes != null) {
+                Set<CastingDirection> validReqs = new HashSet<CastingDirection>(stateScenes.keySet());
+                validReqs.stream().filter(r -> r.isValidPassenger(passenger));
                 
-                if (type == SceneType.ELEVATOR_FULL)
-                    this.acceptingSceneType.put(type, false);
+                int randomReqNum = RandomUtility.getRandomIntRange(0, validReqs.size());
+                int i=0;
+                CastingDirection req = null;
+                for (CastingDirection r : validReqs) {
+                    if (i == randomReqNum) {
+                        req = r;
+                        break;
+                    }
+                    i++;
+                }
+                
+                if (req != null) {
+                    int randomSceneNum = RandomUtility.getRandomIntRange(0, stateScenes.get(req).size()-1);
+                    newScene = stateScenes.get(req).get(randomSceneNum);
+                    
+                    if (type == SceneType.ELEVATOR_FULL)
+                        this.acceptingSceneType.put(type, false);
+                }
             }
         }
         if (newScene != null)

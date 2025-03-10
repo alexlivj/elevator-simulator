@@ -3,6 +3,7 @@ package simulator.elevator.game.entity.passenger;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 
+import simulator.elevator.Level;
 import simulator.elevator.Main;
 import simulator.elevator.game.entity.AbstractEntity;
 import simulator.elevator.game.manager.PassengerCoordinator;
@@ -11,26 +12,12 @@ import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.game.scene.script.StatementLineTree;
 import simulator.elevator.game.scene.script.SceneType;
 import simulator.elevator.util.RelativeCoordinate;
-import simulator.elevator.util.TextureUtility;
 
 public class Passenger extends AbstractEntity {
 
-    private static final Texture DEF_TEXTURE = TextureUtility.doubleTextureSize("passenger.png");
-    public static final float HAPPINESS_DECAY_RATE_SEC = 0.99f;
-    public static final float[] HAPPINESS_DECAY_MOD = new float[6];
-    static {
-        HAPPINESS_DECAY_MOD[PassengerState.ARRIVING.value] = 0f;
-        HAPPINESS_DECAY_MOD[PassengerState.WAITING.value] = 1f;
-        HAPPINESS_DECAY_MOD[PassengerState.LOADING.value] = 1.5f;
-        HAPPINESS_DECAY_MOD[PassengerState.RIDING.value] = 0.5f;
-        HAPPINESS_DECAY_MOD[PassengerState.UNLOADING.value] = 1.5f;
-        HAPPINESS_DECAY_MOD[PassengerState.LEAVING.value] = 0f;
-    }
-    public static final float DOOR_SLAM_PENALTY = -50;
-    public static final int MAX_TIP_CENTS = 20;
-
     private final PassengerCoordinator coordinator;
     private final SceneDirector director;
+    private final Level level;
     
     private float happiness = 100;
     private PassengerState currentState = PassengerState.ARRIVING;
@@ -43,11 +30,12 @@ public class Passenger extends AbstractEntity {
     private final PassengerPersonality personality;
     
     public Passenger(int startFloor, int destFloor,
-                     Color color, 
+                     Color color, Texture texture,
                      PassengerPersonality personality, StarRole starRole) {
-        super(PassengerCoordinator.getInstance().getFloorSpawn(startFloor), Passenger.DEF_TEXTURE);
+        super(PassengerCoordinator.getInstance().getFloorSpawn(startFloor), texture);
         this.coordinator = PassengerCoordinator.getInstance();
         this.director = SceneDirector.getInstance();
+        this.level = this.director.getLevel();
         this.startFloor = startFloor;
         this.destFloor = destFloor;
         this.color = color;
@@ -96,7 +84,7 @@ public class Passenger extends AbstractEntity {
                     // ideally, we'd only want the reset to happen if the door intersects with the passsenger
                     this.currentStateAction = false;
                     cancelMove();
-                    float penalty = Passenger.DOOR_SLAM_PENALTY * 1-this.personality.patience();
+                    float penalty = this.level.DOOR_SLAM_PENALTY * 1-this.personality.patience();
                     this.happiness = Math.max(0, this.happiness+penalty);
                     this.coordinator.clearElevatorSlot(this);
                     if (this.starRole != null)
@@ -147,8 +135,8 @@ public class Passenger extends AbstractEntity {
             this.director.readyStarScene(currentState);
         }
         
-        float d = 1-Passenger.HAPPINESS_DECAY_RATE_SEC;
-        float mod = this.personality.patience() * Passenger.HAPPINESS_DECAY_MOD[this.currentState.value];
+        float d = 1-this.level.HAPPINESS_DECAY_RATE_SEC;
+        float mod = this.personality.patience() * this.level.HAPPINESS_DECAY_MOD[this.currentState.value];
         float decaySec = 1 - mod*d;
         this.happiness *= Math.pow(decaySec,deltaSec);
         
@@ -188,7 +176,7 @@ public class Passenger extends AbstractEntity {
     
     public int calculateTip() {
         float givingMood = 100/this.happiness * this.personality.generosity();
-        int tip = Math.round(Passenger.MAX_TIP_CENTS * givingMood);
+        int tip = Math.round(this.level.MAX_TIP_CENTS * givingMood);
         return tip;
     }
 

@@ -1,0 +1,151 @@
+{
+    "game_length_sec" : 120,
+    "floor_world_spawns" : [[0,0],[0,192],[0,384],[0,576]],
+    "camera_y_bound_pixel" : [0,576],
+    "camera_y_offset_pixel" : -250,
+    "elevator_durability_buffer_pixel" : 5,
+
+    "slider_y_bound_pixel" : [50,150],
+    "slider_center_pixel" : [640, 100],
+    "button_center_pixel" : [528, 50],
+
+    "floor_texture" : "floor.png",
+    "static_ui_texture" : "static-ui.png",
+    "button_texture" : "button.png",
+    "slider_texture" : "slider.png",
+    "option_box_texture" : "option.png",
+    "elevator_open_texture" : "elevator-open.png",
+    "elevator_closed_texture" : "elevator-closed.png",
+    "passenger_textures" : ["passenger.png"],
+
+    "elevator_speed_pixel_sec" : 30,
+    "elevator_unsafe_speed_pixel_sec" : 20,
+    "elevator_unsafe_decay_rate_sec" : 3,
+    "elevator_halt_decay_per_pixel_sec" : 0.1,
+    "elevator_bound_halt_decay_mod" : 0.05,
+
+    "elevator_floor_buffer_pixel" : 10,
+    "door_x_pixel" : 544,
+    "passenger_width_pixel" : 32,
+    "wait_x_offset_pixel" : -54,
+    "ride_x_offset_pixel" : 10,
+
+    "max_passengers_world" : 8,
+    "max_passengers_floor" : 3,
+    "max_passengers_elevator" : 2,
+    "spawn_occurrence_sec" : 0.3,
+    "scene_occurrence_spawn" : 0.3,
+    "min_speed_pixel_sec" : 30,
+    "max_speed_pixel_sec" : 60,
+    "base_color" : [0,0.15,0.88],
+
+    "happiness_decay_rate_sec" : 0.99,
+    "happiness_decay_mod" : [0,1,1.5,0.5,1.5,0],
+    "door_slam_penalty" : -50,
+    "max_tip_cents" : 20,
+
+    "max_scenes" : 3,
+    "castings" : {
+        "anyone_with_a_pulse" : {
+            "speed_bound" : [null, null],
+            "patience_bound" : [null, null],
+            "generosity_bound" : [null, null],
+            "happiness_bound" : [null, null]
+        },
+        "grandparent" : {
+            "speed_bound" : [null, 30],
+            "patience_bound" : [0.8, null],
+            "generosity_bound" : [0.8, null],
+            "happiness_bound" : [null, null]
+        }
+    },
+    "normal_scenes" : {
+        "elevator_full" : {
+            "anyone_with_a_pulse" : [
+                {
+                    "script" : {
+                        "notify" : {
+                            "portrait" : "player_neutral",
+                            "sfx" : null,
+                            "line" : "sorry, elevator's full",
+                            "next" : null
+                        }
+                    },
+                    "eject" : null
+                }
+            ]
+       }
+    },
+    "star_scenes" : {
+        "grandparent" : {
+            "riding" : {
+                "script" : {
+                    "greeting" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "hello, dear! lovely day we're having, isn't it?",
+                        "next" : "greeting_response"
+                    },
+                    "greeting_response" : {
+                        "portrait" : "player_neutral",
+                        "options" : [
+                            {
+                                "line" : "the sun is shining...so i hear",
+                                "consequence" : null,
+                                "next" : "realize"
+                            },
+                            {
+                                "line" : "the sun is shining...so i hear",
+                                "consequence" : null,
+                                "next" : "offer"
+                            }
+                        ]
+                    },
+                    "realize" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "of course, dear",
+                        "next" : "offer"
+                    },
+                    "offer" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "do you want a butterscotch?",
+                        "next" : "offer_response"
+                    },
+                    "offer_response" : {
+                        "portrait" : "player_neutral",
+                        "options" : [
+                            {
+                                "line" : "sure!",
+                                "consequence" : null,
+                                "next" : "close"
+                            },
+                            {
+                                "line" : "oh well, thank you, but no. no thank you",
+                                "consequence" : {
+                                    "type" : "mod",
+                                    "attribute" : "happiness",
+                                    "value" : "0.8"
+                                },
+                                "next" : "close"
+                            }
+                        ]
+                    },
+                    "close" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "of course, dear",
+                        "next" : null
+                    }
+                },
+                "eject" : {
+                    "portrait" : "npc_neutral",
+                    "sfx" : null,
+                    "line" : "oh! ok then...",
+                    "next" : null
+                }
+            }
+        }
+    }
+}

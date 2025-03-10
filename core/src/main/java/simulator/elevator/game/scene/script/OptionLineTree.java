@@ -3,7 +3,6 @@ package simulator.elevator.game.scene.script;
 import java.util.List;
 
 import simulator.elevator.game.manager.GameStateManager;
-import simulator.elevator.util.Pair;
 
 public class OptionLineTree extends AbstractLineTree {
     
