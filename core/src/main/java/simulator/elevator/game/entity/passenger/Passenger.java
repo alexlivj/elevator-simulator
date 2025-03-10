@@ -141,7 +141,9 @@ public class Passenger extends AbstractEntity {
                 break;
         }
         
-        if (this.starRole != null && oldState != this.currentState) {
+        if (this.starRole != null 
+                && oldState != this.currentState 
+                && oldState.isBeforeOrAt(this.currentState)) {
             this.director.readyStarScene(currentState);
         }
         

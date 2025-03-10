@@ -51,6 +51,7 @@ public class SceneDirector {
         
         // STAR
         
+        //TODO this is awful to look at and worse to write. please read these from somewhere
         Map<PassengerState,Scene> grandmaScenes = new HashMap<PassengerState,Scene>();
         StatementLineTree ggResponseLine = new StatementLineTree(PortraitType.NPC_NEUTRAL, null, "of course, dear", null);
         List<Pair<String,AbstractLineTree>> ggAnswerOptions = new ArrayList<Pair<String,AbstractLineTree>>();
@@ -186,7 +187,8 @@ public class SceneDirector {
     
     public void requestScene(Passenger passenger, SceneType type) {
         Scene newScene = null;
-        if ((this.starScene == null || this.activeScene.passenger() != this.starScene.first)
+        if ((this.starScene == null 
+                    || (this.activeScene != null && this.activeScene.passenger() != this.starScene.first))
                 && this.acceptingSceneType.get(type)
                 && !this.hasSceneType(type)
                 && this.numScenes() < SceneDirector.MAX_SCENES) {
