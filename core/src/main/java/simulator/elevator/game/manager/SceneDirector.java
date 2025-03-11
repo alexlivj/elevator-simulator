@@ -140,10 +140,11 @@ public class SceneDirector {
     public void requestScene(Passenger passenger, SceneType type) {
         Scene newScene = null;
         if ((this.starScene == null 
-                    || (this.activeScene != null && this.activeScene.passenger() != this.starScene.first))
+                    || !(this.activeScene != null && this.activeScene.passenger() == this.starScene.first))
                 && this.acceptingSceneType.get(type)
                 && !this.hasSceneType(type)
                 && this.numScenes() < getLevel().MAX_SCENES) {
+            System.out.println("accepted.");
             Map<CastingDirection,List<Scene>> stateScenes = getLevel().ALL_NORMAL_SCENES.get(type);
             if (stateScenes != null) {
                 Set<CastingDirection> validReqs = new HashSet<CastingDirection>(stateScenes.keySet());
