@@ -26,8 +26,8 @@
         "npc_neutral" : "npc_neutral.png"
     },
 
-    "elevator_speed_pixel_sec" : 30,
-    "elevator_unsafe_speed_pixel_sec" : 20,
+    "elevator_speed_pixel_sec" : 20,
+    "elevator_unsafe_speed_pixel_sec" : 15,
     "elevator_unsafe_decay_rate_sec" : 3,
     "elevator_halt_decay_per_pixel_sec" : 0.1,
     "elevator_bound_halt_decay_mod" : 0.05,
@@ -41,8 +41,8 @@
     "max_passengers_world" : 15,
     "max_passengers_floor" : 3,
     "max_passengers_elevator" : 5,
-    "spawn_occurrence_sec" : 0.2,
-    "scene_occurrence_spawn" : 0.3,
+    "spawn_occurrence_sec" : 0.1,
+    "scene_occurrence_spawn" : 0.5,
     "min_speed_pixel_sec" : 30,
     "max_speed_pixel_sec" : 60,
     "base_color" : [0,0.15,0.88],
@@ -59,7 +59,7 @@
     "door_slam_penalty" : -50,
     "max_tip_cents" : 20,
 
-    "max_scenes" : 3,
+    "max_scenes" : 1,
     "castings" : {
         "anyone_with_a_pulse" : {
             "speed_bound" : [null, null],
@@ -68,9 +68,15 @@
             "happiness_bound" : [null, null]
         },
         "grandparent" : {
-            "speed_bound" : [null, 30],
+            "speed_bound" : [null, 10],
             "patience_bound" : [0.8, null],
             "generosity_bound" : [0.8, null],
+            "happiness_bound" : [null, null]
+        },
+        "bum" : {
+            "speed_bound" : [null, null],
+            "patience_bound" : [null, null],
+            "generosity_bound" : [null, 0.2],
             "happiness_bound" : [null, null]
         }
     },
@@ -92,7 +98,102 @@
        }
     },
     "star_scenes" : {
+        "bum" : {
+            "riding" : {
+                "script" : {
+                    "start" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "hey. hey you. operator? hello?",
+                        "next" : "greeting_response"
+                    },
+                    "greeting_response" : {
+                        "portrait" : "player_neutral",
+                        "options" : [
+                            {
+                                "line" : "yes? what can I help you with?",
+                                "consequence" : null,
+                                "next" : "request"
+                            },
+                            {
+                                "line" : "I work an elevator not a telephone",
+                                "consequence" : {
+                                    "type" : "mod",
+                                    "attribute" : "happiness",
+                                    "value" : "0.5"
+                                },
+                                "next" : "goodgood"
+                            }
+                        ]
+                    },
+                    "goodgood" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "just making sure you can hear me is all",
+                        "next" : "request"
+                    },
+                    "request" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "can you spot me some cash?",
+                        "next" : "reply"
+                    },
+                    "reply" : {
+                        "portrait" : "player_neutral",
+                        "options" : [
+                            {
+                                "line" : "um....ok? how much *pulls out wallet*",
+                                "consequence" : {
+                                    "type" : "mod",
+                                    "attribute" : "money",
+                                    "value" : "-100"
+                                },
+                                "next" : "yes"
+                            },
+                            {
+                                "line" : "there's a bank down the road",
+                                "consequence" : {
+                                    "type" : "mod",
+                                    "attribute" : "happiness",
+                                    "value" : "0"
+                                },
+                                "next" : "no"
+                            }
+                        ]
+                    },
+                    "yes" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "hmmm about...THIS MUCH!\nthank you, bless you, you're so generous",
+                        "next" : null
+                    },
+                    "no" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "SCROOGE",
+                        "next" : null
+                    }
+                },
+                "eject" : null
+            }
+        },
         "grandparent" : {
+            "loading" : {
+                "script" : {
+                    "start" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "thank you for waiting\nthese legs aren't what they used to be",
+                        "next" : null
+                    }
+                },
+                "eject" : {
+                    "portrait" : "npc_neutral",
+                    "sfx" : null,
+                    "line" : "oh! ok then...",
+                    "next" : null
+                }
+            },
             "riding" : {
                 "script" : {
                     "start" : {
@@ -134,7 +235,7 @@
                             {
                                 "line" : "sure!",
                                 "consequence" : null,
-                                "next" : "close"
+                                "next" : "giveaway"
                             },
                             {
                                 "line" : "oh well, thank you, but no. no thank you",
@@ -146,6 +247,12 @@
                                 "next" : "close"
                             }
                         ]
+                    },
+                    "giveaway" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "of course, here you go, dear!",
+                        "next" : null
                     },
                     "close" : {
                         "portrait" : "npc_neutral",

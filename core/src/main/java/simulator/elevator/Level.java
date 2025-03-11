@@ -18,6 +18,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import simulator.elevator.game.entity.passenger.PassengerPersonality;
 import simulator.elevator.game.entity.passenger.PassengerState;
+import simulator.elevator.game.manager.GameStateManager;
 import simulator.elevator.game.scene.CastingDirection;
 import simulator.elevator.game.scene.PortraitType;
 import simulator.elevator.game.scene.Scene;
@@ -304,6 +305,9 @@ public class Level {
                                 switch (consequenceAttr) {
                                 case "happiness":
                                     consequence = passenger -> passenger.modHappiness(consequenceValue);
+                                    break;
+                                case "money":
+                                    consequence = _p -> GameStateManager.getInstance().getElevator().giveTip(Math.round(consequenceValue));
                                     break;
                                 }
                                 break;
