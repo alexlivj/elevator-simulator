@@ -70,8 +70,8 @@
         },
         "grandparent" : {
             "speed_bound" : [null, 10],
-            "patience_bound" : [0.8, null],
-            "generosity_bound" : [0.8, null],
+            "patience_bound" : [2, null],
+            "generosity_bound" : [5, null],
             "happiness_bound" : [null, null]
         },
         "bum" : {
