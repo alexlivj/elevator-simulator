@@ -18,7 +18,6 @@ import com.badlogic.gdx.math.Vector2;
 
 import simulator.elevator.game.entity.passenger.PassengerPersonality;
 import simulator.elevator.game.entity.passenger.PassengerState;
-import simulator.elevator.game.manager.PassengerCoordinator;
 import simulator.elevator.game.scene.CastingDirection;
 import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.game.scene.script.AbstractLineTree;
