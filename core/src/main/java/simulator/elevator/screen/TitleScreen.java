@@ -43,7 +43,7 @@ public class TitleScreen implements Screen, InputProcessor {
             if (elevator.isBroken()) {
                 String conjunction = elevator.getTipTotal() == 0 ? "and" : "but";
                 this.game.font.draw(this.game.batch, conjunction+" you broke the elevator!", 450, 250);
-                this.game.font.draw(this.game.batch, "great job bozo", 450, 230);
+                this.game.font.draw(this.game.batch, "great job bozo", 440, 220);
             }
         }
         
