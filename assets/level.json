@@ -64,7 +64,7 @@
             "anyone_with_a_pulse" : [
                 {
                     "script" : {
-                        "notify" : {
+                        "start" : {
                             "portrait" : "player_neutral",
                             "sfx" : null,
                             "line" : "sorry, elevator's full",
@@ -80,7 +80,7 @@
         "grandparent" : {
             "riding" : {
                 "script" : {
-                    "greeting" : {
+                    "start" : {
                         "portrait" : "npc_neutral",
                         "sfx" : null,
                         "line" : "hello, dear! lovely day we're having, isn't it?",
@@ -95,7 +95,7 @@
                                 "next" : "realize"
                             },
                             {
-                                "line" : "the sun is shining...so i hear",
+                                "line" : "if you say so",
                                 "consequence" : null,
                                 "next" : "offer"
                             }
@@ -104,7 +104,7 @@
                     "realize" : {
                         "portrait" : "npc_neutral",
                         "sfx" : null,
-                        "line" : "of course, dear",
+                        "line" : "oh right, you've been in here, haven't you",
                         "next" : "offer"
                     },
                     "offer" : {

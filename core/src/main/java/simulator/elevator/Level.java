@@ -21,7 +21,9 @@ import simulator.elevator.game.entity.passenger.PassengerState;
 import simulator.elevator.game.manager.PassengerCoordinator;
 import simulator.elevator.game.scene.CastingDirection;
 import simulator.elevator.game.scene.StarRole;
+import simulator.elevator.game.scene.script.AbstractLineTree;
 import simulator.elevator.game.scene.script.Option;
+import simulator.elevator.game.scene.script.OptionConsequence;
 import simulator.elevator.game.scene.script.OptionLineTree;
 import simulator.elevator.game.scene.script.PortraitType;
 import simulator.elevator.game.scene.script.Scene;
@@ -85,6 +87,21 @@ public class Level {
     public final Map<SceneType,Map<CastingDirection,List<Scene>>> ALL_NORMAL_SCENES;
     public final List<StarRole> ALL_STAR_SCENES;
     public final int MAX_SCENES;
+    
+    private class NullHandler<T> {
+        final T defaultValue;
+        NullHandler(T def) {
+            this.defaultValue = def;
+        }
+        @SuppressWarnings("unchecked")
+        T handle(Object val) {
+            ;
+            if (val == null || !val.getClass().isInstance(defaultValue))
+                return this.defaultValue;
+            else
+                return (T)val;
+        }
+    }
     
     public Level(String filename) throws IOException {
         String text = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
@@ -168,51 +185,177 @@ public class Level {
         
         Map<String,CastingDirection> castingDirectory = new HashMap<String,CastingDirection>();
         JSONObject castings = file.getJSONObject("castings");
-        for (String t : JSONObject.getNames(castings)) {
-            JSONObject c = castings.getJSONObject(t);
+        for (String castingKey : JSONObject.getNames(castings)) {
+            JSONObject c = castings.getJSONObject(castingKey);
             JSONArray speedBound = c.getJSONArray("speed_bound");
             JSONArray patienceBound = c.getJSONArray("patience_bound");
             JSONArray generosityBound = c.getJSONArray("generosity_bound");
             JSONArray happinessBound = c.getJSONArray("happiness_bound");
 
-            class UnNuller {
-                final Number defaultValue;
-                UnNuller(Number def) {
-                    this.defaultValue = def;
-                }
-                Number unNull(Object val) {
-                    if (val == null || !(val instanceof Number))
-                        return this.defaultValue;
-                    else
-                        return (Number)val;
-                }
-            }
-            UnNuller unMin = new UnNuller(Integer.MIN_VALUE); //WARNING does this convert properly?
-            UnNuller unMax = new UnNuller(Integer.MAX_VALUE);
+            NullHandler<Number> unMin = new NullHandler<Number>(Integer.MIN_VALUE); //WARNING does this convert properly?
+            NullHandler<Number> unMax = new NullHandler<Number>(Integer.MAX_VALUE);
             PassengerPersonality min = new PassengerPersonality(
-                    (int)unMin.unNull(speedBound.get(0)),
-                    unMin.unNull(patienceBound.get(0)).floatValue(),
-                    unMin.unNull(generosityBound.get(0)).floatValue());
+                    (int)unMin.handle(speedBound.get(0)),
+                    unMin.handle(patienceBound.get(0)).floatValue(),
+                    unMin.handle(generosityBound.get(0)).floatValue());
             PassengerPersonality max = new PassengerPersonality(
-                    (int)unMax.unNull(speedBound.get(1)),
-                    unMax.unNull(patienceBound.get(1)).floatValue(),
-                    unMax.unNull(generosityBound.get(1)).floatValue());
+                    (int)unMax.handle(speedBound.get(1)),
+                    unMax.handle(patienceBound.get(1)).floatValue(),
+                    unMax.handle(generosityBound.get(1)).floatValue());
 
             Pair<PassengerPersonality,PassengerPersonality> personalityBound =
                     new Pair<PassengerPersonality,PassengerPersonality>(min,max);
             Pair<Float,Float> hapinessBound =
                     new Pair<Float,Float>(
-                            unMin.unNull(happinessBound.get(0)).floatValue(),
-                            unMin.unNull(happinessBound.get(1)).floatValue());
+                            unMin.handle(happinessBound.get(0)).floatValue(),
+                            unMin.handle(happinessBound.get(1)).floatValue());
             
-            castingDirectory.put(text, new CastingDirection(personalityBound,hapinessBound));
+            castingDirectory.put(castingKey, new CastingDirection(personalityBound,hapinessBound));
         }
         
         this.ALL_NORMAL_SCENES = new HashMap<SceneType,Map<CastingDirection,List<Scene>>>();
-        //TODO
+        JSONObject normalScenes = file.getJSONObject("normal_scenes");
+        for (SceneType type : SceneType.values()) {
+            String typeKey = "";
+            switch (type) {
+            case GREETING:
+                typeKey = "greeting";
+                break;
+            case GIVING_TIP:
+                typeKey = "giving_tip";
+                break;
+            case ELEVATOR_FULL:
+                typeKey = "elevator_full";
+                break;
+            case DOOR_SLAM:
+                typeKey = "door_slam";
+                break;
+            case UNHAPPINESS_WAITING:
+                typeKey = "unhappiness_waiting";
+                break;
+            case UNHAPPINESS_RIDING:
+                typeKey = "unhappiness_riding";
+                break;
+            case STAR:
+                // do nothing
+                break;
+            }
+            if (normalScenes.has(typeKey)) {
+                JSONObject typedScenes = normalScenes.getJSONObject(typeKey);
+                Map<CastingDirection,List<Scene>> castingSceneMap = new HashMap<CastingDirection,List<Scene>>();
+                for (String castingKey : JSONObject.getNames(typedScenes)) {
+                    JSONArray jsonSceneList = typedScenes.getJSONArray(castingKey);
+                    List<Scene> sceneList = new ArrayList<Scene>();
+                    for (Object jsonScene : jsonSceneList)
+                        sceneList.add(parseScene((JSONObject)jsonScene));
+                    castingSceneMap.put(castingDirectory.get(castingKey), sceneList);
+                }
+                this.ALL_NORMAL_SCENES.put(type,castingSceneMap);
+            }
+        }
         
         this.ALL_STAR_SCENES = new ArrayList<StarRole>();
-        //TODO
+        JSONObject starScenes = file.getJSONObject("star_scenes");
+        for (String castingKey : JSONObject.getNames(starScenes)) {
+            JSONObject castedRole = starScenes.getJSONObject(castingKey);
+            Map<PassengerState,Scene> stateSceneMap = new HashMap<PassengerState,Scene>();
+            for (PassengerState state : PassengerState.values()) {
+                String stateKey = "";
+                switch (state) {
+                case ARRIVING:
+                    stateKey = "arriving";
+                    break;
+                case WAITING:
+                    stateKey = "waiting";
+                    break;
+                case LOADING:
+                    stateKey = "loading";
+                    break;
+                case RIDING:
+                    stateKey = "riding";
+                    break;
+                case UNLOADING:
+                    stateKey = "unloading";
+                    break;
+                case LEAVING:
+                    stateKey = "leaving";
+                    break;
+                }
+                if (castedRole.has(stateKey))
+                    stateSceneMap.put(state, parseScene(castedRole.getJSONObject(stateKey)));
+            }
+            this.ALL_STAR_SCENES.add(new StarRole(stateSceneMap, castingDirectory.get(castingKey)));
+        }
+    }
+    
+    private Scene parseScene(JSONObject jObj) {
+        AbstractLineTree scriptTree = parseLineTree(jObj.getJSONObject("script"), "start");
+        StatementLineTree ejectTree = (StatementLineTree)parseLineTree(jObj, "eject");
+        
+        return new Scene(scriptTree, ejectTree);
+    }
+    
+    private AbstractLineTree parseLineTree(JSONObject jObj, String lineName) {
+        if (!jObj.has(lineName) || jObj.isNull(lineName))
+            return null;
+
+        JSONObject lineObj = jObj.getJSONObject(lineName);
+        
+        if (lineObj == JSONObject.NULL) {
+            return null;
+        } else {
+            PortraitType portrait = null;
+            switch (lineObj.getString("portrait")) {
+            case "player_neutral":
+                portrait = PortraitType.PLAYER_NEUTRAL;
+                break;
+            case "npc_neutral":
+                portrait = PortraitType.NPC_NEUTRAL;
+                break;
+            }
+            
+            if (lineObj.has("options")) {
+                // OptionLineTree
+                JSONArray jsonOptions = lineObj.getJSONArray("options");
+                List<Option> options = new ArrayList<Option>();
+                for (Object option : jsonOptions) {
+                    JSONObject jOption = (JSONObject) option;
+                    String line = jOption.getString("line");
+                    OptionConsequence consequence = null;
+                    if (!jOption.isNull("consequence")) {
+                        JSONObject jsonConsequence = jOption.getJSONObject("consequence");
+                        if (jsonConsequence != null) {
+                            String consequenceType = jsonConsequence.getString("type");
+                            String consequenceAttr = jsonConsequence.getString("attribute");
+                            Float consequenceValue = jsonConsequence.getFloat("value");
+                            switch (consequenceType) {
+                            case "mod":
+                                switch (consequenceAttr) {
+                                case "happiness":
+                                    consequence = passenger -> passenger.modHappiness(consequenceValue);
+                                    break;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    AbstractLineTree nextLine = null;
+                    if (!jOption.isNull("next"))
+                        nextLine = parseLineTree(jObj, jOption.getString("next"));
+                    options.add(new Option(line, consequence, nextLine));
+                }
+                
+                return new OptionLineTree(portrait, options);
+            } else {
+                // StatementLineTree
+                //String sfxFname = lineObj.getString("sfx"); // not used right now
+                String line = lineObj.getString("line");
+                AbstractLineTree nextLine = null;
+                if (!lineObj.isNull("next"))
+                    nextLine = parseLineTree(jObj, lineObj.getString("next"));
+                return new StatementLineTree(portrait, null, line, nextLine);
+            }
+        }
     }
     
     private static Color hsvToRgb (float h, float s, float v) {
