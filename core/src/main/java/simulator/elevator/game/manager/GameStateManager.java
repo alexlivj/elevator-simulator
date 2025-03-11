@@ -22,6 +22,7 @@ public class GameStateManager implements InputProcessor {
     
     private boolean paused = false;
     private float timeRemaining;
+    private boolean isFinished;
     
     private Elevator elevator;
     private final List<AbstractEntity> entities = new ArrayList<AbstractEntity>();
@@ -62,6 +63,7 @@ public class GameStateManager implements InputProcessor {
     
     public void reset() {
         this.timeRemaining = this.level.GAME_LENGTH_SEC;
+        this.isFinished = false;
         this.level.WORLD_ORIGIN.getRelativeVector().set(new Vector2(0,0));
         this.elevator = new Elevator(new RelativeCoordinate(this.level.WORLD_ORIGIN, new Vector2(0,0)),
                 this.level.ELEVATOR_Y_BOUND);
@@ -115,10 +117,7 @@ public class GameStateManager implements InputProcessor {
                 this.elevatorSliderBox.pos.y);
         
         game.font.draw(game.batch, Integer.toString(this.elevator.getDurability())+"%", 780, 30);
-        int tipCents = this.elevator.getTipTotal();
-        int tipPartCents = tipCents % 100;
-        int tipPartDollars = (int) (tipCents / 100f);
-        String tipString = "$"+tipPartDollars+"."+(tipPartCents < 10 ? "0" : "")+tipPartCents;
+        String tipString = getTipStr();
         game.font.draw(game.batch, tipString, 30, 540);
         game.font.draw(game.batch, Integer.toString((int)this.timeRemaining)+"s", 780, 540);
         
@@ -131,7 +130,20 @@ public class GameStateManager implements InputProcessor {
         for (AbstractEntity d : this.deadEntities)
             this.entities.remove(d);
         
-        return this.timeRemaining <= 0 || this.elevator.isBroken();
+        this.isFinished = this.timeRemaining <= 0 || this.elevator.isBroken();
+        
+        return this.isFinished;
+    }
+    
+    public String getTipStr() {
+        int tipCents = this.elevator.getTipTotal();
+        int tipPartCents = tipCents % 100;
+        int tipPartDollars = (int) (tipCents / 100f);
+        return "$"+tipPartDollars+"."+(tipPartCents < 10 ? "0" : "")+tipPartCents;
+    }
+    
+    public boolean isFinished() {
+        return this.isFinished;
     }
     
     private void moveCamera() {
