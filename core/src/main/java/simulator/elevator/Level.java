@@ -94,12 +94,11 @@ public class Level {
             this.defaultValue = def;
         }
         @SuppressWarnings("unchecked")
-        T handle(Object val) {
-            ;
-            if (val == null || !val.getClass().isInstance(defaultValue))
+        T handle(JSONArray jArray, Integer index) {
+            if (jArray.isNull(index))
                 return this.defaultValue;
             else
-                return (T)val;
+                return (T)jArray.get(index);
         }
     }
     
@@ -195,20 +194,20 @@ public class Level {
             NullHandler<Number> unMin = new NullHandler<Number>(Integer.MIN_VALUE); //WARNING does this convert properly?
             NullHandler<Number> unMax = new NullHandler<Number>(Integer.MAX_VALUE);
             PassengerPersonality min = new PassengerPersonality(
-                    (int)unMin.handle(speedBound.get(0)),
-                    unMin.handle(patienceBound.get(0)).floatValue(),
-                    unMin.handle(generosityBound.get(0)).floatValue());
+                    (int)unMin.handle(speedBound, 0),
+                    unMin.handle(patienceBound, 0).floatValue(),
+                    unMin.handle(generosityBound, 0).floatValue());
             PassengerPersonality max = new PassengerPersonality(
-                    (int)unMax.handle(speedBound.get(1)),
-                    unMax.handle(patienceBound.get(1)).floatValue(),
-                    unMax.handle(generosityBound.get(1)).floatValue());
+                    (int)unMax.handle(speedBound, 1),
+                    unMax.handle(patienceBound, 1).floatValue(),
+                    unMax.handle(generosityBound, 1).floatValue());
 
             Pair<PassengerPersonality,PassengerPersonality> personalityBound =
                     new Pair<PassengerPersonality,PassengerPersonality>(min,max);
             Pair<Float,Float> hapinessBound =
                     new Pair<Float,Float>(
-                            unMin.handle(happinessBound.get(0)).floatValue(),
-                            unMin.handle(happinessBound.get(1)).floatValue());
+                            unMin.handle(happinessBound, 0).floatValue(),
+                            unMin.handle(happinessBound, 1).floatValue());
             
             castingDirectory.put(castingKey, new CastingDirection(personalityBound,hapinessBound));
         }
