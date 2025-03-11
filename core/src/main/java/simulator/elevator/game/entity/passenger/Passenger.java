@@ -176,7 +176,7 @@ public class Passenger extends AbstractEntity {
     }
     
     public int calculateTip() {
-        float givingMood = 100/this.happiness * this.personality.generosity();
+        float givingMood = this.happiness/100 * this.personality.generosity();
         int tip = Math.round(this.level.MAX_TIP_CENTS * givingMood);
         return tip;
     }

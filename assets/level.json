@@ -26,8 +26,8 @@
         "npc_neutral" : "npc_neutral.png"
     },
 
-    "elevator_speed_pixel_sec" : 20,
-    "elevator_unsafe_speed_pixel_sec" : 15,
+    "elevator_speed_pixel_sec" : 30,
+    "elevator_unsafe_speed_pixel_sec" : 20,
     "elevator_unsafe_decay_rate_sec" : 3,
     "elevator_halt_decay_per_pixel_sec" : 0.1,
     "elevator_bound_halt_decay_mod" : 0.05,
@@ -151,7 +151,7 @@
                                 "next" : "yes"
                             },
                             {
-                                "line" : "there's a bank down the road",
+                                "line" : "there's a bank down the road, bum",
                                 "consequence" : {
                                     "type" : "mod",
                                     "attribute" : "happiness",
@@ -206,14 +206,14 @@
                         "portrait" : "player_neutral",
                         "options" : [
                             {
-                                "line" : "if you say so",
-                                "consequence" : null,
-                                "next" : "offer"
-                            },
-                            {
                                 "line" : "the sun is shining...so i hear",
                                 "consequence" : null,
                                 "next" : "realize"
+                            },
+                            {
+                                "line" : "if you say so",
+                                "consequence" : null,
+                                "next" : "offer"
                             }
                         ]
                     },
@@ -233,11 +233,6 @@
                         "portrait" : "player_neutral",
                         "options" : [
                             {
-                                "line" : "sure!",
-                                "consequence" : null,
-                                "next" : "giveaway"
-                            },
-                            {
                                 "line" : "oh well, thank you, but no. no thank you",
                                 "consequence" : {
                                     "type" : "mod",
@@ -245,6 +240,11 @@
                                     "value" : "0.8"
                                 },
                                 "next" : "close"
+                            },
+                            {
+                                "line" : "sure!",
+                                "consequence" : null,
+                                "next" : "giveaway"
                             }
                         ]
                     },
