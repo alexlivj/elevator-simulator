@@ -100,9 +100,11 @@ public class GameStateManager implements InputProcessor {
         
         moveCamera();
         
-        for (RelativeCoordinate fPos : this.level.FLOOR_SPAWNS) {
-            Vector2 fAbsPos = fPos.getAbsoluteVector();
+        for (int i=0; i<this.level.FLOOR_SPAWNS.size(); i++) {
+            Vector2 fAbsPos = this.level.FLOOR_SPAWNS.get(i).getAbsoluteVector();
             game.batch.draw(this.level.FLOOR_TEXTURE, fAbsPos.x, fAbsPos.y);
+            game.font.draw(game.batch, Integer.toString(i+1), 
+                    getLevel().DOOR_X_PIXEL-18, fAbsPos.y+60);
         }
         
         for (AbstractEntity e : this.entities)
