@@ -1,4 +1,4 @@
-package simulator.elevator.game.scene.script;
+package simulator.elevator.game.scene.line;
 
 public enum LineReturn {
     CONTINUE,

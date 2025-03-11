@@ -8,9 +8,10 @@ import simulator.elevator.Main;
 import simulator.elevator.game.entity.AbstractEntity;
 import simulator.elevator.game.manager.PassengerCoordinator;
 import simulator.elevator.game.manager.SceneDirector;
+import simulator.elevator.game.scene.PortraitType;
+import simulator.elevator.game.scene.SceneType;
 import simulator.elevator.game.scene.StarRole;
-import simulator.elevator.game.scene.script.StatementLineTree;
-import simulator.elevator.game.scene.script.SceneType;
+import simulator.elevator.game.scene.line.StatementLineTree;
 import simulator.elevator.util.RelativeCoordinate;
 
 public class Passenger extends AbstractEntity {
@@ -96,8 +97,8 @@ public class Passenger extends AbstractEntity {
                     this.currentStateAction = false;
                     if (isLoading) {
                         StatementLineTree requestFloor = new StatementLineTree(
-                                null, null, "Floor "+(this.destFloor+1)+", please.", null);
-                        this.director.queueInterrupt(requestFloor);
+                                PortraitType.NPC_NEUTRAL, null, "Floor "+(this.destFloor+1)+", please.", null);
+                        this.director.queueInterrupt(this.color, requestFloor);
                         this.coordinator.clearWaitingSlot(this);
                         this.currentState = PassengerState.RIDING;
                     } else {
@@ -136,7 +137,7 @@ public class Passenger extends AbstractEntity {
         }
         
         float d = 1-this.level.HAPPINESS_DECAY_RATE_SEC;
-        float mod = this.personality.patience() * this.level.HAPPINESS_DECAY_MOD[this.currentState.value];
+        float mod = this.personality.patience() * this.level.HAPPINESS_DECAY_MOD.get(this.currentState);
         float decaySec = 1 - mod*d;
         this.happiness *= Math.pow(decaySec,deltaSec);
         

@@ -1,6 +1,8 @@
-package simulator.elevator.game.scene.script;
+package simulator.elevator.game.scene.line;
 
 import com.badlogic.gdx.audio.Sound;
+
+import simulator.elevator.game.scene.PortraitType;
 
 public class StatementLineTree extends AbstractLineTree {
     

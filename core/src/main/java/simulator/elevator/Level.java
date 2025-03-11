@@ -19,15 +19,15 @@ import com.badlogic.gdx.math.Vector2;
 import simulator.elevator.game.entity.passenger.PassengerPersonality;
 import simulator.elevator.game.entity.passenger.PassengerState;
 import simulator.elevator.game.scene.CastingDirection;
+import simulator.elevator.game.scene.PortraitType;
+import simulator.elevator.game.scene.Scene;
+import simulator.elevator.game.scene.SceneType;
 import simulator.elevator.game.scene.StarRole;
-import simulator.elevator.game.scene.script.AbstractLineTree;
-import simulator.elevator.game.scene.script.Option;
-import simulator.elevator.game.scene.script.OptionConsequence;
-import simulator.elevator.game.scene.script.OptionLineTree;
-import simulator.elevator.game.scene.script.PortraitType;
-import simulator.elevator.game.scene.script.Scene;
-import simulator.elevator.game.scene.script.SceneType;
-import simulator.elevator.game.scene.script.StatementLineTree;
+import simulator.elevator.game.scene.line.AbstractLineTree;
+import simulator.elevator.game.scene.line.Option;
+import simulator.elevator.game.scene.line.OptionConsequence;
+import simulator.elevator.game.scene.line.OptionLineTree;
+import simulator.elevator.game.scene.line.StatementLineTree;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RandomUtility;
 import simulator.elevator.util.RelativeCoordinate;
@@ -44,8 +44,12 @@ public class Level {
     public final Pair<Integer,Integer> ELEVATOR_Y_BOUND;
     
     public final Pair<Integer,Integer> SLIDER_Y_BOUND_PIXEL;
-    public final Vector2 SLIDER_CENTER_PIXEL;
-    public final Vector2 BUTTON_CENTER_PIXEL;
+    public final Vector2 SLIDER_POS;
+    public final Vector2 BUTTON_POS;
+    public final Vector2 NPC_PORTRAIT_POS;
+    public final Vector2 NPC_TEXT_POS;
+    public final Vector2 PLAYER_PORTRAIT_POS;
+    public final Vector2 PLAYER_TEXT_POS;
     
     public final Texture FLOOR_TEXTURE;
     public final Texture STATIC_UI_TEXTURE;
@@ -55,6 +59,7 @@ public class Level {
     public final Texture ELEVATOR_OPEN_TEXTURE;
     public final Texture ELEVATOR_CLOSED_TEXTURE;
     public final List<Texture> PASSENGER_TEXTURES;
+    public final Map<PortraitType,Texture> PORTRAIT_TEXTURES;
     
     public final int ELEVATOR_SPEED_PIXEL_SEC;
     public final int ELEVATOR_UNSAFE_SPEED_PIXEL_SEC;
@@ -79,7 +84,7 @@ public class Level {
     public final Color[] POSSIBLE_PASSENGER_COLORS;
     
     public final float HAPPINESS_DECAY_RATE_SEC;
-    public final float[] HAPPINESS_DECAY_MOD = new float[6];
+    public final Map<PassengerState,Float> HAPPINESS_DECAY_MOD;
     public final float DOOR_SLAM_PENALTY;
     public final int MAX_TIP_CENTS;
     
@@ -123,10 +128,18 @@ public class Level {
 
         JSONArray sliderYBound = file.getJSONArray("slider_y_bound_pixel");
         this.SLIDER_Y_BOUND_PIXEL = new Pair<Integer,Integer>(sliderYBound.getInt(0),sliderYBound.getInt(1));
-        JSONArray sliderCenter = file.getJSONArray("slider_center_pixel");
-        this.SLIDER_CENTER_PIXEL = new Vector2(sliderCenter.getFloat(0),sliderCenter.getFloat(1));
-        JSONArray buttonCenter = file.getJSONArray("button_center_pixel");
-        this.BUTTON_CENTER_PIXEL = new Vector2(buttonCenter.getFloat(0),buttonCenter.getFloat(1));
+        JSONArray sliderPos = file.getJSONArray("slider_pos");
+        this.SLIDER_POS = new Vector2(sliderPos.getFloat(0),sliderPos.getFloat(1));
+        JSONArray buttonPos = file.getJSONArray("button_pos");
+        this.BUTTON_POS = new Vector2(buttonPos.getFloat(0),buttonPos.getFloat(1));
+        JSONArray npcPortraitPos = file.getJSONArray("npc_portrait_pos");
+        this.NPC_PORTRAIT_POS = new Vector2(npcPortraitPos.getFloat(0),npcPortraitPos.getFloat(1));
+        JSONArray npcTextPos = file.getJSONArray("npc_text_pos");
+        this.NPC_TEXT_POS = new Vector2(npcTextPos.getFloat(0),npcTextPos.getFloat(1));
+        JSONArray playerPortraitPos = file.getJSONArray("player_portrait_pos");
+        this.PLAYER_PORTRAIT_POS = new Vector2(playerPortraitPos.getFloat(0),playerPortraitPos.getFloat(1));
+        JSONArray playerTextPos = file.getJSONArray("player_text_pos");
+        this.PLAYER_TEXT_POS = new Vector2(playerTextPos.getFloat(0),playerTextPos.getFloat(1));
 
         this.FLOOR_TEXTURE = TextureUtility.doubleTextureSize(file.getString("floor_texture"));
         this.STATIC_UI_TEXTURE = TextureUtility.doubleTextureSize(file.getString("static_ui_texture"));
@@ -141,6 +154,12 @@ public class Level {
         JSONArray passengerTextures = file.getJSONArray("passenger_textures");
         for (Object pTextures : passengerTextures)
             this.PASSENGER_TEXTURES.add(TextureUtility.doubleTextureSize((String) pTextures));
+        this.PORTRAIT_TEXTURES = new HashMap<PortraitType,Texture>();
+        JSONObject portraitTextures = file.getJSONObject("portrait_textures");
+        for (String portraitKey : JSONObject.getNames(portraitTextures)) {
+            Texture t = TextureUtility.doubleTextureSize(portraitTextures.getString(portraitKey));
+            this.PORTRAIT_TEXTURES.put(PortraitType.getPortraitType(portraitKey), t);
+        }
         
         this.ELEVATOR_SPEED_PIXEL_SEC = file.getInt("elevator_speed_pixel_sec");
         this.ELEVATOR_UNSAFE_SPEED_PIXEL_SEC = file.getInt("elevator_unsafe_speed_pixel_sec");
@@ -173,9 +192,12 @@ public class Level {
                     hsvToRgb(h+((float)i)/((float)MAX_PASSENGERS_WORLD),s,v);
         
         this.HAPPINESS_DECAY_RATE_SEC = file.getInt("happiness_decay_rate_sec");
-        JSONArray happinessDecayMod = file.getJSONArray("happiness_decay_mod");
-        for (int i=0; i<this.HAPPINESS_DECAY_MOD.length; i++)
-            this.HAPPINESS_DECAY_MOD[i] = happinessDecayMod.getFloat(i);
+        JSONObject happinessDecayMod = file.getJSONObject("happiness_decay_mod");
+        this.HAPPINESS_DECAY_MOD = new HashMap<PassengerState,Float>();
+        for (String stateKey : JSONObject.getNames(happinessDecayMod)) {
+            float mod = happinessDecayMod.getFloat(stateKey);
+            this.HAPPINESS_DECAY_MOD.put(PassengerState.getPassengerState(stateKey), mod);
+        }
         this.DOOR_SLAM_PENALTY = file.getInt("door_slam_penalty");
         this.MAX_TIP_CENTS = file.getInt("max_tip_cents");
         
@@ -190,23 +212,23 @@ public class Level {
             JSONArray generosityBound = c.getJSONArray("generosity_bound");
             JSONArray happinessBound = c.getJSONArray("happiness_bound");
 
-            NullHandler<Number> unMin = new NullHandler<Number>(Integer.MIN_VALUE); //WARNING does this convert properly?
-            NullHandler<Number> unMax = new NullHandler<Number>(Integer.MAX_VALUE);
+            NullHandler<Number> nhMin = new NullHandler<Number>(Integer.MIN_VALUE);
+            NullHandler<Number> nhMax = new NullHandler<Number>(Integer.MAX_VALUE);
             PassengerPersonality min = new PassengerPersonality(
-                    (int)unMin.handle(speedBound, 0),
-                    unMin.handle(patienceBound, 0).floatValue(),
-                    unMin.handle(generosityBound, 0).floatValue());
+                    (int)nhMin.handle(speedBound, 0),
+                    nhMin.handle(patienceBound, 0).floatValue(),
+                    nhMin.handle(generosityBound, 0).floatValue());
             PassengerPersonality max = new PassengerPersonality(
-                    (int)unMax.handle(speedBound, 1),
-                    unMax.handle(patienceBound, 1).floatValue(),
-                    unMax.handle(generosityBound, 1).floatValue());
+                    (int)nhMax.handle(speedBound, 1),
+                    nhMax.handle(patienceBound, 1).floatValue(),
+                    nhMax.handle(generosityBound, 1).floatValue());
 
             Pair<PassengerPersonality,PassengerPersonality> personalityBound =
                     new Pair<PassengerPersonality,PassengerPersonality>(min,max);
             Pair<Float,Float> hapinessBound =
                     new Pair<Float,Float>(
-                            unMin.handle(happinessBound, 0).floatValue(),
-                            unMin.handle(happinessBound, 1).floatValue());
+                            nhMin.handle(happinessBound, 0).floatValue(),
+                            nhMin.handle(happinessBound, 1).floatValue());
             
             castingDirectory.put(castingKey, new CastingDirection(personalityBound,hapinessBound));
         }
@@ -214,30 +236,7 @@ public class Level {
         this.ALL_NORMAL_SCENES = new HashMap<SceneType,Map<CastingDirection,List<Scene>>>();
         JSONObject normalScenes = file.getJSONObject("normal_scenes");
         for (SceneType type : SceneType.values()) {
-            String typeKey = "";
-            switch (type) {
-            case GREETING:
-                typeKey = "greeting";
-                break;
-            case GIVING_TIP:
-                typeKey = "giving_tip";
-                break;
-            case ELEVATOR_FULL:
-                typeKey = "elevator_full";
-                break;
-            case DOOR_SLAM:
-                typeKey = "door_slam";
-                break;
-            case UNHAPPINESS_WAITING:
-                typeKey = "unhappiness_waiting";
-                break;
-            case UNHAPPINESS_RIDING:
-                typeKey = "unhappiness_riding";
-                break;
-            case STAR:
-                // do nothing
-                break;
-            }
+            String typeKey = type.getJSONKey();
             if (normalScenes.has(typeKey)) {
                 JSONObject typedScenes = normalScenes.getJSONObject(typeKey);
                 Map<CastingDirection,List<Scene>> castingSceneMap = new HashMap<CastingDirection,List<Scene>>();
@@ -258,27 +257,7 @@ public class Level {
             JSONObject castedRole = starScenes.getJSONObject(castingKey);
             Map<PassengerState,Scene> stateSceneMap = new HashMap<PassengerState,Scene>();
             for (PassengerState state : PassengerState.values()) {
-                String stateKey = "";
-                switch (state) {
-                case ARRIVING:
-                    stateKey = "arriving";
-                    break;
-                case WAITING:
-                    stateKey = "waiting";
-                    break;
-                case LOADING:
-                    stateKey = "loading";
-                    break;
-                case RIDING:
-                    stateKey = "riding";
-                    break;
-                case UNLOADING:
-                    stateKey = "unloading";
-                    break;
-                case LEAVING:
-                    stateKey = "leaving";
-                    break;
-                }
+                String stateKey = state.getJSONKey();
                 if (castedRole.has(stateKey))
                     stateSceneMap.put(state, parseScene(castedRole.getJSONObject(stateKey)));
             }
@@ -290,7 +269,7 @@ public class Level {
         AbstractLineTree scriptTree = parseLineTree(jObj.getJSONObject("script"), "start");
         StatementLineTree ejectTree = (StatementLineTree)parseLineTree(jObj, "eject");
         
-        return new Scene(scriptTree, ejectTree);
+        return new Scene(this, scriptTree, ejectTree);
     }
     
     private AbstractLineTree parseLineTree(JSONObject jObj, String lineName) {
@@ -302,16 +281,7 @@ public class Level {
         if (lineObj == JSONObject.NULL) {
             return null;
         } else {
-            PortraitType portrait = null;
-            switch (lineObj.getString("portrait")) {
-            case "player_neutral":
-                portrait = PortraitType.PLAYER_NEUTRAL;
-                break;
-            case "npc_neutral":
-                portrait = PortraitType.NPC_NEUTRAL;
-                break;
-            }
-            
+            PortraitType portrait = PortraitType.getPortraitType(lineObj.getString("portrait"));
             if (lineObj.has("options")) {
                 // OptionLineTree
                 JSONArray jsonOptions = lineObj.getJSONArray("options");

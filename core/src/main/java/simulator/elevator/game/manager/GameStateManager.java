@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import simulator.elevator.Level;
 import simulator.elevator.Main;
 import simulator.elevator.game.entity.Elevator;
-import simulator.elevator.game.scene.script.OptionLineTree;
+import simulator.elevator.game.scene.line.OptionLineTree;
 import simulator.elevator.game.entity.AbstractEntity;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RelativeCoordinate;
@@ -68,10 +68,10 @@ public class GameStateManager implements InputProcessor {
         
         this.doorToggleButtonTexture = this.level.BUTTON_TEXTURE;
         this.elevatorSliderTexture = this.level.SLIDER_TEXTURE;
-        this.doorToggleButtonBox = new Box(new Vector2(this.level.BUTTON_CENTER_PIXEL),
+        this.doorToggleButtonBox = new Box(new Vector2(this.level.BUTTON_POS),
                 new Vector2(doorToggleButtonTexture.getWidth(),
                         doorToggleButtonTexture.getHeight()));
-        this.elevatorSliderBox = new Box(new Vector2(this.level.SLIDER_CENTER_PIXEL),
+        this.elevatorSliderBox = new Box(new Vector2(this.level.SLIDER_POS),
                 new Vector2(this.elevatorSliderTexture.getWidth(),
                         this.elevatorSliderTexture.getHeight()));
         
@@ -162,7 +162,7 @@ public class GameStateManager implements InputProcessor {
     public void addPlayerOptionBoxes(OptionLineTree tree, int numBoxes) {
         List<Box> newBoxes = new ArrayList<Box>();
         for (int i=0; i<numBoxes; i++)
-            newBoxes.add(new Box(new Vector2(45*2, 50*2-18*2*i), new Vector2(180*2, 18*2)));
+            newBoxes.add(new Box(new Vector2(20*2, 50*2-18*2*i), new Vector2(150*2, 18*2)));
         this.playerOptionBoxes = new Pair<OptionLineTree,List<Box>>(tree, newBoxes);
     }
     
@@ -172,11 +172,11 @@ public class GameStateManager implements InputProcessor {
     
     private void useSliderValue() {
         //TODO there's gotta be a better way to math this....
-        float dSlider = new Vector2(this.elevatorSliderBox.pos()).sub(this.level.SLIDER_CENTER_PIXEL).len();
-        if (this.elevatorSliderBox.pos().y < this.level.SLIDER_CENTER_PIXEL.y)
+        float dSlider = new Vector2(this.elevatorSliderBox.pos()).sub(this.level.SLIDER_POS).len();
+        if (this.elevatorSliderBox.pos().y < this.level.SLIDER_POS.y)
             dSlider *= -1;
         float maxSlider = new Vector2(this.elevatorSliderBox.pos().x, this.level.SLIDER_Y_BOUND_PIXEL.first)
-                .sub(this.level.SLIDER_CENTER_PIXEL).len();
+                .sub(this.level.SLIDER_POS).len();
         this.elevator.move(dSlider/maxSlider);
     }
     

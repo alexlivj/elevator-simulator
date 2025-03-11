@@ -1,8 +1,9 @@
-package simulator.elevator.game.scene.script;
+package simulator.elevator.game.scene.line;
 
 import java.util.List;
 
 import simulator.elevator.game.manager.GameStateManager;
+import simulator.elevator.game.scene.PortraitType;
 
 public class OptionLineTree extends AbstractLineTree {
     

@@ -9,16 +9,18 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import com.badlogic.gdx.graphics.Color;
+
 import simulator.elevator.Level;
 import simulator.elevator.Main;
 import simulator.elevator.game.entity.passenger.Passenger;
 import simulator.elevator.game.entity.passenger.PassengerState;
 import simulator.elevator.game.scene.CastingDirection;
+import simulator.elevator.game.scene.Scene;
+import simulator.elevator.game.scene.SceneType;
 import simulator.elevator.game.scene.StarRole;
-import simulator.elevator.game.scene.script.StatementLineTree;
-import simulator.elevator.game.scene.script.LineReturn;
-import simulator.elevator.game.scene.script.Scene;
-import simulator.elevator.game.scene.script.SceneType;
+import simulator.elevator.game.scene.line.LineReturn;
+import simulator.elevator.game.scene.line.StatementLineTree;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RandomUtility;
 
@@ -34,8 +36,9 @@ public class SceneDirector {
     private Queue<ActiveScene> queuedScenes = new LinkedList<ActiveScene>();
     private ActiveScene activeScene = null;
 
-    private Queue<StatementLineTree> queuedInterrupts = new LinkedList<StatementLineTree>();
-    private StatementLineTree activeInterrupt = null;
+    private Queue<Pair<Color,StatementLineTree>> queuedInterrupts =
+            new LinkedList<Pair<Color,StatementLineTree>>();
+    private Pair<Color,StatementLineTree> activeInterrupt = null;
     
     private static SceneDirector instance;
     public static SceneDirector getInstance() {
@@ -77,8 +80,8 @@ public class SceneDirector {
             this.starScene = new Pair<Passenger,StarRole>(passenger, this.starScene.second);
     }
     
-    public void queueInterrupt(StatementLineTree line) {
-        this.queuedInterrupts.add(line);
+    public void queueInterrupt(Color color, StatementLineTree line) {
+        this.queuedInterrupts.add(new Pair<Color,StatementLineTree>(color,line));
     }
     
     public void render(Main game, float deltaSec) {
@@ -88,13 +91,14 @@ public class SceneDirector {
         boolean switchInterrupt = this.activeInterrupt == null;
         boolean switchScene = this.activeScene == null;
         if (runningInterrupt)
-            switchInterrupt = this.activeInterrupt.render(game, deltaSec).second == LineReturn.FINISH;
+            switchInterrupt = this.activeInterrupt.second.render(
+                    game, getLevel(), this.activeInterrupt.first, deltaSec).second == LineReturn.FINISH;
         else if (runningScene)
             switchScene = this.activeScene.scene().render(game, deltaSec, this.activeScene.passenger());
         
         if (switchInterrupt) {
             if (this.activeInterrupt != null)
-                this.activeInterrupt.reset();
+                this.activeInterrupt.second.reset();
             this.activeInterrupt = null;
             if (!this.queuedInterrupts.isEmpty()) {
                 this.activeInterrupt = this.queuedInterrupts.poll();
@@ -106,8 +110,9 @@ public class SceneDirector {
             this.activeScene = null;
             if (this.startStarScene != null) {
                 Scene starScene = this.starScene.second.scenes().get(this.startStarScene);
-                if (starScene != null)
+                if (starScene != null) {
                     this.activeScene = new ActiveScene(this.starScene.first, SceneType.STAR, starScene);
+                }
                 this.startStarScene = null;
             } else {
                 if (this.queuedScenes.peek() != null)
