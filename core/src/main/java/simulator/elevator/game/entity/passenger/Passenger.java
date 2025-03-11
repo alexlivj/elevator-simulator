@@ -83,8 +83,6 @@ public class Passenger extends AbstractEntity {
                 float centerX = getPosition().getAbsoluteVector().x+this.level.PASSENGER_WIDTH_PIXEL/2;
                 if (!this.coordinator.isElevatorAtFloor(toFloor)
                         && this.level.PASSENGER_WIDTH_PIXEL > Math.abs(centerX - this.level.DOOR_X_PIXEL)) {
-                    //TODO write more sophisticated "door slammed in face" checking
-                    // ideally, we'd only want the reset to happen if the door intersects with the passsenger
                     this.currentStateAction = false;
                     cancelMove();
                     float penalty = this.level.DOOR_SLAM_PENALTY * 1-this.personality.patience();
