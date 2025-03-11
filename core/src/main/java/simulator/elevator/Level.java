@@ -88,6 +88,7 @@ public class Level {
     public final Map<PassengerState,Float> HAPPINESS_DECAY_MOD;
     public final float DOOR_SLAM_PENALTY;
     public final int MAX_TIP_CENTS;
+    public final float BONUS_TIME;
     
     public final Map<SceneType,Map<CastingDirection,List<Scene>>> ALL_NORMAL_SCENES;
     public final List<StarRole> ALL_STAR_SCENES;
@@ -204,6 +205,7 @@ public class Level {
         }
         this.DOOR_SLAM_PENALTY = file.getInt("door_slam_penalty");
         this.MAX_TIP_CENTS = file.getInt("max_tip_cents");
+        this.BONUS_TIME = file.getInt("bonus_time");
         
         this.MAX_SCENES = file.getInt("max_scenes");
         

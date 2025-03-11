@@ -142,6 +142,10 @@ public class GameStateManager implements InputProcessor {
         return "$"+tipPartDollars+"."+(tipPartCents < 10 ? "0" : "")+tipPartCents;
     }
     
+    public void giveBonusTime() {
+        this.timeRemaining += getLevel().BONUS_TIME;
+    }
+    
     public boolean isFinished() {
         return this.isFinished;
     }

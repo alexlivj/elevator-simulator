@@ -58,6 +58,7 @@
     },
     "door_slam_penalty" : -50,
     "max_tip_cents" : 20,
+    "bonus_time" : 20,
 
     "max_scenes" : 1,
     "castings" : {

@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import simulator.elevator.Level;
 import simulator.elevator.Main;
 import simulator.elevator.game.entity.AbstractEntity;
+import simulator.elevator.game.manager.GameStateManager;
 import simulator.elevator.game.manager.PassengerCoordinator;
 import simulator.elevator.game.manager.SceneDirector;
 import simulator.elevator.game.scene.PortraitType;
@@ -102,6 +103,7 @@ public class Passenger extends AbstractEntity {
                         this.coordinator.clearWaitingSlot(this);
                         this.currentState = PassengerState.RIDING;
                     } else {
+                        GameStateManager.getInstance().giveBonusTime();
                         this.currentState = PassengerState.LEAVING;
                     }
                 }
