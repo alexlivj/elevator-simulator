@@ -80,7 +80,9 @@ public class Passenger extends AbstractEntity {
             case LOADING, UNLOADING:
                 boolean isLoading = this.currentState == PassengerState.LOADING;
                 int toFloor = isLoading ? this.startFloor : this.destFloor;
-                if (!this.coordinator.isElevatorAtFloor(toFloor)) {
+                float centerX = getPosition().getAbsoluteVector().x+this.level.PASSENGER_WIDTH_PIXEL/2;
+                if (!this.coordinator.isElevatorAtFloor(toFloor)
+                        && this.level.PASSENGER_WIDTH_PIXEL > Math.abs(centerX - this.level.DOOR_X_PIXEL)) {
                     //TODO write more sophisticated "door slammed in face" checking
                     // ideally, we'd only want the reset to happen if the door intersects with the passsenger
                     this.currentStateAction = false;
