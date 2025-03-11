@@ -7,7 +7,7 @@
 
     "slider_y_bound_pixel" : [50,150],
     "slider_center_pixel" : [640, 100],
-    "button_center_pixel" : [528, 50],
+    "button_center_pixel" : [568, 50],
 
     "floor_texture" : "floor.png",
     "static_ui_texture" : "static-ui.png",
@@ -104,7 +104,7 @@
                     "realize" : {
                         "portrait" : "npc_neutral",
                         "sfx" : null,
-                        "line" : "oh right, you've been in here, haven't you",
+                        "line" : "right, you've been in here, haven't you",
                         "next" : "offer"
                     },
                     "offer" : {
