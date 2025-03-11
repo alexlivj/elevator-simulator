@@ -55,6 +55,8 @@ public class SceneDirector {
     {
         this.activeScene = null;
         this.activeInterrupt = null;
+        this.starScene = null;
+        this.startStarScene = null;
         this.queuedScenes.clear();
         this.queuedInterrupts.clear();
         this.availableStarScenes.clear();
@@ -131,10 +133,13 @@ public class SceneDirector {
     }
     
     public void removePassengerScenes(Passenger passenger) {
-        if (this.activeScene != null && this.activeScene.passenger() == passenger)
+        if (this.activeScene != null && this.activeScene.passenger() == passenger) {
             this.activeScene.scene().eject();
-        else
+        } else {
             this.queuedScenes.removeIf(as -> as.passenger() == passenger);
+            if (this.starScene != null && this.starScene.first == passenger)
+                this.starScene = null;
+        }
     }
     
     public void requestScene(Passenger passenger, SceneType type) {
@@ -144,7 +149,6 @@ public class SceneDirector {
                 && this.acceptingSceneType.get(type)
                 && !this.hasSceneType(type)
                 && this.numScenes() < getLevel().MAX_SCENES) {
-            System.out.println("accepted.");
             Map<CastingDirection,List<Scene>> stateScenes = getLevel().ALL_NORMAL_SCENES.get(type);
             if (stateScenes != null) {
                 Set<CastingDirection> validReqs = new HashSet<CastingDirection>(stateScenes.keySet());
