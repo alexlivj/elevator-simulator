@@ -173,9 +173,12 @@ public class Level {
         this.WAIT_X_OFFSET_PIXEL = file.getInt("wait_x_offset_pixel");
         this.RIDE_X_OFFSET_PIXEL = file.getInt("ride_x_offset_pixel");
         
-        this.MAX_PASSENGERS_WORLD = file.getInt("max_passengers_world");
         this.MAX_PASSENGERS_FLOOR = file.getInt("max_passengers_floor");
         this.MAX_PASSENGERS_ELEVATOR = file.getInt("max_passengers_elevator");
+        int maxPossibleWorldPassengers =
+                this.MAX_PASSENGERS_FLOOR*this.FLOOR_SPAWNS.size()+this.MAX_PASSENGERS_ELEVATOR;
+        this.MAX_PASSENGERS_WORLD = Math.max(maxPossibleWorldPassengers,
+                                             file.getInt("max_passengers_world"));
         this.SPAWN_OCCURRENCE_SEC = file.getFloat("spawn_occurrence_sec");
         this.SCENE_OCCURRENCE_SPAWN = file.getFloat("scene_occurrence_spawn");
         this.MIN_SPEED_PIXEL_SEC = file.getInt("min_speed_pixel_sec");
