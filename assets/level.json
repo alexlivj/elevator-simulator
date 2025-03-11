@@ -9,9 +9,9 @@
     "slider_pos" : [640, 100],
     "button_pos" : [568, 50],
     "npc_portrait_pos" : [24, 42],
-    "npc_text_pos" : [160, 150],
-    "player_portrait_pos" : [350, 42],
-    "player_text_pos" : [50, 150],
+    "npc_text_pos" : [180, 150],
+    "player_portrait_pos" : [340, 42],
+    "player_text_pos" : [30, 150],
 
     "floor_texture" : "floor.png",
     "static_ui_texture" : "static-ui.png",

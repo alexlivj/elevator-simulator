@@ -10,7 +10,7 @@ import simulator.elevator.util.Pair;
 
 public abstract class AbstractLineTree {
     
-    protected static final int CHAR_PER_SEC = 10;
+    protected static final int CHAR_PER_SEC = 9;
 
     private final PortraitType portrait;
     protected boolean done = false;
