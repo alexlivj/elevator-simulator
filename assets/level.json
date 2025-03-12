@@ -152,6 +152,15 @@
                                 "next" : "yes"
                             },
                             {
+                                "line" : "no.",
+                                "consequence" : {
+                                    "type" : "mod",
+                                    "attribute" : "happiness",
+                                    "value" : "0.2"
+                                },
+                                "next" : "no"
+                            }
+                            {
                                 "line" : "there's a bank down the road, bum",
                                 "consequence" : {
                                     "type" : "mod",
@@ -165,7 +174,7 @@
                     "yes" : {
                         "portrait" : "npc_neutral",
                         "sfx" : null,
-                        "line" : "hmmm about...THIS MUCH!\nthank you, bless you, you're so generous",
+                        "line" : "I'll have about...THIS MUCH!\nthank you, bless you, you're so generous",
                         "next" : null
                     },
                     "no" : {
