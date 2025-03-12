@@ -179,7 +179,7 @@ public class Level {
         this.MAX_PASSENGERS_ELEVATOR = file.getInt("max_passengers_elevator");
         int maxPossibleWorldPassengers =
                 this.MAX_PASSENGERS_FLOOR*this.FLOOR_SPAWNS.size()+this.MAX_PASSENGERS_ELEVATOR;
-        this.MAX_PASSENGERS_WORLD = Math.max(maxPossibleWorldPassengers,
+        this.MAX_PASSENGERS_WORLD = Math.min(maxPossibleWorldPassengers,
                                              file.getInt("max_passengers_world"));
         this.SPAWN_OCCURRENCE_SEC = file.getFloat("spawn_occurrence_sec");
         this.SCENE_OCCURRENCE_SPAWN = file.getFloat("scene_occurrence_spawn");
@@ -196,7 +196,7 @@ public class Level {
             this.POSSIBLE_PASSENGER_COLORS[(i+shift) % MAX_PASSENGERS_WORLD] =
                     hsvToRgb(h+((float)i)/((float)MAX_PASSENGERS_WORLD),s,v);
         
-        this.HAPPINESS_DECAY_RATE_SEC = file.getInt("happiness_decay_rate_sec");
+        this.HAPPINESS_DECAY_RATE_SEC = file.getFloat("happiness_decay_rate_sec");
         JSONObject happinessDecayMod = file.getJSONObject("happiness_decay_mod");
         this.HAPPINESS_DECAY_MOD = new HashMap<PassengerState,Float>();
         for (String stateKey : JSONObject.getNames(happinessDecayMod)) {

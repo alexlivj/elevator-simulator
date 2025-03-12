@@ -138,9 +138,10 @@ public class Passenger extends AbstractEntity {
             this.director.readyStarScene(currentState);
         }
         
+        System.out.println("happiness: "+this.happiness);
         float d = 1-this.level.HAPPINESS_DECAY_RATE_SEC;
-        float mod = this.personality.patience() * this.level.HAPPINESS_DECAY_MOD.get(this.currentState);
-        float decaySec = 1 - mod*d;
+        float mod = (1-this.personality.patience()) * this.level.HAPPINESS_DECAY_MOD.get(this.currentState);
+        float decaySec = Math.max(0, 1 - mod*d);
         this.happiness *= Math.pow(decaySec,deltaSec);
         
         super.update(deltaSec);
@@ -178,7 +179,7 @@ public class Passenger extends AbstractEntity {
     }
     
     public int calculateTip() {
-        float givingMood = this.happiness/100 * this.personality.generosity();
+        float givingMood = this.happiness/100f * this.personality.generosity();
         int tip = Math.round(this.level.MAX_TIP_CENTS * givingMood);
         return tip;
     }
