@@ -245,15 +245,17 @@ public class Level {
             String typeKey = type.getJSONKey();
             if (normalScenes.has(typeKey)) {
                 JSONObject typedScenes = normalScenes.getJSONObject(typeKey);
-                Map<CastingDirection,List<Scene>> castingSceneMap = new HashMap<CastingDirection,List<Scene>>();
-                for (String castingKey : JSONObject.getNames(typedScenes)) {
-                    JSONArray jsonSceneList = typedScenes.getJSONArray(castingKey);
-                    List<Scene> sceneList = new ArrayList<Scene>();
-                    for (Object jsonScene : jsonSceneList)
-                        sceneList.add(parseScene((JSONObject)jsonScene));
-                    castingSceneMap.put(castingDirectory.get(castingKey), sceneList);
+                if (JSONObject.getNames(typedScenes) != null) {
+                    Map<CastingDirection,List<Scene>> castingSceneMap = new HashMap<CastingDirection,List<Scene>>();
+                    for (String castingKey : JSONObject.getNames(typedScenes)) {
+                        JSONArray jsonSceneList = typedScenes.getJSONArray(castingKey);
+                        List<Scene> sceneList = new ArrayList<Scene>();
+                        for (Object jsonScene : jsonSceneList)
+                            sceneList.add(parseScene((JSONObject)jsonScene));
+                        castingSceneMap.put(castingDirectory.get(castingKey), sceneList);
+                    }
+                    this.ALL_NORMAL_SCENES.put(type,castingSceneMap);
                 }
-                this.ALL_NORMAL_SCENES.put(type,castingSceneMap);
             }
         }
         

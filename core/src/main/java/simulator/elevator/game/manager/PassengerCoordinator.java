@@ -16,6 +16,7 @@ import simulator.elevator.game.entity.passenger.Passenger;
 import simulator.elevator.game.entity.passenger.PassengerPersonality;
 import simulator.elevator.game.entity.passenger.PassengerState;
 import simulator.elevator.game.scene.StarRole;
+import simulator.elevator.util.Pair;
 import simulator.elevator.util.RandomUtility;
 import simulator.elevator.util.RelativeCoordinate;
 
@@ -139,24 +140,29 @@ public class PassengerCoordinator {
         return newPassenger;
     }
     
-    public Integer getElevatorCurrentFloor() {
+    private Integer getElevatorCurrentFloor() {
         Integer floor = null;
         if (GameStateManager.getInstance().getElevator().isDoorOpen()) {
-            Vector2 elevatorRelPos = GameStateManager.getInstance().getElevator().getRelativePosition();
-            int closestFloor = 0;
-            int distance = Integer.MAX_VALUE;
-            for (int i=0; i<getLevel().FLOOR_SPAWNS.size(); i++) {
-                float floorRelY = getLevel().FLOOR_SPAWNS.get(i).getRelativeVector().y;
-                int diffLen = Math.round(Math.abs(elevatorRelPos.y-floorRelY));
-                if (diffLen < distance) {
-                    closestFloor = i;
-                    distance = diffLen;
-                }
-            }
-            if (distance < getLevel().ELEVATOR_FLOOR_BUFFER_PIXEL)
-                floor = closestFloor;
+            Pair<Integer,Integer> closestDistance = getElevatorClosestFloorDistance();
+            if (closestDistance.second < getLevel().ELEVATOR_FLOOR_BUFFER_PIXEL)
+                floor = closestDistance.first;
         }
         return floor;
+    }
+    
+    public Pair<Integer,Integer> getElevatorClosestFloorDistance() {
+        Vector2 elevatorRelPos = GameStateManager.getInstance().getElevator().getRelativePosition();
+        int closestFloor = 0;
+        int distance = Integer.MAX_VALUE;
+        for (int i=0; i<getLevel().FLOOR_SPAWNS.size(); i++) {
+            float floorRelY = getLevel().FLOOR_SPAWNS.get(i).getRelativeVector().y;
+            int diffLen = Math.round(Math.abs(elevatorRelPos.y-floorRelY));
+            if (diffLen < distance) {
+                closestFloor = i;
+                distance = diffLen;
+            }
+        }
+        return new Pair<Integer,Integer>(closestFloor, distance);
     }
     
     public boolean isElevatorAtFloor(int floor) {
@@ -164,6 +170,10 @@ public class PassengerCoordinator {
         if (currFloor != null && currFloor == floor)
             return true;
         return false;
+    }
+    
+    public boolean isElevatorOpen() {
+        return GameStateManager.getInstance().getElevator().isDoorOpen();
     }
     
     public boolean arePeopleUnloading() {

@@ -3,19 +3,23 @@ package simulator.elevator.game.scene;
 public enum SceneType {
     STAR,
     GREETING,
-    GIVING_TIP,
+    TOO_FAR,
     ELEVATOR_FULL,
     DOOR_SLAM,
-    UNHAPPINESS_RIDING;
+    UNHAPPINESS_RIDING,
+    GIVING_TIP;
     
     public String getJSONKey() {
         String key = "";
         switch (this) {
+        case STAR:
+            key = "star";
+            break;
         case GREETING:
             key = "greeting";
             break;
-        case GIVING_TIP:
-            key = "giving_tip";
+        case TOO_FAR:
+            key = "too_far";
             break;
         case ELEVATOR_FULL:
             key = "elevator_full";
@@ -26,8 +30,8 @@ public enum SceneType {
         case UNHAPPINESS_RIDING:
             key = "unhappiness_riding";
             break;
-        case STAR:
-            key = "star";
+        case GIVING_TIP:
+            key = "giving_tip";
             break;
         }
         return key;

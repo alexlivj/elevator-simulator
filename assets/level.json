@@ -27,9 +27,9 @@
     },
 
     "elevator_speed_pixel_sec" : 30,
-    "elevator_unsafe_speed_pixel_sec" : 20,
+    "elevator_unsafe_speed_pixel_sec" : 15,
     "elevator_unsafe_decay_rate_sec" : 3,
-    "elevator_halt_decay_per_pixel_sec" : 0.1,
+    "elevator_halt_decay_per_pixel_sec" : 0.2,
     "elevator_bound_halt_decay_mod" : 0.05,
 
     "elevator_floor_buffer_pixel" : 10,
@@ -68,6 +68,18 @@
             "generosity_bound" : [null, null],
             "happiness_bound" : [null, null]
         },
+        "plesant" : {
+            "speed_bound" : [null, null],
+            "patience_bound" : [null, null],
+            "generosity_bound" : [null, null],
+            "happiness_bound" : [50, null]
+        },
+        "grumpy" : {
+            "speed_bound" : [null, null],
+            "patience_bound" : [null, null],
+            "generosity_bound" : [null, null],
+            "happiness_bound" : [null, 50]
+        },
         "grandparent" : {
             "speed_bound" : [null, 10],
             "patience_bound" : [2, null],
@@ -82,6 +94,34 @@
         }
     },
     "normal_scenes" : {
+        "greeting" : {
+        },
+        "too_far" : {
+            "anyone_with_a_pulse" : [
+                {
+                    "script" : {
+                        "start" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "you're too far away!",
+                            "next" : null
+                        }
+                    },
+                    "eject" : null
+                },
+                {
+                    "script" : {
+                        "start" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "I can't get in there!",
+                            "next" : null
+                        }
+                    },
+                    "eject" : null
+                }
+            ]
+        },
         "elevator_full" : {
             "anyone_with_a_pulse" : [
                 {
@@ -95,8 +135,40 @@
                     },
                     "eject" : null
                 }
-            ]
-       }
+            ],
+            "plesant" : [
+                {
+                    "script" : {
+                        "start" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "oh! I'll get the next one",
+                            "next" : null
+                        }
+                    },
+                    "eject" : null
+                }
+            ],
+            "grumpy" : [
+                {
+                    "script" : {
+                        "start" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "full, huh? typical.",
+                            "next" : null
+                        }
+                    },
+                    "eject" : null
+                }
+            ],
+        },
+        "door_slam" : {
+        },
+        "unhappiness_riding" : {
+        },
+        "giving_tip" : {
+        }
     },
     "star_scenes" : {
         "bum" : {

@@ -77,6 +77,9 @@ public class Passenger extends AbstractEntity {
                     } else if (!this.coordinator.arePeopleUnloading()) {
                         SceneDirector.getInstance().requestScene(this, SceneType.ELEVATOR_FULL);
                     }
+                } else if (coordinator.isElevatorOpen() 
+                        && coordinator.getElevatorClosestFloorDistance().first == this.startFloor) {
+                    SceneDirector.getInstance().requestScene(this, SceneType.TOO_FAR);
                 }
                 break;
             case LOADING, UNLOADING:
@@ -145,9 +148,8 @@ public class Passenger extends AbstractEntity {
         float mod = (1-this.personality.patience()) * this.level.HAPPINESS_DECAY_MOD.get(this.currentState);
         float decaySec = Math.max(0, 1 - mod*d);
         this.happiness *= Math.pow(decaySec,deltaSec);
-        if (oldHappiness >= 50 && this.happiness < 50 && this.currentState == PassengerState.RIDING) {
+        if (oldHappiness >= 50 && this.happiness < 50 && this.currentState == PassengerState.RIDING)
             SceneDirector.getInstance().requestScene(this, SceneType.UNHAPPINESS_RIDING);
-        }
         
         super.update(deltaSec);
     }

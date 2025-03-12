@@ -172,7 +172,7 @@ public class SceneDirector {
                     int randomSceneNum = RandomUtility.getRandomIntRange(0, stateScenes.get(req).size()-1);
                     newScene = stateScenes.get(req).get(randomSceneNum);
                     
-                    if (type == SceneType.ELEVATOR_FULL)
+                    if (type == SceneType.ELEVATOR_FULL || type == SceneType.TOO_FAR)
                         this.acceptingSceneType.put(type, false);
                 }
             }
@@ -182,6 +182,7 @@ public class SceneDirector {
     }
     
     public void notifyDoorJustClosed() {
+        this.acceptingSceneType.put(SceneType.TOO_FAR, true);
         this.acceptingSceneType.put(SceneType.ELEVATOR_FULL, true);
     }
     
