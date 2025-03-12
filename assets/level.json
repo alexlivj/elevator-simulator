@@ -42,7 +42,7 @@
     "max_passengers_floor" : 3,
     "max_passengers_elevator" : 5,
     "spawn_occurrence_sec" : 0.1,
-    "scene_occurrence_spawn" : 0.5,
+    "scene_occurrence_spawn" : 0.9,
     "min_speed_pixel_sec" : 30,
     "max_speed_pixel_sec" : 60,
     "base_color" : [0,0.15,0.88],
@@ -96,6 +96,12 @@
             "speed_bound" : [null, null],
             "patience_bound" : [0.9, null],
             "generosity_bound" : [null, null],
+            "happiness_bound" : [null, null]
+        },
+        "fey" : {
+            "speed_bound" : [140, null],
+            "patience_bound" : [10, null],
+            "generosity_bound" : [null, 0],
             "happiness_bound" : [null, null]
         }
     },
@@ -221,7 +227,7 @@
                         "start" : {
                             "portrait" : "npc_neutral",
                             "sfx" : null,
-                            "line" : "oh...was I not supposed to go?",
+                            "line" : "oh...was I not supposed to go yet?",
                             "next" : null
                         }
                     },
@@ -308,7 +314,29 @@
                         "start" : {
                             "portrait" : "npc_neutral",
                             "sfx" : null,
-                            "line" : "here you go operator! for getting us there safely!",
+                            "line" : "here you go operator!\nfor getting us there safely!",
+                            "next" : null
+                        }
+                    },
+                    "eject" : null
+                },
+                {
+                    "script" : {
+                        "start" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "have a good one!",
+                            "next" : null
+                        }
+                    },
+                    "eject" : null
+                },
+                {
+                    "script" : {
+                        "start" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "take care now",
                             "next" : null
                         }
                     },
@@ -633,6 +661,113 @@
                     "portrait" : "npc_neutral",
                     "sfx" : null,
                     "line" : "very well",
+                    "next" : null
+                }
+            }
+        },
+        "fey" : {
+            "loading" : {
+                "script" : {
+                    "start" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "Salutations, Operator of The Elevator",
+                        "next" : null
+                    }
+                },
+                "eject" : {
+                    "portrait" : "npc_neutral",
+                    "sfx" : null,
+                    "line" : "you dare! foolish mortal",
+                    "next" : null
+                }
+            },
+            "riding" : {
+                "script" : {
+                    "start" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "Salutations on this wonderful day!",
+                        "next" : "greeting_response"
+                    },
+                    "greeting_response" : {
+                        "portrait" : "player_neutral",
+                        "sfx" : null,
+                        "line" : "um...hello",
+                        "next" : "offer"
+                    },
+                    "offer" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "I have something for you.",
+                        "next" : "response1"
+                    },
+                    "response1" : {
+                        "portrait" : "player_neutral",
+                        "options" : [
+                            {
+                                "line" : "sure!",
+                                "consequence" : {
+                                    "type" : "mod",
+                                    "attribute" : "money",
+                                    "value" : "1"
+                                },
+                                "next" : "yes"
+                            },
+                            {
+                                "line" : "what is it?",
+                                "consequence" : null,
+                                "next" : "clarification"
+                            },
+                            {
+                                "line" : "um...no thank you?",
+                                "consequence" : null,
+                                "next" : "close"
+                            }
+                        ]
+                    },
+                    "clarification" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "I have a penny\nI want to give it to you\nOperator of The Elevator",
+                        "next" : "response2"
+                    },
+                    "response2" : {
+                        "portrait" : "player_neutral",
+                        "options" : [
+                            {
+                                "line" : "sure!",
+                                "consequence" : {
+                                    "type" : "mod",
+                                    "attribute" : "money",
+                                    "value" : "1"
+                                },
+                                "next" : "yes"
+                            },
+                            {
+                                "line" : "um...no thank you?",
+                                "consequence" : null,
+                                "next" : "close"
+                            }
+                        ]
+                    },
+                    "yes" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "excellent, excellent!\na pence for you\ntoodaloo!",
+                        "next" : "close"
+                    },
+                    "close" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "I'll be seeing you",
+                        "next" : null
+                    }
+                },
+                "eject" : {
+                    "portrait" : "npc_neutral",
+                    "sfx" : null,
+                    "line" : "I'll be seeing you soon...",
                     "next" : null
                 }
             }

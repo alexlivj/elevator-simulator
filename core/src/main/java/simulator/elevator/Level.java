@@ -269,7 +269,7 @@ public class Level {
                 if (castedRole.has(stateKey))
                     stateSceneMap.put(state, parseScene(castedRole.getJSONObject(stateKey)));
             }
-            this.ALL_STAR_SCENES.add(new StarRole(stateSceneMap, castingDirectory.get(castingKey)));
+            this.ALL_STAR_SCENES.add(new StarRole(castingKey, stateSceneMap, castingDirectory.get(castingKey)));
         }
     }
     

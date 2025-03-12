@@ -130,7 +130,7 @@ public class PassengerCoordinator {
                 color.set(randomColor);
             if (starRole != null) {
                 SceneDirector.getInstance().offerStarPassenger(newPassenger);
-                System.out.println("spawning star role! "+randomColor+" on floor "+(leastBusyFloor+1));
+                System.out.println("spawning star role! "+starRole.name()+" on floor "+(leastBusyFloor+1));
             }
             
             this.activePassengers.add(newPassenger);
