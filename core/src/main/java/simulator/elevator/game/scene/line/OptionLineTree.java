@@ -63,7 +63,8 @@ public class OptionLineTree extends AbstractLineTree {
     @Override
     protected void resetChildLines() {
         for (Option o : this.playerOptions)
-            o.next().reset();
+            if (o.next() != null)
+                o.next().reset();
     }
 
     @Override

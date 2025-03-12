@@ -95,6 +95,51 @@
     },
     "normal_scenes" : {
         "greeting" : {
+            "plesant" : [
+                {
+                    "script" : {
+                        "start" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "howdy there!",
+                            "next" : null
+                        }
+                    },
+                    "eject" : null
+                }
+            ],
+            "grumpy" : [
+                {
+                    "script" : {
+                        "start" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "took you long enough",
+                            "next" : "response"
+                        },
+                        "response" : {
+                            "portrait" : "player_neutral",
+                            "options" : [
+                                {
+                                    "line" : "<stay silent>",
+                                    "consequence" : null,
+                                    "next" : null
+                                },
+                                {
+                                    "line" : "hello to you too",
+                                    "consequence" : {
+                                        "type" : "mod",
+                                        "attribute" : "happiness",
+                                        "value" : "0.9"
+                                    },
+                                    "next" : null
+                                }
+                            ]
+                        }
+                    },
+                    "eject" : null
+                }
+            ]
         },
         "too_far" : {
             "anyone_with_a_pulse" : [
@@ -164,10 +209,130 @@
             ],
         },
         "door_slam" : {
+            "plesant" : [
+                {
+                    "script" : {
+                        "start" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "oh...was I not supposed to go?",
+                            "next" : null
+                        }
+                    },
+                    "eject" : null
+                }
+            ],
+            "grumpy" : [
+                {
+                    "script" : {
+                        "start" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "hey! what's the big idea!",
+                            "next" : null
+                        }
+                    },
+                    "eject" : null
+                }
+            ]
         },
         "unhappiness_riding" : {
+            "grumpy" : [
+                {
+                    "script" : {
+                        "start" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "can't this thing go any faster",
+                            "next" : "response"
+                        },
+                        "response" : {
+                            "portrait" : "player_neutral",
+                            "options" : [
+                                {
+                                    "line" : "it can actually",
+                                    "consequence" : {
+                                        "type" : "mod",
+                                        "attribute" : "happiness",
+                                        "value" : "0.9"
+                                    },
+                                    "next" : "question"
+                                },
+                                {
+                                    "line" : "<stay silent>",
+                                    "consequence" : null,
+                                    "next" : null
+                                }
+                            ]
+                        },
+                        "question" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "well? aren't you going to speed this thing up?",
+                            "next" : "answer"
+                        },
+                        "answer" : {
+                            "portrait" : "player_neutral",
+                            "options" : [
+                                {
+                                    "line" : "nope :)",
+                                    "consequence" : {
+                                        "type" : "mod",
+                                        "attribute" : "happiness",
+                                        "value" : "0.9"
+                                    },
+                                    "next" : null
+                                },
+                                {
+                                    "line" : "sure thing",
+                                    "consequence" : null,
+                                    "next" : null
+                                }
+                            ]
+                        },
+                    },
+                    "eject" : null
+                }
+            ]
         },
         "giving_tip" : {
+            "plesant" : [
+                {
+                    "script" : {
+                        "start" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "here you go operator! for getting us there safely!",
+                            "next" : null
+                        }
+                    },
+                    "eject" : null
+                }
+            ],
+            "grumpy" : [
+                {
+                    "script" : {
+                        "start" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "you want a tip? get a real job",
+                            "next" : null
+                        }
+                    },
+                    "eject" : null
+                },
+                {
+                    "script" : {
+                        "start" : {
+                            "portrait" : "npc_neutral",
+                            "sfx" : null,
+                            "line" : "I'd say it was a pleasure\nbut it wasn't",
+                            "next" : null
+                        }
+                    },
+                    "eject" : null
+                }
+            ]
         }
     },
     "star_scenes" : {

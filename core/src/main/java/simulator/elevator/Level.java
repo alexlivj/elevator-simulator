@@ -234,7 +234,7 @@ public class Level {
             Pair<Float,Float> hapinessBound =
                     new Pair<Float,Float>(
                             nhMin.handle(happinessBound, 0).floatValue(),
-                            nhMin.handle(happinessBound, 1).floatValue());
+                            nhMax.handle(happinessBound, 1).floatValue());
             
             castingDirectory.put(castingKey, new CastingDirection(personalityBound,hapinessBound));
         }

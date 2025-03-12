@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -154,10 +155,11 @@ public class SceneDirector {
                 && this.numScenes() < getLevel().MAX_SCENES) {
             Map<CastingDirection,List<Scene>> stateScenes = getLevel().ALL_NORMAL_SCENES.get(type);
             if (stateScenes != null) {
-                Set<CastingDirection> validReqs = new HashSet<CastingDirection>(stateScenes.keySet());
-                validReqs.stream().filter(r -> r.isValidPassenger(passenger));
+                Set<CastingDirection> validReqs = stateScenes.keySet().stream()
+                        .filter(r -> r.isValidPassenger(passenger))
+                        .collect(Collectors.toSet());
                 
-                int randomReqNum = RandomUtility.getRandomIntRange(0, validReqs.size());
+                int randomReqNum = RandomUtility.getRandomIntRange(0, validReqs.size()-1);
                 int i=0;
                 CastingDirection req = null;
                 for (CastingDirection r : validReqs) {
