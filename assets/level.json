@@ -103,6 +103,12 @@
             "patience_bound" : [10, null],
             "generosity_bound" : [null, 0],
             "happiness_bound" : [null, null]
+        },
+        "cowpoke" : {
+            "speed_bound" : [null, null],
+            "patience_bound" : [0.5, null],
+            "generosity_bound" : [null, 0.5],
+            "happiness_bound" : [null, null]
         }
     },
     "normal_scenes" : {
@@ -787,6 +793,77 @@
                     "next" : null
                 }
             }
-        }
+        },
+        "cowpoke" : {
+            "loading" : {
+                "script" : {
+                    "start" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "howdy there, stranger",
+                        "next" : null
+                    }
+                },
+                "eject" : {
+                    "portrait" : "npc_neutral",
+                    "sfx" : null,
+                    "line" : "at high noon then!",
+                    "next" : null
+                }
+            },
+            "riding" : {
+                "script" : {
+                    "start" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "long day for me, driving cattle\nhappy to get back to my bed",
+                        "next" : "question"
+                    },
+                    "question" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "you live here? they set you up in a room?",
+                        "next" : "response"
+                    },
+                    "response" : {
+                        "portrait" : "player_neutral",
+                        "options" : [
+                            {
+                                "line" : "I like in the elevator, actually",
+                                "consequence" : {
+                                    "type" : "mod",
+                                    "attribute" : "happiness",
+                                    "value" : "0.9"
+                                },
+                                "next" : "worry"
+                            },
+                            {
+                                "line" : "something like that",
+                                "consequence" : null,
+                                "next" : "comment"
+                            }
+                        ]
+                    },
+                    "worry" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "god, really? where do you use the restroom",
+                        "next" : null
+                    },
+                    "comment" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "well god bless, best rooms I've been in\nshame about the price though",
+                        "next" : null
+                    }
+                },
+                "eject" : {
+                    "portrait" : "npc_neutral",
+                    "sfx" : null,
+                    "line" : "take it easy, stranger",
+                    "next" : null
+                }
+            }
+        },
     }
 }
