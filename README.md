@@ -1,8 +1,6 @@
 # ElevatorSimulator
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
-
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+A simple game where you play as a hotel attendant, operating a 19th century elevator and dealing with the wacky customers that come your way. Earn tips and collect stories, but be sure not to break the delicate elevator!
 
 ## Platforms
 
