@@ -101,9 +101,12 @@ public class SceneDirector {
         if (switchInterrupt) {
             if (this.activeInterrupt != null)
                 this.activeInterrupt.second.reset();
+            GameStateManager.getInstance().setHidePlayerOptions(false);
             this.activeInterrupt = null;
             if (!this.queuedInterrupts.isEmpty()) {
                 this.activeInterrupt = this.queuedInterrupts.poll();
+                if (this.activeInterrupt != null)
+                    GameStateManager.getInstance().setHidePlayerOptions(true);
             }
         }
         if (switchScene) {

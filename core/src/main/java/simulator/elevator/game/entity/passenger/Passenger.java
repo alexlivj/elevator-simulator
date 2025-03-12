@@ -105,6 +105,7 @@ public class Passenger extends AbstractEntity {
                     } else {
                         GameStateManager.getInstance().giveBonusTime();
                         this.currentState = PassengerState.LEAVING;
+                        this.director.ejectPassengerCurrentScene(this);
                     }
                 }
                 break;

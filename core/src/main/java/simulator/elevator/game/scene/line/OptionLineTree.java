@@ -24,11 +24,12 @@ public class OptionLineTree extends AbstractLineTree {
     
     @Override
     public void reset() {
+        GameStateManager.getInstance().clearPlayerOptions();
         this.selectedOptionIndex = -1;
         this.firstRender = true;
         super.reset();
     }
-
+    
     @Override
     protected String getLineForRender() {
         if (this.firstRender) {

@@ -42,6 +42,7 @@ public class GameStateManager implements InputProcessor {
     private Box elevatorSliderBox;
     private Vector2 sliderSelectOffset = null;
     private Pair<OptionLineTree,List<Box>> playerOptionBoxes = null;
+    private boolean hidePlayerOptionBoxes = false;
     
     private static GameStateManager instance;
     public static GameStateManager getInstance() {
@@ -124,7 +125,7 @@ public class GameStateManager implements InputProcessor {
         game.font.draw(game.batch, Integer.toString((int)this.timeRemaining)+"s", 780, 540);
         
         SceneDirector.getInstance().render(game, deltaSec);
-        if (this.playerOptionBoxes != null)
+        if (this.playerOptionBoxes != null && !this.hidePlayerOptionBoxes)
             for (Box b : this.playerOptionBoxes.second)
                 game.batch.draw(this.level.OPTION_BOX_TEXTURE, b.pos.x, b.pos.y);
         
@@ -184,6 +185,10 @@ public class GameStateManager implements InputProcessor {
                                              getLevel().PLAYER_TEXT_POS.y-20-18*2*i), 
                                  new Vector2(150*2, 18*2)));
         this.playerOptionBoxes = new Pair<OptionLineTree,List<Box>>(tree, newBoxes);
+    }
+    
+    public void setHidePlayerOptions(boolean hide) {
+        this.hidePlayerOptionBoxes = hide;
     }
     
     public void clearPlayerOptions() {
