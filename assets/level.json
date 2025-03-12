@@ -45,7 +45,7 @@
     "scene_occurrence_spawn" : 0.9,
     "min_speed_pixel_sec" : 30,
     "max_speed_pixel_sec" : 60,
-    "base_color" : [0,0.15,0.88],
+    "base_color" : [0,0.3,0.88],
 
     "happiness_decay_rate_sec" : 0.99,
     "happiness_decay_mod" : {

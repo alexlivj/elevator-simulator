@@ -22,18 +22,18 @@ public class Scene {
         this.ejectLine = ejectLine;
     }
     
-    public boolean render(Main game, float deltaSec, Passenger passenger) {
+    public LineReturn render(Main game, float deltaSec, Passenger passenger) {
         AbstractLineTree curr = this.ejecting ? this.ejectLine : this.script;
 
         if (curr == null)
-            return true;
+            return LineReturn.FINISH;
         Pair<OptionConsequence,LineReturn> lineOut = curr.render(game, level, passenger.getColor(), deltaSec);
         if (lineOut.first != null)
             lineOut.first.modifyPassenger(passenger);
         if (lineOut.second == LineReturn.EJECT)
             this.ejecting = true;
         
-        return lineOut.second == LineReturn.FINISH;
+        return lineOut.second;
     }
     
     public void eject() {

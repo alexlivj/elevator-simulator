@@ -20,6 +20,7 @@ import simulator.elevator.game.scene.Scene;
 import simulator.elevator.game.scene.SceneType;
 import simulator.elevator.game.scene.StarRole;
 import simulator.elevator.game.scene.line.LineReturn;
+import simulator.elevator.game.scene.line.OptionConsequence;
 import simulator.elevator.game.scene.line.StatementLineTree;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RandomUtility;
@@ -92,11 +93,20 @@ public class SceneDirector {
 
         boolean switchInterrupt = this.activeInterrupt == null;
         boolean switchScene = this.activeScene == null;
-        if (runningInterrupt)
-            switchInterrupt = this.activeInterrupt.second.render(
-                    game, getLevel(), this.activeInterrupt.first, deltaSec).second == LineReturn.FINISH;
-        else if (runningScene)
-            switchScene = this.activeScene.scene().render(game, deltaSec, this.activeScene.passenger());
+        if (runningInterrupt) {
+            Pair<OptionConsequence,LineReturn> lineOut= 
+                    this.activeInterrupt.second.render(game, getLevel(), 
+                                                       this.activeInterrupt.first,
+                                                       deltaSec);
+            switchInterrupt = lineOut.second == LineReturn.FINISH;
+        } else if (runningScene) {
+            LineReturn lineReturn = this.activeScene.scene().render(game,
+                                                                    deltaSec,
+                                                                    this.activeScene.passenger());
+            if (lineReturn != LineReturn.CONTINUE_NEXT)
+                switchInterrupt = false;
+            switchScene = lineReturn == LineReturn.FINISH;
+        }
         
         if (switchInterrupt) {
             if (this.activeInterrupt != null)

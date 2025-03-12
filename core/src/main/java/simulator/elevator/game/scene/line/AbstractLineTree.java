@@ -42,8 +42,9 @@ public abstract class AbstractLineTree {
             game.batch.setColor(Color.WHITE);
             game.font.draw(game.batch, getLineForRender(), textPos.x, textPos.y);
             
-            lineOut = new Pair<OptionConsequence,LineReturn>(getConsequence(),LineReturn.CONTINUE);
             this.done = isLineDone();
+            LineReturn lr = this.done ? LineReturn.CONTINUE_NEXT : LineReturn.CONTINUE;
+            lineOut = new Pair<OptionConsequence,LineReturn>(getConsequence(),lr);
         }
         
         return lineOut;
