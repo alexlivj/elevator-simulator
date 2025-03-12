@@ -91,6 +91,12 @@
             "patience_bound" : [null, null],
             "generosity_bound" : [null, 0.2],
             "happiness_bound" : [null, null]
+        },
+        "starchild" : {
+            "speed_bound" : [null, null],
+            "patience_bound" : [0.9, null],
+            "generosity_bound" : [null, null],
+            "happiness_bound" : [null, null]
         }
     },
     "normal_scenes" : {
@@ -101,7 +107,7 @@
                         "start" : {
                             "portrait" : "npc_neutral",
                             "sfx" : null,
-                            "line" : "howdy there!",
+                            "line" : "good day to you",
                             "next" : null
                         }
                     },
@@ -512,6 +518,121 @@
                     "portrait" : "npc_neutral",
                     "sfx" : null,
                     "line" : "oh! ok then...",
+                    "next" : null
+                }
+            }
+        },
+        "starchild" : {
+            "loading" : {
+                "script" : {
+                    "start" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "Athena's blessing onto you",
+                        "next" : null
+                    }
+                },
+                "eject" : {
+                    "portrait" : "npc_neutral",
+                    "sfx" : null,
+                    "line" : "why did you do that?",
+                    "next" : null
+                }
+            },
+            "riding" : {
+                "script" : {
+                    "start" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "the energy here is dreadful\nit collects here, and lingers....",
+                        "next" : "greeting_response"
+                    },
+                    "greeting_response" : {
+                        "portrait" : "player_neutral",
+                        "options" : [
+                            {
+                                "line" : "then you better get out as soon as you can!",
+                                "consequence" : null,
+                                "next" : "worry"
+                            },
+                            {
+                                "line" : "is that so.",
+                                "consequence" : null,
+                                "next" : "offer"
+                            }
+                        ]
+                    },
+                    "worry" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "it's you that I'm worried about",
+                        "next" : "offer"
+                    },
+                    "offer" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "the stars speak to me. do you want a reading?",
+                        "next" : "offer_response"
+                    },
+                    "offer_response" : {
+                        "portrait" : "player_neutral",
+                        "options" : [
+                            {
+                                "line" : "no need, the gears speak to me",
+                                "consequence" : {
+                                    "type" : "mod",
+                                    "attribute" : "happiness",
+                                    "value" : "0.9"
+                                },
+                                "next" : "insolence"
+                            },
+                            {
+                                "line" : "not today, thank you",
+                                "consequence" : null,
+                                "next" : "close"
+                            },
+                            {
+                                "line" : "sure!",
+                                "consequence" : null,
+                                "next" : "prophecy"
+                            }
+                        ]
+                    },
+                    "prophecy" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "hmmm yessss, I see....",
+                        "next" : "trapped"
+                    },
+                    "trapped" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "you are...trapped.\nstuck on a track, forever moving\nyet going nowhere",
+                        "next" : "uncomfy"
+                    },
+                    "uncomfy" : {
+                        "portrait" : "player_neutral",
+                        "sfx" : null,
+                        "line" : "ah...I think that's enough divining for today",
+                        "next" : "close"
+                    },
+                    "close" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "very well. peace be with you",
+                        "next" : null
+                    },
+                    "insolence" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "that's a new one",
+                        "next" : null
+                    }
+                },
+                "eject" : {
+                    "portrait" : "npc_neutral",
+                    "sfx" : null,
+                    "line" : "very well",
                     "next" : null
                 }
             }
