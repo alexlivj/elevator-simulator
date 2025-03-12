@@ -99,7 +99,7 @@
             "happiness_bound" : [null, null]
         },
         "fey" : {
-            "speed_bound" : [140, null],
+            "speed_bound" : [200, null],
             "patience_bound" : [10, null],
             "generosity_bound" : [null, 0],
             "happiness_bound" : [null, null]
@@ -722,7 +722,7 @@
                             {
                                 "line" : "um...no thank you?",
                                 "consequence" : null,
-                                "next" : "close"
+                                "next" : "no"
                             }
                         ]
                     },
@@ -736,7 +736,7 @@
                         "portrait" : "player_neutral",
                         "options" : [
                             {
-                                "line" : "sure!",
+                                "line" : "I'll take a penny",
                                 "consequence" : {
                                     "type" : "mod",
                                     "attribute" : "money",
@@ -745,22 +745,22 @@
                                 "next" : "yes"
                             },
                             {
-                                "line" : "um...no thank you?",
+                                "line" : "I should decline",
                                 "consequence" : null,
-                                "next" : "close"
+                                "next" : "no"
                             }
                         ]
                     },
                     "yes" : {
                         "portrait" : "npc_neutral",
                         "sfx" : null,
-                        "line" : "excellent, excellent!\na pence for you\ntoodaloo!",
-                        "next" : "close"
+                        "line" : "excellent, excellent!\na pence for you\n",
+                        "next" : null
                     },
-                    "close" : {
+                    "no" : {
                         "portrait" : "npc_neutral",
                         "sfx" : null,
-                        "line" : "I'll be seeing you",
+                        "line" : "is that your choice. fine.",
                         "next" : null
                     }
                 },
@@ -768,6 +768,22 @@
                     "portrait" : "npc_neutral",
                     "sfx" : null,
                     "line" : "I'll be seeing you soon...",
+                    "next" : null
+                }
+            },
+            "unloading" : {
+                "script" : {
+                    "start" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "Toodaloo! I'll be seeing you...",
+                        "next" : null
+                    }
+                },
+                "eject" : {
+                    "portrait" : "npc_neutral",
+                    "sfx" : null,
+                    "line" : "HAHAHAHAHAHAHA",
                     "next" : null
                 }
             }

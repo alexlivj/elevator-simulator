@@ -157,8 +157,13 @@ public class SceneDirector {
     
     public void requestScene(Passenger passenger, SceneType type) {
         Scene newScene = null;
+        PassengerState state = type.getState();
         if ((this.starScene == null 
-                    || !(this.activeScene != null && this.activeScene.passenger() == this.starScene.first))
+                    || !(this.activeScene != null 
+                            && this.activeScene.passenger() == this.starScene.first)
+                    || (state == null
+                            || !this.starScene.second.scenes().containsKey(state)
+                            || this.starScene.second.scenes().get(state) == null))
                 && this.acceptingSceneType.get(type)
                 && !this.hasSceneType(type)
                 && this.numScenes() < getLevel().MAX_SCENES) {

@@ -1,5 +1,7 @@
 package simulator.elevator.game.scene;
 
+import simulator.elevator.game.entity.passenger.PassengerState;
+
 public enum SceneType {
     STAR,
     GREETING,
@@ -35,5 +37,25 @@ public enum SceneType {
             break;
         }
         return key;
+    }
+    
+    public PassengerState getState() {
+        switch (this) {
+        case STAR:
+            return null;
+        case GREETING:
+            return PassengerState.LOADING;
+        case TOO_FAR:
+            return PassengerState.WAITING;
+        case ELEVATOR_FULL:
+            return PassengerState.WAITING;
+        case DOOR_SLAM:
+            return null;
+        case UNHAPPINESS_RIDING:
+            return PassengerState.RIDING;
+        case GIVING_TIP:
+            return PassengerState.UNLOADING;
+        }
+        return null;
     }
 }

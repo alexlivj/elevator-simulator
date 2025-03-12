@@ -140,9 +140,11 @@ public class GameStateManager implements InputProcessor {
     
     public String getTipStr() {
         int tipCents = this.elevator.getTipTotal();
+        String sign = tipCents < 0 ? "-" : "";
+        tipCents = Math.abs(tipCents);
         int tipPartCents = tipCents % 100;
         int tipPartDollars = (int) (tipCents / 100f);
-        return "$"+tipPartDollars+"."+(tipPartCents < 10 ? "0" : "")+tipPartCents;
+        return sign+"$"+tipPartDollars+"."+(tipPartCents < 10 ? "0" : "")+tipPartCents;
     }
     
     public void giveBonusTime() {
