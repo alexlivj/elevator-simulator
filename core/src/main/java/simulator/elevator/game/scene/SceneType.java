@@ -6,7 +6,6 @@ public enum SceneType {
     GIVING_TIP,
     ELEVATOR_FULL,
     DOOR_SLAM,
-    UNHAPPINESS_WAITING,
     UNHAPPINESS_RIDING;
     
     public String getJSONKey() {
@@ -23,9 +22,6 @@ public enum SceneType {
             break;
         case DOOR_SLAM:
             key = "door_slam";
-            break;
-        case UNHAPPINESS_WAITING:
-            key = "unhappiness_waiting";
             break;
         case UNHAPPINESS_RIDING:
             key = "unhappiness_riding";

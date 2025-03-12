@@ -73,6 +73,7 @@ public class Passenger extends AbstractEntity {
                         this.currentState = PassengerState.LOADING;
                         moveTo(elevatorSlot, this.personality.speedPixelSec());
                         this.currentStateAction = true;
+                        SceneDirector.getInstance().requestScene(this, SceneType.GREETING);
                     } else if (!this.coordinator.arePeopleUnloading()) {
                         SceneDirector.getInstance().requestScene(this, SceneType.ELEVATOR_FULL);
                     }
@@ -91,8 +92,7 @@ public class Passenger extends AbstractEntity {
                     this.coordinator.clearElevatorSlot(this);
                     if (this.starRole != null)
                         this.director.ejectPassengerCurrentScene(this);
-                    //TODO some sort of "wth bro" scene, if director commands
-                    // maybe we express indignation, and if the director approve, we use personality to select a scene
+                    SceneDirector.getInstance().requestScene(this, SceneType.DOOR_SLAM);
                     this.currentState = isLoading ? PassengerState.WAITING : PassengerState.RIDING;
                 } else if (!this.isMoving()) {
                     this.currentStateAction = false;
@@ -114,6 +114,7 @@ public class Passenger extends AbstractEntity {
                     this.currentState = PassengerState.UNLOADING;
                     moveTo(this.coordinator.getFloorExit(this.destFloor), this.personality.speedPixelSec());
                     this.currentStateAction = true;
+                    SceneDirector.getInstance().requestScene(this, SceneType.GIVING_TIP);
                 }
                 break;
             case LEAVING:
@@ -139,10 +140,14 @@ public class Passenger extends AbstractEntity {
             this.director.readyStarScene(currentState);
         }
         
+        float oldHappiness = this.happiness;
         float d = 1-this.level.HAPPINESS_DECAY_RATE_SEC;
         float mod = (1-this.personality.patience()) * this.level.HAPPINESS_DECAY_MOD.get(this.currentState);
         float decaySec = Math.max(0, 1 - mod*d);
         this.happiness *= Math.pow(decaySec,deltaSec);
+        if (oldHappiness >= 50 && this.happiness < 50 && this.currentState == PassengerState.RIDING) {
+            SceneDirector.getInstance().requestScene(this, SceneType.UNHAPPINESS_RIDING);
+        }
         
         super.update(deltaSec);
     }
