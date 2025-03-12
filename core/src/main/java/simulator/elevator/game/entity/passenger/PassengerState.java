@@ -3,8 +3,6 @@ package simulator.elevator.game.entity.passenger;
 import java.util.Arrays;
 import java.util.Optional;
 
-import simulator.elevator.game.scene.PortraitType;
-
 public enum PassengerState implements Comparable<PassengerState> {
     ARRIVING(0),
     WAITING(1),
