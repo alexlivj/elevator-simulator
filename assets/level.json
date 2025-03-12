@@ -109,6 +109,12 @@
             "patience_bound" : [0.5, null],
             "generosity_bound" : [null, 0.5],
             "happiness_bound" : [null, null]
+        },
+        "insecure" : {
+            "speed_bound" : [null, 50],
+            "patience_bound" : [1, null],
+            "generosity_bound" : [null, null],
+            "happiness_bound" : [null, null]
         }
     },
     "normal_scenes" : {
@@ -861,6 +867,129 @@
                     "portrait" : "npc_neutral",
                     "sfx" : null,
                     "line" : "take it easy, stranger",
+                    "next" : null
+                }
+            }
+        },
+        "insecure" : {
+            "loading" : {
+                "script" : {
+                    "start" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "hi :)       ",
+                        "next" : null
+                    }
+                },
+                "eject" : {
+                    "portrait" : "npc_neutral",
+                    "sfx" : null,
+                    "line" : "ow! why did you do that to me?",
+                    "next" : null
+                }
+            },
+            "riding" : {
+                "script" : {
+                    "start" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "...         ",
+                        "next" : "silence"
+                    },
+                    "silence" : {
+                        "portrait" : "player_neutral",
+                        "sfx" : null,
+                        "line" : "...         ",
+                        "next" : "salon_question"
+                    },
+                    "salon_question" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "I um....have you ever been to the Caro's Salon?",
+                        "next" : "salon_response"
+                    },
+                    "salon_response" : {
+                        "portrait" : "player_neutral",
+                        "options" : [
+                            {
+                                "line" : "can't say I have",
+                                "consequence" : null,
+                                "next" : "hair_question"
+                            },
+                            {
+                                "line" : "I've never left this elevator, actually",
+                                "consequence" : null,
+                                "next" : "humor"
+                            }
+                        ]
+                    },
+                    "humor" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "oh. ha ha. that's funny",
+                        "next" : "hair_question"
+                    },
+                    "hair_question" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "well they're amazing. I just had my hair done\nwhat do you think?",
+                        "next" : "hair_response"
+                    },
+                    "hair_response" : {
+                        "portrait" : "player_neutral",
+                        "options" : [
+                            {
+                                "line" : "you look like everyone else I've ever met",
+                                "consequence" : {
+                                    "type" : "mod",
+                                    "attribute" : "happiness",
+                                    "value" : "0.9"
+                                },
+                                "next" : "sad"
+                            },
+                            {
+                                "line" : "awful. just shave it off at this point",
+                                "consequence" : {
+                                    "type" : "mod",
+                                    "attribute" : "happiness",
+                                    "value" : "0"
+                                },
+                                "next" : "crushed"
+                            },
+                            {
+                                "line" : "you look great!",
+                                "consequence" : {
+                                    "type" : "mod",
+                                    "attribute" : "happiness",
+                                    "value" : "1.5"
+                                },
+                                "next" : "elated"
+                            }
+                        ]
+                    },
+                    "sad" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "just normal? oh.\nI suppose it could be worse, right?",
+                        "next" : null
+                    },
+                    "crushed" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "oh. I knew it, I should feel stupid\nthank you for your honesty",
+                        "next" : null
+                    },
+                    "elated" : {
+                        "portrait" : "npc_neutral",
+                        "sfx" : null,
+                        "line" : "you really think so!\nI think they did a fabulous job!",
+                        "next" : null
+                    },
+                },
+                "eject" : {
+                    "portrait" : "npc_neutral",
+                    "sfx" : null,
+                    "line" : "goodbye",
                     "next" : null
                 }
             }
