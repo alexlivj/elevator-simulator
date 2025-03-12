@@ -16,6 +16,10 @@ import simulator.elevator.game.entity.AbstractEntity;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RelativeCoordinate;
 
+/**
+ * Maintains a persistent set of data for the game's state. Orchestrates the
+ * other managers, handles the game's input, and draws the UI elements.
+ */
 public class GameStateManager implements InputProcessor {
     
     private Level level = null;
@@ -208,7 +212,8 @@ public class GameStateManager implements InputProcessor {
     }
     
     private static Vector2 translateScreen(int x, int y) {
-        // for some reason, 0,0 for input is the top left, instead of bottom left corner
+        // for some reason, 0,0 for input is the top left for inputs
+        // instead of bottom left corner like it is for drawing
         return new Vector2(x,560-y);
     }
 

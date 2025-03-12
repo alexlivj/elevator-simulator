@@ -20,6 +20,10 @@ import simulator.elevator.util.Pair;
 import simulator.elevator.util.RandomUtility;
 import simulator.elevator.util.RelativeCoordinate;
 
+/**
+ * Manages the various different passenger slots. Spawns passengers, and
+ * ensures there's always a place for them to go.
+ */
 public class PassengerCoordinator {
     
     private List<Passenger> activePassengers = new ArrayList<Passenger>();
@@ -77,7 +81,7 @@ public class PassengerCoordinator {
                 starRole = SceneDirector.getInstance().requestStarScene();
             
             int leastBusyFloor = 0;
-            if (!this.firstPassenger) {
+            if (!this.firstPassenger) {// first passenger always spawns on ground floor
                 Map<Integer,Integer> floorNumWaiting = new HashMap<Integer,Integer>();
                 for (int i=0; i<getLevel().FLOOR_SPAWNS.size(); i++)
                     floorNumWaiting.put(i, 0);

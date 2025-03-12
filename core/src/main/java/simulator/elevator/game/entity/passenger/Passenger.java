@@ -54,7 +54,8 @@ public class Passenger extends AbstractEntity {
                     if (!this.currentStateAction) {
                         RelativeCoordinate waitingSlot = coordinator.requestWaitingSlot(this);
                         if (waitingSlot == null) {
-                            // this should never happen, but just in case....
+                            // this should never happen if the coordinator is doing its job
+                            // but just in case....
                             coordinator.despawn(this);
                         } else {
                             moveTo(waitingSlot, this.personality.speedPixelSec());
@@ -85,20 +86,26 @@ public class Passenger extends AbstractEntity {
             case LOADING, UNLOADING:
                 boolean isLoading = this.currentState == PassengerState.LOADING;
                 int toFloor = isLoading ? this.startFloor : this.destFloor;
+                
                 float centerX = getPosition().getAbsoluteVector().x+this.level.PASSENGER_WIDTH_PIXEL/2;
                 float doorDistance = Math.abs(centerX - this.level.DOOR_X_PIXEL);
+                
                 if (!this.coordinator.isElevatorAtFloor(toFloor)
                         && (!isLoading 
                                 || this.level.PASSENGER_WIDTH_PIXEL > doorDistance)) {
+                    // the elevator door was closed in the passenger's face
                     this.currentStateAction = false;
                     cancelMove();
+                    this.currentState = isLoading ? PassengerState.WAITING : PassengerState.RIDING;
+                    
                     float penalty = this.level.DOOR_SLAM_PENALTY * 1-this.personality.patience();
                     this.happiness = Math.max(0, this.happiness+penalty);
+                    
+                    // notify the managers
                     this.coordinator.clearElevatorSlot(this);
                     if (this.starRole != null)
                         this.director.ejectPassengerCurrentScene(this);
                     SceneDirector.getInstance().requestScene(this, SceneType.DOOR_SLAM);
-                    this.currentState = isLoading ? PassengerState.WAITING : PassengerState.RIDING;
                 } else if (!this.isMoving()) {
                     this.currentStateAction = false;
                     if (isLoading) {
@@ -127,7 +134,8 @@ public class Passenger extends AbstractEntity {
                     if (!this.currentStateAction) {
                         this.coordinator.handleTip(calculateTip());
                         this.coordinator.clearElevatorSlot(this);
-                        moveTo(this.coordinator.getFloorSpawn(this.destFloor), this.personality.speedPixelSec());
+                        moveTo(this.coordinator.getFloorSpawn(this.destFloor),
+                               this.personality.speedPixelSec());
                         this.currentStateAction = true;
                     } else {
                         this.director.removePassengerScenes(this);

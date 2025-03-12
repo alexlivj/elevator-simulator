@@ -2,6 +2,11 @@ package simulator.elevator.util;
 
 import com.badlogic.gdx.math.Vector2;
 
+/**
+ * Holds a 2D coordinate using some arbitrary point as its origin, which itself
+ * can be relative. Allows entities to smoothly move on the surface of another
+ * moving entity. Also facilitates the game's camera.
+ */
 public class RelativeCoordinate {
     
     private RelativeCoordinate originOffset;

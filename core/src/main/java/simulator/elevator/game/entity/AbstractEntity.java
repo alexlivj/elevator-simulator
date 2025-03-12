@@ -9,7 +9,7 @@ import simulator.elevator.util.RelativeCoordinate;
 
 public abstract class AbstractEntity {
 
-    // position MUST remain the same obj, so that it can be used as a relative origin
+    // position MUST remain the same object in memory, so that it can be used as a relative origin
     private final RelativeCoordinate position;
     private Pair<RelativeCoordinate,RelativeCoordinate> path = null;
     private int speedPixelSec = 0;
@@ -48,10 +48,7 @@ public abstract class AbstractEntity {
     }
     
     public void render(Main game) {
-        // get the actual screen pixel coordinates
         Vector2 absPos = this.position.getAbsoluteVector();
-        
-        // draw our texture
         game.batch.draw(texture, absPos.x, absPos.y);
     }
     
@@ -73,7 +70,6 @@ public abstract class AbstractEntity {
     }
     
     public void cancelMove() {
-        //NOTE if this was rebased during the move message, this method reverts to previous origin
         if (path != null)
             this.position.set(this.path.first);
         haltMove();

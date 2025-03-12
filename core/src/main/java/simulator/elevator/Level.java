@@ -94,21 +94,21 @@ public class Level {
     public final List<StarRole> ALL_STAR_SCENES;
     public final int MAX_SCENES;
     
-    private class NullHandler<T> {
-        final T defaultValue;
-        NullHandler(T def) {
-            this.defaultValue = def;
-        }
-        @SuppressWarnings("unchecked")
-        T handle(JSONArray jArray, Integer index) {
-            if (jArray.isNull(index))
-                return this.defaultValue;
-            else
-                return (T)jArray.get(index);
-        }
-    }
-    
     public Level(String filename) throws IOException {
+        class NullHandler<T> {
+            final T defaultValue;
+            NullHandler(T def) {
+                this.defaultValue = def;
+            }
+            @SuppressWarnings("unchecked")
+            T handle(JSONArray jArray, Integer index) {
+                if (jArray.isNull(index))
+                    return this.defaultValue;
+                else
+                    return (T)jArray.get(index);
+            }
+        }
+        
         String text = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
         JSONObject file = new JSONObject(text);
         

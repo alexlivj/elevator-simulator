@@ -25,6 +25,11 @@ import simulator.elevator.game.scene.line.StatementLineTree;
 import simulator.elevator.util.Pair;
 import simulator.elevator.util.RandomUtility;
 
+/**
+ * Directs the scenes, determining which ones take precedent, and telling that 
+ * scene to render. Takes new scene requests from the PassengerCoordinator and
+ * Passenger classes, and determines if there's 'room' for the new scenes. 
+ */
 public class SceneDirector {
     
     private record ActiveScene (Passenger passenger, SceneType type, Scene scene) {}
@@ -103,9 +108,12 @@ public class SceneDirector {
             LineReturn lineReturn = this.activeScene.scene().render(game,
                                                                     deltaSec,
                                                                     this.activeScene.passenger());
+            switchScene = lineReturn == LineReturn.FINISH;
+
+            // we want the interrupt to take precedent, but only when we're in between lines
+            // it looks weird to have the script resume mid-line 
             if (lineReturn != LineReturn.CONTINUE_NEXT)
                 switchInterrupt = false;
-            switchScene = lineReturn == LineReturn.FINISH;
         }
         
         if (switchInterrupt) {
@@ -123,6 +131,7 @@ public class SceneDirector {
             if (this.activeScene != null)
                 this.activeScene.scene().reset();
             this.activeScene = null;
+            // always prioritize the star scene
             if (this.startStarScene != null) {
                 Scene starScene = this.starScene.second.scenes().get(this.startStarScene);
                 if (starScene != null) {
@@ -158,12 +167,19 @@ public class SceneDirector {
     public void requestScene(Passenger passenger, SceneType type) {
         Scene newScene = null;
         PassengerState state = type.getState();
-        if ((this.starScene == null 
-                    || (!(this.activeScene != null
-                            && this.activeScene.passenger() == this.starScene.first)
-                        && (state == null
-                            || !this.starScene.second.scenes().containsKey(state)
-                            || this.starScene.second.scenes().get(state) == null)))
+        
+        boolean isStarActive = false;
+        boolean isTypeDuplicate = false;
+        if (this.starScene != null) {
+            isStarActive = this.activeScene != null
+                    && this.activeScene.passenger() == this.starScene.first;
+            isTypeDuplicate = state != null
+                    && this.starScene.second.scenes().containsKey(state)
+                    && !(this.starScene.second.scenes().get(state) == null);
+        }
+        
+        if (!isStarActive
+                && !isTypeDuplicate
                 && this.acceptingSceneType.get(type)
                 && !this.hasSceneType(type)
                 && this.numScenes() < getLevel().MAX_SCENES) {
@@ -188,6 +204,7 @@ public class SceneDirector {
                     int randomSceneNum = RandomUtility.getRandomIntRange(0, stateScenes.get(req).size()-1);
                     newScene = stateScenes.get(req).get(randomSceneNum);
                     
+                    //TODO this check should probably be but into SceneType
                     if (type == SceneType.ELEVATOR_FULL || type == SceneType.TOO_FAR)
                         this.acceptingSceneType.put(type, false);
                 }
